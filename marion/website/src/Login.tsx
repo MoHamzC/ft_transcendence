@@ -1,28 +1,21 @@
 
 import { useState } from 'react';
+import { Route } from 'react-router-dom';
+
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
-	const [showLogin, setShowLogin] = useState(false);
+    const navigate = useNavigate();
 
-	const toggleLogin = () => {
-		setShowLogin(!showLogin);
-	};
+    const goToLogin = () => {
+        navigate('/login');
+    };
 
-	return (
-		<div className="login">
-			<button onClick={toggleLogin}>
-				{showLogin ? 'closed' : 'Login'}
-			</button>
-			{showLogin && (
-				<div>
-					<h2>Login</h2>
-					<form>
-						<input type="text" placeholder="Username" />
-						<input type="password" placeholder="Password" />
-						<button type="submit">Se connecter</button>
-					</form>
-				</div>
-			)}
-		</div>
-	);
+    return (
+        <div className="login">
+            <button onClick={goToLogin}>
+                Login
+            </button>
+        </div>
+    );
 }
