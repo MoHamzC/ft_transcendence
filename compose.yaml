@@ -25,7 +25,9 @@ services:
       - ./:/home/node/app
     ports:
       - 5001:5001
-    command: bash -c "npm install fastify && npm start"
+    env_file:
+      - .env
+    command: bash -c "npm install fastify && npm install pg && npm install bcrypt && npm install nodemon && npx nodemon ./backend/server.js && npm start"
 
 volumes:
   pgdata:
