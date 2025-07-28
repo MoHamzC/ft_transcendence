@@ -1,5 +1,3 @@
-import { FastifyInstance } from 'fastify';
-import { UserService } from '../services/UserService';
 
 
 /*
@@ -24,52 +22,84 @@ routes/auth.route.ts — 🔐 Groupe de routes REST
     etc.
 */
 
+// importe les types fastify
+import { FastifyInstance } from 'fastify'
+
+// importe les fonctions metier pour les users
+import { UserService } from '../services/UserService'
+
+// exporte une fonction qui enregistre toutes les routes auth
 export default async function authRoutes(app: FastifyInstance)
 {
-  // Ping
+  // route de test pour verifier que le module fonctionne
   app.get('/status', async () =>
   {
-    return { status: 'Auth module OK' };
-  });
+    return { status: 'Auth module OK' }
+  })
 
-  // Enregistrement
+  // creation dun nouvel utilisateur
   app.post('/register', async (request, reply) =>
   {
-    const { email, password } = request.body as { email: string, password: string };
+    // extrait email et password depuis le corps json
+    const { email, password } = request.body as { email: string, password: string }
 
+    // si email ou password est manquant
     if (!email || !password)
     {
-      return reply.code(400).send({ error: 'Email and password are required' });
+      return reply.code(400).send({ error: 'Email and password are required' })
     }
 
-    const existing = UserService.findByEmail(email);
+    // verifie si un user existe deja avec cet email
+    const existing = UserService.findByEmail(email)
     if (existing)
     {
-      return reply.code(409).send({ error: 'User already exists' });
+      return reply.code(409).send({ error: 'User already exists' })
     }
 
-    const user = UserService.createUser(email, password);
-    return reply.code(201).send({ id: user.id, email: user.email });
-  });
+    // cree un nouvel utilisateur et retourne ses infos
+    const user = UserService.createUser(email, password)
+    return reply.code(201).send({ id: user.id, email: user.email })
+  })
 
-  // Connexion
+  // connexion dun utilisateur existant
   app.post('/login', async (request, reply) =>
   {
-    const { email, password } = request.body as { email: string, password: string };
+    // extrait email et password depuis le corps json
+    const { email, password } = request.body as { email: string, password: string }
 
+    // si champs manquants
     if (!email || !password)
     {
-      return reply.code(400).send({ error: 'Email and password are required' });
+      return reply.code(400).send({ error: 'Email and password are required' })
     }
 
-    const user = UserService.findByEmail(email);
+    // cherche le user en base
+    const user = UserService.findByEmail(email)
+
+    // si user non trouvé ou mauvais mot de passe
     if (!user || !UserService.verifyPassword(user, password))
     {
-      return reply.code(401).send({ error: 'Invalid credentials' });
+      return reply.code(401).send({ error: 'Invalid credentials' })
     }
 
-    const token = app.jwt.sign({ id: user.id, email: user.email });
-    return { token };
-  });
+    // genere un token JWT
+    const token = app.jwt.sign({ id: user.id, email: user.email })
+    return { token }
+  })
+
+  // route protegee par JWT
+  app.get('/protected',
+    {
+      preHandler: [app.authenticate] // middleware auth jwt obligatoire
+    },
+    async (request, reply) =>
+    {
+      // si on arrive ici le token est valide
+      return {
+        message: 'Acces autorise',
+        user: request.user // infos decodees du token
+      }
+    }
+  )
 }
 
