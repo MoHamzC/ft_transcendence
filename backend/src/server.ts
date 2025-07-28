@@ -1,6 +1,3 @@
-import Fastify from 'fastify';
-import dotenv from 'dotenv';
-
 /*
     server.ts — 🧠 Point d’entrée principal
 
@@ -15,24 +12,32 @@ import dotenv from 'dotenv';
   - Démarre l’écoute du serveur (port, host)
 */
 
+import Fastify from 'fastify';
+import dotenv from 'dotenv';
 dotenv.config();
 
 import { registerRoutes } from './routes';
+import jwtPlugin from './plugins/jwt';
 
 const app = Fastify({ logger: true });
 
-// Routes
-registerRoutes(app);
+const start = async () =>
+{
+  try
+  {
+    await app.register(jwtPlugin);      // TOUJOURS DANS FONCTION ASYNC
+    registerRoutes(app);
 
-const start = async () => {
-  try {
     const port = Number(process.env.PORT || 3000);
     await app.listen({ port, host: '0.0.0.0' });
+
     console.log(`🚀 Server running at http://localhost:${port}`);
-  } catch (err) {
+  }
+  catch (err)
+  {
     app.log.error(err);
     process.exit(1);
   }
 };
 
-start();
+start(); // ⬅️ Et on lance la fonction ici
