@@ -7,7 +7,6 @@ export default fp(async function (app: FastifyInstance)
 {
   // recupere le secret depuis le fichier .env
   const secret = process.env.JWT_SECRET;
-
   // si le secret est absent on arrete le serveur
   if (!secret)
   {
