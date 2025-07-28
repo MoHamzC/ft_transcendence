@@ -15,3 +15,4 @@ dist/
 
 # Systèmes
 .DS_Store
+backend/data.db
