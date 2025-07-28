@@ -89,8 +89,8 @@ export default async function authRoutes(app: FastifyInstance)
 
   // route protegee par JWT
   app.get('/protected',
-    {
-      preHandler: [app.authenticate] // middleware auth jwt obligatoire
+  {
+    preHandler: [app.authenticate] // middleware auth jwt obligatoire
     },
     async (request, reply) =>
     {
@@ -99,7 +99,21 @@ export default async function authRoutes(app: FastifyInstance)
         message: 'Acces autorise',
         user: request.user // infos decodees du token
       }
-    }
+  }
   )
+
+  app.get('/me', {
+    preHandler: [app.authenticate],
+  }, async (request, reply) =>
+  {
+    const payload = request.user as { id: number }
+    const user = UserService.findById(payload.id)
+    if (!user)
+    {
+      return reply.code(404).send({ error: 'User not found' })
+    }
+
+    return { id: user.id, email: user.email }
+  })
 }
 

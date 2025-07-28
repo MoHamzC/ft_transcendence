@@ -20,20 +20,29 @@ export class UserService {
     return row ?? null
   }
 
-  // cree un user en hashant son mot de passe
-  static createUser(email: string, password: string): User {
-    const passwordHash = bcrypt.hashSync(password, 10)
-    const stmt = db.prepare('INSERT INTO users (email, passwordHash) VALUES (?, ?)')
-    const result = stmt.run(email, passwordHash)
-    return {
-      id: result.lastInsertRowid as number,
-      email,
-      passwordHash
-    }
+  // pariel amis avec son ID
+  static findById(id: number): User | null {
+  const row = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+  return row ?? null;
   }
 
+  // cree un user en hashant son mot de passe
+  static createUser(email: string, password: string): User {
+    const passwordHash = bcrypt.hashSync(password, 10);
+    const stmt = db.prepare('INSERT INTO users (email, passwordHash) VALUES (?, ?)');
+    const result = stmt.run(email, passwordHash);
+
+    // Correction ici : lastInsertRowid est un bigint, il faut le caster proprement
+    return {
+      id: Number(result.lastInsertRowid), // ✅ Ajoute Number() si pas déjà fait
+      email,
+      passwordHash,
+    };
+  }
   // verifie si le mot de passe correspond au hash
-  static verifyPassword(user: User, password: string): boolean {
+  static verifyPassword(user: User, password: string): boolean
+  {
     return bcrypt.compareSync(password, user.passwordHash)
   }
+
 }
