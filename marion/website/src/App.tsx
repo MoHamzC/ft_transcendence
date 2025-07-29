@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom';
 import AboutUs from './AboutUs.tsx';
-	
+import BackHome from './BackHome.tsx';
 
 function startPong()
 {
@@ -81,6 +81,7 @@ function App()
 					</Routes>
 				
 					<AboutUs />
+					<BackHome />
 				</div>		
 			</Galaxy>
 		</div>
