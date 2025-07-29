@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom';
 import AboutUs from './AboutUs.tsx';
 import BackHome from './BackHome.tsx';
+import SideMenu from './SideMenu.tsx';
 
 function startPong()
 {
@@ -33,7 +34,6 @@ function Home()
 			<div>
 				<Button onClick={startPong}>pong</Button>
 				<Button>game2</Button>
-				<Login></Login>
 			</div>
 		</>
 	)
@@ -66,8 +66,9 @@ function LoginView()
 
 
 
-function App() 
+function App()
 {
+  const [isLogged, setIsLogged] = useState(false);
   return (
     <>
 		<Router>
@@ -82,6 +83,7 @@ function App()
 				
 					<AboutUs />
 					<BackHome />
+					<SideMenu isLogged={isLogged} setIsLogged={setIsLogged} />
 				</div>		
 			</Galaxy>
 		</div>
