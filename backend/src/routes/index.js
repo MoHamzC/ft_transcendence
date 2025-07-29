@@ -1,7 +1,3 @@
-import { FastifyInstance } from 'fastify';
-import authRoutes from './auth.route';
-
-
 /*
 routes/index.ts — 📚 Registre central des routes
 
@@ -15,9 +11,10 @@ routes/index.ts — 📚 Registre central des routes
 */
 
 
-export async function registerRoutes(app: FastifyInstance) {
+// src/routes/index.js
+import authRoutes from './auth.route.js';
+
+export async function registerRoutes(app) {
   app.register(authRoutes, { prefix: '/api/auth' });
-  // Pour ajouter ici :
   // app.register(userRoutes, { prefix: '/api/users' });
-  // app.register(matchmakingRoutes, { prefix: '/api/matchmaking' });
 }
