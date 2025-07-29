@@ -10,7 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import AboutUs from './AboutUs.tsx';
 import BackHome from './BackHome.tsx';
 import SideMenu from './SideMenu.tsx';
-
+import ProfilePage from './ProfilePage.tsx'; 
+import SplashCursor from './SplashCursor.tsx';
 function startPong()
 {
 	//todo
@@ -32,6 +33,7 @@ function Home()
 			<h1><strong>transcendence</strong></h1>
 
 			<div>
+				<SplashCursor />
 				<Button onClick={startPong}>pong</Button>
 				<Button>game2</Button>
 			</div>
@@ -78,7 +80,7 @@ function App()
 					<Routes>
 						<Route path="/" element={<Home />} />
 						<Route path="/login" element={<LoginView />} />
-						<Route path="/aboutus" element={<AboutUs />} />
+						<Route path="/aboutus" element={<ProfilePage />} />
 					</Routes>
 				
 					<AboutUs />
