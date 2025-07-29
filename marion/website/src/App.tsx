@@ -6,6 +6,9 @@ import Login from './Login.tsx';
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+import AboutUs from './AboutUs.tsx';
+	
 
 function startPong()
 {
@@ -24,31 +27,44 @@ function Button({children, onClick}: any)
 function Home()
 {
 	return (
-				<div style={{ position: 'absolute', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-					<h1><strong>transcendence</strong></h1>
+		<>
+			<h1><strong>transcendence</strong></h1>
 
-					<div>
-						<Button onClick={startPong}>pong</Button>
-						<Button>game2</Button>
-						<Login></Login>
-					</div>
-				</div>		
+			<div>
+				<Button onClick={startPong}>pong</Button>
+				<Button>game2</Button>
+				<Login></Login>
+			</div>
+		</>
 	)
+}
+
+function goHome()
+{
+	const navigate = useNavigate();
+	return () => {
+		navigate('/');
+	}
 }
 
 function LoginView()
 {
 	return (
-				<div style={{ position: 'absolute', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-					<h1><strong>Login to play</strong></h1>
+		<>
+			<h1><strong>Login to play</strong></h1>
 
-					<div>
-						<Button>Login</Button>
-						<Button>Signin</Button>
-					</div>
-				</div>		
+			<div>
+				<input type="text" placeholder="Username" />
+				<input type="password" placeholder="Password" />
+				<button type="submit" onClick={goHome()}>connect</button>
+
+
+			</div>
+		</>
 	)
 }
+
+
 
 function App() 
 {
@@ -57,10 +73,15 @@ function App()
 		<Router>
 		<div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
 			<Galaxy>
-			<Routes>
-				<Route path="/" element={<Home />} />
-				<Route path="/login" element={<LoginView />} />
-			</Routes>
+				<div style={{ position: 'absolute', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+					<Routes>
+						<Route path="/" element={<Home />} />
+						<Route path="/login" element={<LoginView />} />
+						<Route path="/aboutus" element={<AboutUs />} />
+					</Routes>
+				
+					<AboutUs />
+				</div>		
 			</Galaxy>
 		</div>
 	</Router>
