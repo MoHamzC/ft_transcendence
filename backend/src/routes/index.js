@@ -13,8 +13,10 @@ routes/index.ts — 📚 Registre central des routes
 
 // src/routes/index.js
 import authRoutes from './auth.route.js';
+import userRoutes from './user.route.js';
 
-export async function registerRoutes(app) {
-  app.register(authRoutes, { prefix: '/api/auth' });
-  // app.register(userRoutes, { prefix: '/api/users' });
+export async function registerRoutes(app)
+{
+    app.register(authRoutes, { prefix: '/api/auth' });
+    app.register(userRoutes, { prefix: '/api/user' });
 }

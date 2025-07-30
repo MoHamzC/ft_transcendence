@@ -5,7 +5,6 @@
  gestion des routes pour le menu utilisateur
 */
 
-import { FastifyInstance } from 'fastify'
 import { StatsService }       from '../services/StatsService.js'
 import { LeaderboardService } from '../services/LeaderboardService.js'
 import { FriendService }      from '../services/FriendService.js'

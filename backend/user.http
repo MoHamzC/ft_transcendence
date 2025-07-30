@@ -1,0 +1,34 @@
+@host = http://localhost:3000
+
+### 0) login pour récupérer le token
+# @name loginUser
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "clementdjamaistest+test@42.fr",
+  "password": "abc123"
+}
+
+### 0.1) affectation du token
+@token = {{loginUser.response.body.token}}
+
+### 1) /user/statistics
+GET {{host}}/api/user/statistics
+Authorization: Bearer {{token}}
+
+### 2) /user/leaderboard
+GET {{host}}/api/user/leaderboard
+Authorization: Bearer {{token}}
+
+### 3) /user/friends
+GET {{host}}/api/user/friends
+Authorization: Bearer {{token}}
+
+### 4) /user/settings
+GET {{host}}/api/user/settings
+Authorization: Bearer {{token}}
+
+### 5) /user/logout
+POST {{host}}/api/user/logout
+Authorization: Bearer {{token}}
