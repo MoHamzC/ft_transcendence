@@ -11,28 +11,39 @@
 
   - Démarre l’écoute du serveur (port, host)
 */
-// src/server.js
-import Fastify from 'fastify';
-import dotenv from 'dotenv';
-dotenv.config();
+// 1️⃣ Ce premier import charge .env avant tout le reste
 
-import jwtPlugin from './plugins/jwt.js';
-import { registerRoutes } from './routes/index.js';
 
-const app = Fastify({ logger: true });
+import 'dotenv/config'
+import Fastify from 'fastify'
+import jwtPlugin from './plugins/jwt.js'
+import { registerRoutes } from './routes/index.js'
+
+// maintenant process.env.* est déjà peuplé
+import pool from './db/pgClient.js'
+
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
+  )
+`)
+
+const app = Fastify({ logger: true })
 
 async function start() {
   try {
-    await app.register(jwtPlugin);
-    await registerRoutes(app);
+    await app.register(jwtPlugin)
+    await registerRoutes(app)
 
-    const port = Number(process.env.PORT || 3000);
-    await app.listen({ port, host: '0.0.0.0' });
-    console.log(`🚀 Server running at http://localhost:${port}`);
+    const port = Number(process.env.PORT || 3000)
+    await app.listen({ port, host: '0.0.0.0' })
+    console.log(`🚀 Server running at http://localhost:${port}`)
   } catch (err) {
-    app.log.error(err);
-    process.exit(1);
+    app.log.error(err)
+    process.exit(1)
   }
 }
 
-start();
+start()
