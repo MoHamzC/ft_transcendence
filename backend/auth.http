@@ -1,0 +1,32 @@
+@host = http://localhost:3000
+
+### 1) register un user
+# @name registerUser
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "joe+test@42.fr",
+  "password": "abc123"
+}
+
+### 2) login et capture du token
+# @name loginUser
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "joe+test@42.fr",
+  "password": "abc123"
+}
+
+### 2.1) assignation de la variable token
+@token={{loginUser.response.body.token}}
+
+### 3) route protégée
+GET {{host}}/api/auth/protected
+Authorization: Bearer {{token}}
+
+### 4) /me
+GET {{host}}/api/auth/me
+Authorization: Bearer {{token}}
