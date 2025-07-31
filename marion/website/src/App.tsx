@@ -36,11 +36,11 @@ function Home()
 	return (
 		<>
 		<FuzzyText>transcendence</FuzzyText>
-			<div>
+			<div className='my-3'>
+				<button className="px-4 py-2 bg-zinc-600 rounded-full text-black mx-2 hover:cursor-pointer hover:bg-gray-500 shadow-xl">Pong</button>
 				<SplashCursor />
 
-				<Button onClick={startPong}>pong</Button>
-				<Button>game2</Button>
+				<button className="px-4 py-2 bg-zinc-600 rounded-full text-black mx-2 hover:cursor-pointer hover:bg-gray-500 shadow-xl" onClick={startPong}>gnop</button>
 			</div>
 		</>
 	)
@@ -87,7 +87,7 @@ function App()
     <>
 		<Router>
 		<div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-			{/* <Galaxy> */}
+			<Galaxy>
 				<div style={{ position: 'absolute', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
 					<Routes>
 						<Route path="/" element={<Home />} />
@@ -104,7 +104,7 @@ function App()
 					<BackHome />
 					<SideMenu isLogged={isLogged} setIsLogged={setIsLogged} />
 				</div>		
-			{/* </Galaxy> */}
+			</Galaxy>
 		</div>
 	</Router>
     </>
