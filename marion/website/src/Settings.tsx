@@ -1,9 +1,9 @@
-
+import FuzzyText from "./FuzzyText";
 
 export default function Settings () {
   return (
 	<div className="settings">
-	  <h1>Settings</h1>
+	  <FuzzyText>Settings</FuzzyText>
 	  <p>Coming soon...</p>
 	</div>
   );

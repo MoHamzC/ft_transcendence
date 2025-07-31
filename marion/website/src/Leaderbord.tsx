@@ -1,10 +1,10 @@
 
-
+import FuzzyText from "./FuzzyText";
 
 export default function Leaderbord() {
   return (
 	<div className="leaderboard">
-	  <h1>Leaderboard</h1>
+	  <FuzzyText>Leaderboard</FuzzyText>
 	  <p>Coming soon...</p>
 	</div>
   );

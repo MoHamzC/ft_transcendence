@@ -1,10 +1,10 @@
-
+import FuzzyText from "./FuzzyText";
 
 export default function MyProfile()
 {
 	return (
 		<div className="myprofile">
-		<h1>Profile</h1>
+		<FuzzyText>Profile</FuzzyText>
 		<p>Coming soon</p>
 		</div>
 	)

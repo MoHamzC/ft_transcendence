@@ -1,11 +1,13 @@
-
+import FuzzyText from "./FuzzyText";
 
 export default function Friends() {
  
 
   return (
+	
 	<div className="friends">
-	  <h1>Friends</h1>
+		
+	  <FuzzyText>Friends</FuzzyText>
 	  <p>Coming soon...</p>
 	</div>
   );
