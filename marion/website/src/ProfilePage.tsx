@@ -3,8 +3,8 @@ import "./ProfilePage.css";
 
 export default function ProfilePage() {
   return (
-	<div className="profile-page">
-	 <ProfileCard className="profile-card"
+    <div style={{ display: 'flex', gap: '0.5rem', flexDirection:"row"}} className="profile-page">
+     <ProfileCard className="profile-card"
   name="Amir "
   title="L'etalon de minuit"
   handle="amir"
@@ -27,7 +27,6 @@ export default function ProfilePage() {
   enableTilt={true}
   enableMobileTilt={false}
   onContactClick={() => console.log('Contact clicked')}
-  
 />
  <ProfileCard className="profile-card"
   name="Loris"
@@ -40,7 +39,6 @@ export default function ProfilePage() {
   enableTilt={true}
   enableMobileTilt={false}
   onContactClick={() => console.log('Contact clicked')}
-  
 />
  <ProfileCard className="profile-card"
   name="Clement"
@@ -53,9 +51,20 @@ export default function ProfilePage() {
   enableTilt={true}
   enableMobileTilt={false}
   onContactClick={() => console.log('Contact clicked')}
-  
 />
 
+ <ProfileCard className="profile-card"
+  name="Marion"
+  title="Mrn"
+  handle="mhhh"
+  status="Online"
+  contactText="Contact Me"
+  avatarUrl="https://i.pinimg.com/1200x/c2/52/9c/c2529c3c9209dbb76267f2f8563bd19a.jpg"
+  showUserInfo={true}
+  enableTilt={true}
+  enableMobileTilt={false}
+  onContactClick={() => console.log('Contact clicked')}
+/>
 
 	</div>
   );

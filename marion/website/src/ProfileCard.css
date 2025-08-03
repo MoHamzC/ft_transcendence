@@ -487,3 +487,9 @@
     border-radius: 50px;
   }
 }
+
+.pc-card-wrapper.small {
+  width: 250px;
+  height: 180px;
+  transform: scale(1.3);
+}
