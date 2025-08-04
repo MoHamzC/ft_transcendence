@@ -1,0 +1,20 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon --watch src --exec node src/server.js"
+  },
+  "dependencies": {
+    "@fastify/jwt": "^9.1.0",
+    "bcrypt": "^5.x",
+    "dotenv": "^16.x",
+    "fastify": "^5.4.0",
+    "fastify-plugin": "^4.x",
+    "pg": "^8.x"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}

@@ -1,0 +1,48 @@
+### 🔍 Vérification du service
+GET http://localhost:3001/status
+Accept: application/json
+
+###
+
+### 👤 Inscription (register)
+POST http://localhost:3001/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+###
+
+### 🔐 Connexion (login)
+POST http://localhost:3001/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+# Copie le token reçu et remplace `{{TOKEN}}` dans les requêtes suivantes
+
+###
+
+### 🔒 Accès protégé
+GET http://localhost:3001/protected
+Authorization: Bearer {{TOKEN}}
+Accept: application/json
+
+###
+
+### 🙋🏽‍♂️ Mon profil (`/me`)
+GET http://localhost:3001/me
+Authorization: Bearer {{TOKEN}}
+Accept: application/json
+
+###
+
+### 🚪 Déconnexion (`/logout`)
+POST http://localhost:3001/logout
+Authorization: Bearer {{TOKEN}}
+Accept: application/json

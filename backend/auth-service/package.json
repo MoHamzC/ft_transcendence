@@ -1,0 +1,15 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "@fastify/jwt": "^5.0.1",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^16.6.1",
+    "fastify": "^4.29.1",
+    "pg": "^8.16.3"
+  }
+}
