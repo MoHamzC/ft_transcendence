@@ -8,22 +8,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Typage des données
 type PieData = {
   name: string;
   value: number;
 };
 
-const data: PieData[] = [
-  { name: "Win", value: 400 },
-  { name: "Null", value: 300 },
-  { name: "Egality", value: 300 },
-  { name: "Victory", value: 200 },
-];
+type Props = {
+  data: PieData[];
+};
 
 const COLORS: string[] = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042"];
 
-const MyPieChart: React.FC = () => { //use fonction ? 
+const MyPieChart: React.FC<Props> = ({ data }) => {
   return (
     <div style={{ width: "100%", height: 400 }}>
       <ResponsiveContainer>
@@ -35,6 +31,8 @@ const MyPieChart: React.FC = () => { //use fonction ?
             cx="50%"
             cy="50%"
             outerRadius={130}
+            innerRadius={80}
+            paddingAngle={0}
             label
           >
             {data.map((entry, index) => (
