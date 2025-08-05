@@ -1,4 +1,4 @@
-@host = http://localhost:3000
+@host = http://localhost:5001
 
 ### 0) login pour récupérer le token
 # @name loginUser
@@ -6,7 +6,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "clementdjamaistest+test@42.fr",
+  "email": "lorislapoutreduhavre+test@42.fr",
   "password": "abc123"
 }
 

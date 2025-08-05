@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:${POSTGRES_VERSION}
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  node:
+    image: node:24
+    user: root
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=dev
+    volumes:
+      - ./:/home/node/app
+    ports:
+      - 5001:5001
+    env_file:
+      - .env
+    command: bash -c "npm install fastify && npm install pg && npm install @fastify/jwt && npm install dotenv && npm install bcrypt && npm install jsonwebtoken && npm install nodemon && npx nodemon ./backend/src/server.js && npm dev"
+
+volumes:
+  pgdata:

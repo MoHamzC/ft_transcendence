@@ -1,4 +1,4 @@
-@host = http://localhost:3000
+@host = http://localhost:5001
 
 ### 0) status
 # @name status
@@ -10,7 +10,7 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "clementdjamaistest+test@42.fr",
+  "email": "lorislapoutreduhavre+test@42.fr",
   "password": "abc123"
 }
 
@@ -29,7 +29,7 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "clementdjamaistest+test@42.fr"
+  "email": "lorislapoutreduhavre+test@42.fr"
 }
 
 ### 1.3) register duplicate
@@ -38,7 +38,7 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "clementdjamaistest+test@42.fr",
+  "email": "lorislapoutreduhavre+test@42.fr",
   "password": "abc123"
 }
 
@@ -48,7 +48,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "clementdjamaistest+test@42.fr",
+  "email": "lorislapoutreduhavre+test@42.fr",
   "password": "abc123"
 }
 
@@ -67,7 +67,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "clementdjamaistest+test@42.fr"
+  "email": "lorislapoutreduhavre+test@42.fr"
 }
 
 ### 2.3) login mauvais mdp
@@ -76,7 +76,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "clementdjamaistest+test@42.fr",
+  "email": "lorislapoutreduhavre+test@42.fr",
   "password": "wrong"
 }
 
