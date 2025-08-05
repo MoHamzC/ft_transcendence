@@ -16,26 +16,31 @@ export default function SideMenu({isLogged, setIsLogged}: any) {
 function gotoleaderbord()
 {
 	navigate('/leaderbord');
+	setIsOpen(false);
 }
 
 function gotofriends()
 {
 	navigate('/friends');
+	setIsOpen(false);
 }
 
 function gotosettings()
 {
 	navigate('/settings');
+	setIsOpen(false);
 }
 
 function gotomyprofile()
 {
 	navigate('/profile');
+	setIsOpen(false);
 }
 
 function goStats()
 {
 	navigate('/stats');
+	setIsOpen(false);
 }
   return (
     <div>
