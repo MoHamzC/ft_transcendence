@@ -39,6 +39,22 @@ export default async function userRoutes(app /* : FastifyInstance */)
         return { friends };
     });
 
+    // POST /api/user/friends
+    app.post('/friends', async (request, reply) =>
+    {
+        const { addresseeId } = request.body;
+        await FriendService.sendRequest(request.user.id, addresseeId);
+        reply.code(201).send({ message: 'Friend request sent' });
+    });
+
+    // POST /api/user/friends/accept
+    app.post('/friends/accept', async (request, reply) =>
+    {
+        const { requesterId } = request.body;
+        await FriendService.acceptRequest(request.user.id, requesterId);
+        reply.code(200).send({ message: 'Friend request accepted' });
+    });
+
     // GET /api/user/settings
     app.get('/settings', async (request, reply) =>
     {

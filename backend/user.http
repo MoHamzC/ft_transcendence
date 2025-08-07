@@ -1,4 +1,4 @@
-@host = http://localhost:5001
+@host = http://localhost:3000
 
 ### 0) login pour récupérer le token
 # @name loginUser

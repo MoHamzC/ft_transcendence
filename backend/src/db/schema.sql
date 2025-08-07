@@ -2,10 +2,7 @@
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    avatar TEXT DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    password_hash TEXT NOT NULL
 );
 
 -- Amis (relations directionnelles avec statut)
@@ -41,7 +38,7 @@ CREATE TABLE IF NOT EXISTS stats (
 CREATE VIEW leaderboard AS
 SELECT
     u.id,
-    u.username,
+    u.email,
     COALESCE(s.games_won, 0) AS wins,
     COALESCE(s.games_played, 0) AS games
 FROM users u

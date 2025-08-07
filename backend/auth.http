@@ -1,4 +1,4 @@
-@host = http://localhost:5001
+@host = http://localhost:3000
 
 ### 0) status
 # @name status
@@ -120,3 +120,25 @@ GET {{host}}/api/auth/me
 # @name meInvalid
 GET {{host}}/api/auth/me
 Authorization: Bearer invalidtoken
+
+### Lister mes amis
+GET {{host}}/api/user/friends
+Authorization: Bearer {{token}}
+
+### Envoyer une demande d’ami
+POST {{host}}/api/user/friends
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "addresseeId": 2
+}
+
+### Accepter une demande d’ami
+POST {{host}}/api/user/friends/accept
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "requesterId": 2
+}
