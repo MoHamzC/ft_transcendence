@@ -170,46 +170,25 @@ void main() {
 }
 `;
 
-interface GalaxyProps {
-  focal?: [number, number];
-  rotation?: [number, number];
-  starSpeed?: number;
-  density?: number;
-  hueShift?: number;
-  disableAnimation?: boolean;
-  speed?: number;
-  mouseInteraction?: boolean;
-  glowIntensity?: number;
-  saturation?: number;
-  mouseRepulsion?: boolean;
-  twinkleIntensity?: number;
-  rotationSpeed?: number;
-  repulsionStrength?: number;
-  autoCenterRepulsion?: number;
-  transparent?: boolean;
-  children?: React.ReactNode;
-}
-
 export default function Galaxy({
   focal = [0.5, 0.5],
   rotation = [1.0, 0.0],
-  starSpeed = 1,
-  density = 0.2,
+  starSpeed = 0.5,
+  density = 1,
   hueShift = 140,
   disableAnimation = false,
-  speed = 1,
-  mouseInteraction = false,
-  glowIntensity = 0.3,
-  saturation = 0.1,
+  speed = 1.0,
+  mouseInteraction = true,
+  glowIntensity = 0.15,
+  saturation = 0.0,
   mouseRepulsion = true,
-  repulsionStrength = 0.2,
+  repulsionStrength = 2,
   twinkleIntensity = 0.3,
-  rotationSpeed = 0.3,
-  autoCenterRepulsion = 80,
-  transparent = false,
-  children,
+  rotationSpeed = 0.1,
+  autoCenterRepulsion = 1,
+  transparent = true,
   ...rest
-}: GalaxyProps) {
+}) {
   const ctnDom = useRef(null);
   const targetMousePos = useRef({ x: 0.5, y: 0.5 });
   const smoothMousePos = useRef({ x: 0.5, y: 0.5 });
@@ -233,7 +212,7 @@ export default function Galaxy({
       gl.clearColor(0, 0, 0, 1);
     }
 
-    let program: Program;
+    let program;
 
     function resize() {
       const scale = 1;
@@ -287,9 +266,9 @@ export default function Galaxy({
     });
 
     const mesh = new Mesh(gl, { geometry, program });
-    let animateId: number;
+    let animateId;
 
-    function update(t: number) {
+    function update(t) {
       animateId = requestAnimationFrame(update);
       if (!disableAnimation) {
         program.uniforms.uTime.value = t * 0.001;
@@ -313,11 +292,8 @@ export default function Galaxy({
     }
     animateId = requestAnimationFrame(update);
     ctn.appendChild(gl.canvas);
-	gl.canvas.style.position= 'absolute';
-	gl.canvas.style.top = '0';
-	gl.canvas.style.left = '0';
 
-    function handleMouseMove(e: MouseEvent) {
+    function handleMouseMove(e) {
       const rect = ctn.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
       const y = 1.0 - (e.clientY - rect.top) / rect.height;
@@ -363,7 +339,5 @@ export default function Galaxy({
     transparent,
   ]);
 
-  return <div ref={ctnDom} className="galaxy-container" {...rest}>
-	{children}
-  </div>;
+  return <div ref={ctnDom} className="galaxy-container" {...rest} />;
 }
