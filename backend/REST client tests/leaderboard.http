@@ -1,0 +1,17 @@
+@host = http://localhost:3000
+
+### 1) login et capture token
+# @name loginUser
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user1@42.fr",
+  "password": "abc123"
+}
+### 1.1) assignation du token
+@token = {{loginUser.response.body.token}}
+
+### 2) Tester le leaderboard
+GET {{host}}/api/user/leaderboard
+Authorization: Bearer {{token}}

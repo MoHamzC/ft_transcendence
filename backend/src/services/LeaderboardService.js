@@ -1,13 +1,11 @@
 // src/services/LeaderboardService.js
+import pool from '../db/pgClient.js';
 
 export class LeaderboardService
 {
     static async getBoard()
     {
-        // TODO: pareil que StatsService, real logic to compute leaderboard
-        return [
-            { id: 1, email: 'alpha@42.fr', score: 1000 },
-            { id: 2, email: 'beta@42.fr', score: 950 }
-        ];
+        const res = await pool.query('SELECT id, email, wins, games FROM leaderboard ORDER BY wins DESC, games DESC');
+        return res.rows;
     }
 }
