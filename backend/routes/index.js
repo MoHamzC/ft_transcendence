@@ -1,13 +1,20 @@
 async function indexRoutes(fastify, options){
-	fastify.get('/', async (request, reply) => {
-		return reply.redirect('index.html')
-	})
-	fastify.get('/api/health', async (request, reply) => {
-		return {
+	fastify.get('/healthcheck', async (request, reply) => {
+		reply.send ({
 			status: 'OK',
 			timestamp: new Date().toISOString(),
 			message: 'ft_transcendence API is running'
-		}
+		});
+	})
+
+	//graceful shutdown
+	const listeners = ['SIGINT', 'SIGTERM']
+	listeners.forEach((signal) => {
+		process.on(signal, async () => {
+			await fastify.close();
+			console.log("Server closed properly!");
+			process.exit(0);
+		})
 	})
 }
 
