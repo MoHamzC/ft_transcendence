@@ -1,20 +1,37 @@
-import FuzzyText from "./FuzzyText";
 import React from "react";
+import FuzzyText from "./FuzzyText";
 import MyPieChart from "./PieChart";
 
-export default function Stats ()
-{
-
-const TheData = [
+const chartData = [
   { name: "Win", value: 400 },
-  { name: "LOser", value: 300 },
-  { name: "NUll", value: 300 },
-  { name: "Egality", value: 200 },
+  { name: "Lose", value: 300 },
+  { name: "Null", value: 300 },
+  { name: "Draw", value: 200 },
 ];
-	return (
-		<div className="stats">
-			<FuzzyText>Stats</FuzzyText>
-			<MyPieChart data={TheData}/>
-		</div>
-	)
+
+export default function Stats() {
+  return (
+    <div>
+	<div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+	  <FuzzyText>Stats </FuzzyText>
+	</div>
+      <div
+        className="stats"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "5rem",
+          padding: "2rem",
+        }}
+      >
+        <div style={{ width: 300, height: 300 }}>
+          <MyPieChart data={chartData} />
+        </div>
+        <div style={{ width: 300, height: 300 }}>
+          <MyPieChart data={chartData} />
+        </div>
+      </div>
+    </div>
+  );
 }

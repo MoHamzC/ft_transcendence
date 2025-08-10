@@ -31,7 +31,7 @@ const MyPieChart: React.FC<Props> = ({ data }) => {
             cx="50%"
             cy="50%"
             outerRadius={130}
-            innerRadius={80}
+            innerRadius={0}
             paddingAngle={0}
             label
           >

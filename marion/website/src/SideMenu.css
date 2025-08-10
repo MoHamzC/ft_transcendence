@@ -2,7 +2,7 @@
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: #ff4d4d;
+  background-color: #150218;
   color: white;
   border-radius: 50%;
   width: 50px;
@@ -19,7 +19,7 @@
   right: 0;
   width: 250px;
   height: 100vh;
-  background-color: #150318;
+  background-color: #0e050f;
   display: flex;
   flex-direction: column;
   align-items: center;
