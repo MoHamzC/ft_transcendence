@@ -1,5 +1,5 @@
-import FuzzyText from "./FuzzyText";
-import InfiniteMenu from './InfiniteMenu'
+
+import InfiniteMenu from './InfiniteMenu.tsx'
 export default function Friends() {
  
 const items = [
