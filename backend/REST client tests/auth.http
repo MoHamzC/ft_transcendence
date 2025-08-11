@@ -90,13 +90,10 @@ Content-Type: application/json
   "password": "Abc12345!"
 }
 
-### 2.5) assignation de la variable token
-@token = {{loginUser.response.body.token}}
-
 ### 3) route protegee OK
 # @name protectedOk
 GET {{host}}/api/auth/protected
-Authorization: Bearer {{token}}
+Authorization: Bearer {{loginUser.response.body.token}}
 
 ### 3.1) protected sans token
 # @name protectedNoToken
@@ -110,7 +107,7 @@ Authorization: Bearer invalidtoken
 ### 4) /me OK
 # @name meOk
 GET {{host}}/api/auth/me
-Authorization: Bearer {{token}}
+Authorization: Bearer {{loginUser.response.body.token}}
 
 ### 4.1) me sans token
 # @name meNoToken
@@ -123,12 +120,12 @@ Authorization: Bearer invalidtoken
 
 ### Lister mes amis
 GET {{host}}/api/user/friends
-Authorization: Bearer {{token}}
+Authorization: Bearer {{loginUser.response.body.token}}
 
 ### Envoyer une demande d’ami
 POST {{host}}/api/user/friends
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{loginUser.response.body.token}}
 
 {
   "addresseeId": 2
@@ -137,7 +134,7 @@ Authorization: Bearer {{token}}
 ### Accepter une demande d’ami
 POST {{host}}/api/user/friends/accept
 Content-Type: application/json
-Authorization: Bearer {{token}}
+Authorization: Bearer {{loginUser.response.body.token}}
 
 {
   "requesterId": 2

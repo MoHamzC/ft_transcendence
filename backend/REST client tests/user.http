@@ -10,25 +10,22 @@ Content-Type: application/json
   "password": "Abc12345!"
 }
 
-### 0.1) affectation du token
-@token = {{loginUser.response.body.token}}
-
 ### 1) /user/statistics
 GET {{host}}/api/user/statistics
-Authorization: Bearer {{token}}
+Authorization: Bearer {{loginUser.response.body.token}}
 
 ### 2) /user/leaderboard
 GET {{host}}/api/user/leaderboard
-Authorization: Bearer {{token}}
+Authorization: Bearer {{loginUser.response.body.token}}
 
 ### 3) /user/friends
 GET {{host}}/api/user/friends
-Authorization: Bearer {{token}}
+Authorization: Bearer {{loginUser.response.body.token}}
 
 ### 4) /user/settings
 GET {{host}}/api/user/settings
-Authorization: Bearer {{token}}
+Authorization: Bearer {{loginUser.response.body.token}}
 
 ### 5) /user/logout
 POST {{host}}/api/user/logout
-Authorization: Bearer {{token}}
+Authorization: Bearer {{loginUser.response.body.token}}

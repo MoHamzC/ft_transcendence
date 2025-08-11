@@ -9,9 +9,7 @@ Content-Type: application/json
   "email": "user1@42.fr",
   "password": "Abc12345!"
 }
-### 1.1) assignation du token
-@token = {{loginUser.response.body.token}}
 
 ### 2) Tester le leaderboard
 GET {{host}}/api/user/leaderboard
-Authorization: Bearer {{token}}
+Authorization: Bearer {{loginUser.response.body.token}}
