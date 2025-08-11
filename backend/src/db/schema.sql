@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS stats (
     games_lost INTEGER DEFAULT 0
 );
 
--- Leaderboard (vue ou table)
-CREATE VIEW leaderboard AS
+-- Leaderboard (vue)
+CREATE OR REPLACE VIEW leaderboard AS
 SELECT
     u.id,
     u.email,

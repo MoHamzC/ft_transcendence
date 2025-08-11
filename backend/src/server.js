@@ -1,49 +1,41 @@
-/*
-    server.ts — 🧠 Point d’entrée principal
+// backend/src/server.js
+import 'dotenv/config';
+import Fastify from 'fastify';
+import jwtPlugin from './plugins/jwt.js';
+import { registerRoutes } from './routes/index.js';
 
-    C’est le fichier exécuté par ts-node-dev.
+async function start()
+{
+    const app = Fastify({ logger: true });
 
-  - Initialise Fastify
+    app.get('/healthz', async () =>
+    {
+        return { ok: true, ts: Date.now() };
+    });
 
-  - Configure les plugins (plus tard)
+    await app.register(jwtPlugin);
+    await registerRoutes(app);
 
-  - Charge les routes via registerRoutes(app)
+    // a virer plus tard vvvv
+    app.log.info(app.printRoutes());
+    // a virer plus tard ^^^^
 
-  - Démarre l’écoute du serveur (port, host)
-*/
-// 1️⃣ Ce premier import charge .env avant tout le reste
+    const port = Number(process.env.PORT ?? 3000);
 
+    const close = async () =>
+    {
+        app.log.info('Shutting down...');
+        await app.close();
+        process.exit(0);
+    };
+    process.on('SIGINT', close);
+    process.on('SIGTERM', close);
 
-import 'dotenv/config'
-import Fastify from 'fastify'
-import jwtPlugin from './plugins/jwt.js'
-import { registerRoutes } from './routes/index.js'
-
-// maintenant process.env.* est déjà peuplé
-import pool from './db/pgClient.js'
-
-await pool.query(`
-  CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    email TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL
-  )
-`)
-
-const app = Fastify({ logger: true })
-
-async function start() {
-  try {
-    await app.register(jwtPlugin)
-    await registerRoutes(app)
-
-    const port = Number(process.env.PORT || 3000)
-    await app.listen({ port, host: '0.0.0.0' })
-    console.log(`🚀 Server running at http://localhost:${port}`)
-  } catch (err) {
-    app.log.error(err)
-    process.exit(1)
-  }
+    await app.listen({ host: '0.0.0.0', port });
+    app.log.info(`http://localhost:${port}`);
 }
-
-start()
+start().catch((err) =>
+{
+    console.error(err);
+    process.exit(1);
+});

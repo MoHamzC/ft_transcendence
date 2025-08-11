@@ -1,70 +1,86 @@
 // src/services/UserService.js
+import { pool } from '../db/pgClient.js';
+import bcrypt from 'bcrypt';
 
-/*
- importe le pool Postgres
- service pour gerer les utilisateurs en base
-  - recherche par email
-  - recherche par id
-  - creation d un nouvel utilisateur
-  - verification du mot de passe
-*/
+const SALT_ROUNDS = Number(process.env.SALT_ROUNDS ?? 10);
 
-import pool     from '../db/pgClient.js'
-import bcrypt   from 'bcrypt'
-
-export class UserService
+export class DuplicateEmailError extends Error
 {
-    /*
-     recherche un user par email
-     retourne null si non trouve
-    */
-    static async findByEmail(email)
+    constructor(email)
     {
-        const result = await pool.query(
-        {
-            text:   'SELECT id, email, password_hash FROM users WHERE email = $1',
-            values: [ email ]
-        });
-
-        return result.rows[0] || null;
-    }
-
-    /*
-     recherche un user par id
-    */
-    static async findById(id)
-    {
-        const result = await pool.query(
-        {
-            text:   'SELECT id, email FROM users WHERE id = $1',
-            values: [ id ]
-        });
-
-        return result.rows[0] || null;
-    }
-
-    /*
-     cree un nouvel utilisateur
-     hashe le mot de passe
-    */
-    static async createUser(email, password)
-    {
-        const hash   = await bcrypt.hash(password, 10);
-        const result = await pool.query(
-        {
-            text:   'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email',
-            values: [ email, hash ]
-        });
-
-        return result.rows[0];
-    }
-
-    /*
-     verifie le mot de passe contre le hash
-    */
-    static verifyPassword(user, password)
-    {
-        return bcrypt.compareSync(password, user.password_hash);
+        super('Email already in use');
+        this.name = 'DuplicateEmailError';
+        this.email = email;
     }
 }
 
+function normalizeEmail(email)
+{
+    return String(email ?? '').trim().toLowerCase();
+}
+
+export class UserService
+{
+    static async findByEmailForAuth(email)
+    {
+        const e = normalizeEmail(email);
+
+        const { rows } = await pool.query(
+        {
+            text: 'SELECT id, email, password_hash FROM users WHERE email = $1',
+            values: [ e ]
+        });
+        return rows[0] ?? null;
+    }
+
+    static async findPublicById(id)
+    {
+        const { rows } = await pool.query(
+        {
+            text: 'SELECT id, email FROM users WHERE id = $1',
+            values: [ id ]
+        });
+        return rows[0] ?? null;
+    }
+
+    static async createUser(email, password)
+    {
+        const e = normalizeEmail(email);
+
+        if (!password || password.length < 8)
+        {
+            throw new Error('Password too short');
+        }
+
+        const hash = await bcrypt.hash(password, SALT_ROUNDS);
+
+        const { rows } = await pool.query(
+        {
+            text:
+                `INSERT INTO users(email, password_hash)
+                 VALUES ($1,$2)
+                 ON CONFLICT (email) DO NOTHING
+                 RETURNING id, email`,
+            values: [ e, hash ]
+        });
+
+        if (!rows[0])
+        {
+            throw new DuplicateEmailError(e);
+        }
+
+        return rows[0];
+    }
+
+    static async authenticate(email, password)
+    {
+        const user = await this.findByEmailForAuth(email);
+        if (!user)
+        {
+            return null;
+        }
+
+        const ok = await bcrypt.compare(password, user.password_hash);
+        return ok ? { id: user.id, email: user.email } : null;
+    }
+}

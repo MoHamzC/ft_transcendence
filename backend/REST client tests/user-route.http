@@ -1,0 +1,40 @@
+### Variables
+@baseUrl = http://localhost:3000/api/user
+@auth = Bearer {{token}}
+
+### 401 sans JWT
+GET {{baseUrl}}/leaderboard
+
+### 200 leaderboard
+GET {{baseUrl}}/leaderboard?limit=5&offset=0
+Authorization: {{auth}}
+
+### 200 stats
+GET {{baseUrl}}/statistics
+Authorization: {{auth}}
+
+### 201 demande d’ami
+POST {{baseUrl}}/friends
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "addresseeId": "11111111-1111-4111-8111-111111111111"
+}
+
+### 200 acceptation d’ami
+POST {{baseUrl}}/friends/accept
+Authorization: {{auth}}
+Content-Type: application/json
+
+{
+  "requesterId": "22222222-2222-4222-8222-222222222222"
+}
+
+### 200 settings
+GET {{baseUrl}}/settings
+Authorization: {{auth}}
+
+### 200 logout
+POST {{baseUrl}}/logout
+Authorization: {{auth}}

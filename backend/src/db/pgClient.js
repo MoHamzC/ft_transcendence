@@ -12,6 +12,7 @@
  - il est utilise par de nombreuses applications Node.js
  */
 
+// src/db/pgClient.js
 import { Pool } from 'pg';
 
 export const pool = new Pool(
@@ -19,11 +20,8 @@ export const pool = new Pool(
     connectionString: process.env.DATABASE_URL
 });
 
-// log et stoppe le service si un client idle a une erreur
-pool.on('error', (err) => 
+// optionnel: ping au démarrage
+export async function healthCheck()
 {
-    console.error('Unexpected error on idle client', err);
-    process.exit(1);
-});
-
-export default pool;
+    await pool.query('SELECT 1');
+}

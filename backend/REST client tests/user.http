@@ -7,7 +7,7 @@ Content-Type: application/json
 
 {
   "email": "lorislapoutreduhavre+test@42.fr",
-  "password": "abc123"
+  "password": "Abc12345!"
 }
 
 ### 0.1) affectation du token

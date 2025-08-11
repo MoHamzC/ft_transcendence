@@ -11,7 +11,7 @@ Content-Type: application/json
 
 {
   "email": "lorislapoutreduhavre+test@42.fr",
-  "password": "abc123"
+  "password": "Abc12345!"
 }
 
 ### 1.1) register sans email
@@ -20,7 +20,7 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "password": "abc123"
+  "password": "Abc12345!"
 }
 
 ### 1.2) register sans password
@@ -39,7 +39,7 @@ Content-Type: application/json
 
 {
   "email": "lorislapoutreduhavre+test@42.fr",
-  "password": "abc123"
+  "password": "Abc12345!"
 }
 
 ### 2) login et capture token
@@ -49,7 +49,7 @@ Content-Type: application/json
 
 {
   "email": "lorislapoutreduhavre+test@42.fr",
-  "password": "abc123"
+  "password": "Abc12345!"
 }
 
 ### 2.1) login sans email
@@ -58,7 +58,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-  "password": "abc123"
+  "password": "Abc12345!"
 }
 
 ### 2.2) login sans password
@@ -87,7 +87,7 @@ Content-Type: application/json
 
 {
   "email": "unknown@42.fr",
-  "password": "abc123"
+  "password": "Abc12345!"
 }
 
 ### 2.5) assignation de la variable token
