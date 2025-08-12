@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import fastifyJwt from "@fastify/jwt";
 import fastifyCookie from "@fastify/cookie";
+import nodeMailer from "nodemailer";
 
 dotenv.config({ path: '../.env' })
 
