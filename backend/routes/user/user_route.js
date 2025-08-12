@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import nodeMailer from 'nodemailer';
 import pool from '../../config/db.js'
 import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
@@ -38,14 +39,81 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			if (!isMatch || !user){
 				return reply.code(401).send({ message: "Invalid email or password" })
 			}
-			const payload = {username: user.rows[0].username, email: user.rows[0].email}
+			console.log("Password match!");
 
-			const token = request.jwt.sign(payload)
+			// Generate a 6-digit code
+			const code_Otp = Math.floor(100000 + Math.random() * 900000).toString();
+			if (!code_Otp){
+				console.log("Error code_Otp creation");
+				return reply.send({Error: "Internal Servor Error"});
+			}
+			else
+				console.log(code_Otp);
 
-			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:true })
+			//Create transporter
+			const transporter = nodeMailer.createTransport({
+				host: process.env.MAIL_HOST,
+				port: 587,
+				secure: false,
+				auth: {
+					user: process.env.MAIL_USER,
+					pass: process.env.MAIL_PASS
+				},
+			});
 
-			return { accessToken: token }
+			if (!transporter){
+				console.log("Error transporter");
+				return reply.send({Error: "transporter creation failed"});
+			};
+
+			console.log("transporter variable successfuly created");
+
+			const otpHtml = (code_Otp) => `
+				<div style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 32px;">
+					<h2 style="color: #4F46E5;">Votre code de vérification</h2>
+					<p>Bonjour,</p>
+					<p>Voici votre code OTP pour vous connecter à <b>Transcendance 42</b> :</p>
+					<div style="font-size: 2em; font-weight: bold; letter-spacing: 4px; color: #16A34A; margin: 24px 0;">
+						${code_Otp}
+					</div>
+					<p>Ce code est valable 5 minutes.</p>
+					<p style="color: #888;">Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.</p>
+					<hr style="margin: 32px 0;">
+					<small>Transcendance 42 &copy; ${new Date().getFullYear()}</small>
+				</div>
+			`;
+
+			console.log("otpHtml successfuly created");
+
+		// Send the mail to the user
+		try {
+			const info = await transporter.sendMail({
+					from: `"Transcendance 42" <${process.env.MAIL_USER}>`,
+					to: email,
+					subject: "Votre code OTP 42 Transcendence",
+					html: otpHtml(code_Otp)
+				})
+			console.log("Message envoyé :", info.messageId);
+			} catch(err) {
+					console.log(err);
+				}
+
+			//Place OTP code and time in DB for the user
+			const otp_Creation_Time = new Date().toISOString();
+			console.log(otp_Creation_Time);
+
+			const place_Otp_Db = await pool.query(
+				'UPDATE usertest SET otp_code = $1, otp_generated_at = $2 WHERE email = $3',
+				[code_Otp, otp_Creation_Time, email]
+			);
+			if (!place_Otp_Db){
+				console.log("Error d'insert dans DB");
+				return reply.code(400).send({Error: "DB"});
+			}
+			console.log("Information about OTP correctly placed in DB!");
+			return reply.send({ "step": "otp", "message": "Un code OTP a été envoyé à votre email." });
 		} catch(err) {
+			console.log(err);
 			return reply.code(500).send({ message: "Error server"});
 		}
 	}
@@ -113,6 +181,53 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 	})
 
 	fastify.post('/login', login);
+
+	fastify.post('/verify-otp', async (request, reply) => {
+		try {
+			const { email, otp_Code } = request.body;
+			const result = await pool.query('SELECT otp_code, otp_generated_at, username from usertest WHERE email = $1',
+				[email]
+			)
+
+			if (!email || !otp_Code){
+				console.log("Wrong user information");
+				return reply.code(400).send({Message: "Wrong user information sent"});
+			};
+			if (!result){
+				console.log("Can't retrieve information from DB");
+				return reply.code(401).send({Error: "Database"});
+			};
+
+			if (otp_Code != result.rows[0].otp_code){
+				console.log("OTP code are not the same");
+				return reply.send("Wrong OTP code!");
+			}
+
+			if ((Date.now() - new Date(result.rows[0].otp_generated_at).getTime()) >= 5 * 60 * 1000){
+				console.log("OTP code expired");
+				const delete_Otp = await pool.query(
+					'UPDATE usertest SET otp_code = NULL, otp_generated_at = NULL WHERE email = $1',
+					[email]
+				)
+				return reply.code(400).send({Message: "OTP code expired, please try to login again"});
+			};
+
+			console.log("OTP code correct! Giving client a JWT Token");
+			const delete_Otp = await pool.query(
+				'UPDATE usertest SET otp_code = NULL, otp_generated_at = NULL WHERE email = $1',
+				[email]
+			)
+
+			// Create JWT token
+			const payload = {username: result.rows[0].username, email: email}
+			const token = request.jwt.sign(payload)
+			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:true })
+			return { accessToken: token }
+		} catch(err) {
+			console.log(err);
+			return reply.code(500).send({Error: "Internal Server Error"});
+		}
+	});
 
 	fastify.post('/connect', async (req, reply) => {
 		const { email, password } = req.body
