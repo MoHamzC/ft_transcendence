@@ -27,7 +27,7 @@ services:
       - 5001:5001
     env_file:
       - .env
-    command: bash -c "npm install fastify@5 && npm install pg && npm install dotenv && npm install bcrypt && npm install nodemon && npm install @fastify/jwt && npm install @fastify/cookie && npx nodemon ./backend/server.js && npm start"
+    command: bash -c "npm install fastify@5 && npm install pg && npm install dotenv && npm install bcrypt && npm install nodemon && npm install @fastify/jwt && npm install @fastify/cookie && npm install nodemailer && npx nodemon ./backend/server.js && npm start"
 
 volumes:
   pgdata:
