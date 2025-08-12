@@ -7,9 +7,12 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@fastify/cookie": "^11.0.2",
+		"@fastify/jwt": "^9.1.0",
 		"bcrypt": "^6.0.0",
 		"dotenv": "^17.2.1",
-		"fastify": "^4.29.1",
+		"fastify": "^5.5.0",
+		"nodemailer": "^7.0.5",
 		"nodemon": "^3.1.10",
 		"pg": "^8.16.3"
 	}
