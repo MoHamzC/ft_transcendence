@@ -1,0 +1,40 @@
+[gd_scene load_steps=6 format=3 uid="uid://ql0qbo4uf7bx"]
+
+[ext_resource type="PackedScene" uid="uid://slklmnar4lpa" path="res://asset/Complete CRT TV Set/Models/CRT TV.fbx" id="1_32qkf"]
+[ext_resource type="Texture2D" uid="uid://cxhii3toybr14" path="res://asset/CRT TV_Color Palette.jpg" id="2_cmtyy"]
+[ext_resource type="Script" uid="uid://c4p7bnigstxr5" path="res://script/boutonTv1.gd" id="3_cmtyy"]
+[ext_resource type="Script" uid="uid://desbhlk2evsw" path="res://script/buttonTv2.gd" id="4_en7n3"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_en7n3"]
+albedo_texture = ExtResource("2_cmtyy")
+
+[node name="CRT TV" instance=ExtResource("1_32qkf")]
+
+[node name="Antenna" parent="CRT" index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_en7n3")
+
+[node name="Back End" parent="CRT" index="1"]
+surface_material_override/0 = SubResource("StandardMaterial3D_en7n3")
+
+[node name="Front" parent="CRT" index="2"]
+surface_material_override/0 = SubResource("StandardMaterial3D_en7n3")
+
+[node name="Large Dial 1" parent="CRT" index="3"]
+surface_material_override/0 = SubResource("StandardMaterial3D_en7n3")
+script = ExtResource("3_cmtyy")
+
+[node name="Large Dial 2" parent="CRT" index="4"]
+surface_material_override/0 = SubResource("StandardMaterial3D_en7n3")
+script = ExtResource("4_en7n3")
+
+[node name="Exhaust Front" parent="CRT" index="5"]
+surface_material_override/0 = SubResource("StandardMaterial3D_en7n3")
+
+[node name="Small Dial " parent="CRT" index="7"]
+surface_material_override/0 = SubResource("StandardMaterial3D_en7n3")
+
+[node name="Small Dial 1" parent="CRT" index="8"]
+surface_material_override/0 = SubResource("StandardMaterial3D_en7n3")
+
+[node name="Legs" parent="CRT" index="9"]
+surface_material_override/0 = SubResource("StandardMaterial3D_en7n3")

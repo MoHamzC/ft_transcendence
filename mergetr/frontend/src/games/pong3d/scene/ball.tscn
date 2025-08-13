@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=3 uid="uid://crkle0ntt1n8a"]
+
+[ext_resource type="Script" uid="uid://uxx1scxgvjc4" path="res://script/ball.gd" id="1_x8fbi"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_x8fbi"]
+bounce = 1.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_cbx31"]
+radius = 0.4
+height = 0.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x8fbi"]
+albedo_color = Color(1, 0, 1, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_41u45"]
+
+[node name="ball" type="RigidBody3D"]
+mass = 79.76
+physics_material_override = SubResource("PhysicsMaterial_x8fbi")
+script = ExtResource("1_x8fbi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_cbx31")
+surface_material_override/0 = SubResource("StandardMaterial3D_x8fbi")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_41u45")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+light_energy = 0.3

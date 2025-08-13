@@ -1,0 +1,12 @@
+.backhome {
+	position: absolute;
+	top: 10px;
+	left : 30px;
+	z-index: 1000;
+	font-size: medium;
+}
+
+.backhome:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}

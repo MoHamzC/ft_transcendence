@@ -1,0 +1,60 @@
+@host = http://localhost:3000
+
+### 1) Créer user1
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user1@42.fr",
+  "password": "Abc12345!"
+}
+### 2) Créer user2
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user2@42.fr",
+  "password": "Abc12345!"
+}
+### 3) Login user1
+# @name loginUser1
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user1@42.fr",
+  "password": "Abc12345!"
+}
+@token1 = {{loginUser1.response.body.token}}
+### 4) Login user2
+# @name loginUser2
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user2@42.fr",
+  "password": "Abc12345!"
+}
+@token2 = {{loginUser2.response.body.token}}
+### 5) user1 envoie une demande d’ami à user2
+POST {{host}}/api/user/friends
+Content-Type: application/json
+Authorization: Bearer {{token1}}
+
+{
+  "addresseeId": 2
+}
+### 6) user2 accepte la demande d’ami de user1
+POST {{host}}/api/user/friends/accept
+Content-Type: application/json
+Authorization: Bearer {{token2}}
+
+{
+  "requesterId": 1
+}
+### 7) user1 liste ses amis
+GET {{host}}/api/user/friends
+Authorization: Bearer {{token1}}
+### 8) user2 liste ses amis
+GET {{host}}/api/user/friends
+Authorization: Bearer {{token2}}

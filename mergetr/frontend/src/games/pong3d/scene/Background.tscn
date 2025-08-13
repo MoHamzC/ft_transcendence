@@ -1,0 +1,28 @@
+[gd_scene load_steps=7 format=3 uid="uid://deyqdm12aoin2"]
+
+[ext_resource type="Texture2D" uid="uid://bw320dv4357hl" path="res://asset/heart/Earth_Vector_2k_earth_Diffuse_map.jpg" id="1_3pha4"]
+[ext_resource type="Texture2D" uid="uid://ka8rd8x0xyxd" path="res://asset/heart/Earth_Vector_2k_earth_clouds.png" id="2_v6i33"]
+[ext_resource type="Texture2D" uid="uid://bxrfn2u14853e" path="res://asset/heart/Earth_Vector_2k_earth_specular_map.png" id="3_0elnr"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_mq62n"]
+radius = 8.0
+height = 16.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rtuk1"]
+render_priority = 1
+transparency = 1
+blend_mode = 1
+albedo_texture = ExtResource("2_v6i33")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mrftn"]
+next_pass = SubResource("StandardMaterial3D_rtuk1")
+albedo_texture = ExtResource("1_3pha4")
+roughness_texture = ExtResource("3_0elnr")
+roughness_texture_channel = 1
+
+[node name="terre" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.619299)
+mesh = SubResource("SphereMesh_mq62n")
+surface_material_override/0 = SubResource("StandardMaterial3D_mrftn")

@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://c46thhisvvqxa"]
+
+[ext_resource type="PackedScene" uid="uid://sl6sr0fxextv" path="res://asset/Earth_Vector.glb" id="1_ctbf1"]
+
+[node name="Earth_Vector" instance=ExtResource("1_ctbf1")]
+transform = Transform3D(2000, 0, 0, 0, 2000, 0, 0, 0, 2000, 0, 0, 0)
+
+[node name="Clouds" parent="." index="1"]
+transform = Transform3D(1.12622, 2.52128e-07, 0.848364, 0.318747, 1.30669, -0.423144, -0.786207, 0.529765, 1.04371, 0, 0, 0)

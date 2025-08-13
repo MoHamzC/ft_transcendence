@@ -1,0 +1,11 @@
+.about-us {
+	position: absolute;
+	bottom: 20px;
+	z-index: 1000;
+	font-size: medium;
+}
+
+.about-us:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}

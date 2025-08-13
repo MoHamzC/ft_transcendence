@@ -1,0 +1,21 @@
+.profile-page {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: center; 
+    align-items: center;
+    flex-wrap: nowrap; 
+    padding: 20px;
+    overflow-x: hidden; 
+}
+
+.profile-card {
+    transform: scale(0.8);
+    transition: transform 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: scale(0.9); 
+    z-index: 10; 
+	cursor: pointer;
+}

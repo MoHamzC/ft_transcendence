@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://dppsyvbwy6q8v"]
+
+[ext_resource type="PackedScene" uid="uid://b257xn8gsykrb" path="res://scene/wall.tscn" id="1_ewfkj"]
+[ext_resource type="PackedScene" uid="uid://dwycj1f003mxt" path="res://scene/wall_bot_top.tscn" id="2_pr8ll"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Wallup1" parent="." instance=ExtResource("1_ewfkj")]
+transform = Transform3D(0.598933, -0.00226987, -0.0595664, 0.00133451, 0.999997, -0.000833392, 0.0357409, 0.000699424, 0.998224, 8.8943, 0, -3.73553)
+
+[node name="Wallup2" parent="." instance=ExtResource("1_ewfkj")]
+transform = Transform3D(0.59892, -0.00217023, 0.0599349, 0.00133451, 0.999997, -0.000833392, -0.0359597, 0.000965198, 0.998202, -8.84052, 0, -3.7515)
+
+[node name="Walldown1" parent="." instance=ExtResource("1_ewfkj")]
+transform = Transform3D(0.599423, 0, 0.0438461, 0, 1, 0, -0.0263076, 0, 0.999038, 8.83181, 0, 18.4077)
+
+[node name="Walldown2" parent="." instance=ExtResource("1_ewfkj")]
+transform = Transform3D(0.598845, 0, -0.0620067, 0, 1, 0, 0.037204, 0, 0.998076, -8.99597, 0, 18.235)
+
+[node name="wall_left" parent="." instance=ExtResource("2_pr8ll")]
+transform = Transform3D(0.996219, 0, 0.069502, 0, 1, 0, -0.0868775, 0, 0.796975, -15.0473, 0, 13.6994)
+
+[node name="wall_left2" parent="." instance=ExtResource("2_pr8ll")]
+transform = Transform3D(0.995195, 0, -0.0783304, 0, 1, 0, 0.0979129, 0, 0.796156, -15.0473, 9.53674e-06, 1.76527)
+
+[node name="wall right" parent="." instance=ExtResource("2_pr8ll")]
+transform = Transform3D(0.995188, 0, 0.0783859, 0, 1, 0, -0.0979824, 0, 0.796151, 15.9309, 0, 1.15134)
+mur_type = "right"
+
+[node name="wall right2" parent="." instance=ExtResource("2_pr8ll")]
+transform = Transform3D(0.997061, 0, -0.0612917, 0, 1, 0, 0.0766146, 0, 0.797649, 16.0504, 0, 12.9319)
+mur_type = "right"

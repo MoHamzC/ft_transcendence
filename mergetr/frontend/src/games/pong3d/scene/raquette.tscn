@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3 uid="uid://q3ff73qgsqbc"]
+
+[ext_resource type="Script" uid="uid://cq557j3hkm6uf" path="res://script/raquette.gd" id="1_it7ot"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5a2qr"]
+size = Vector3(0.3, 1, 5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ujcp4"]
+size = Vector3(0.3, 1, 5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_it7ot"]
+
+[node name="raquette" type="CharacterBody3D"]
+script = ExtResource("1_it7ot")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_5a2qr")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CollisionShape3D"]
+mesh = SubResource("BoxMesh_ujcp4")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_it7ot")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+light_energy = 0.2
