@@ -16,7 +16,8 @@ import Stats from './Stats.tsx';
 import LoginView from './LoginView.tsx';
 import PongGames from './PongGames.tsx';
 import PongGame from './games/PongGame.jsx';
-
+import Galaxy from './Galaxy.tsx';
+import Particles from './Particles.tsx';
 
 function startPong()
 {
@@ -31,16 +32,20 @@ function Home()
 	return (
 		<>
 		<FuzzyText>transcendence</FuzzyText>
+
 			<div className='my-3'>
 				<button 
-					className="px-4 py-2 bg-zinc-600 rounded-full text-black mx-2 hover:cursor-pointer hover:bg-gray-500 shadow-xl"
+					className="px-4 py-2 rounded-full  text-black mx-2 hover:cursor-pointer hover:bg-gray-500  shadow-xl"
+					style={{ backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
 					onClick={() => navigate('/pong')}
 				>
 					Pong
 				</button>
 				<SplashCursor />
 
-				<button className="px-4 py-2 bg-zinc-600 rounded-full text-black mx-2 hover:cursor-pointer hover:bg-gray-500 shadow-xl" onClick={startPong}>gnop</button>
+				<button className="px-4 py-2 bg-zinc-600 rounded-full text-black mx-2 hover:cursor-pointer hover:bg-gray-500 shadow-xl" 
+				style={{ backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
+				onClick={startPong}>gnop</button>
 			</div>
 		</>
 	)
@@ -56,6 +61,16 @@ function App()
 		<>
 			<Router>
 				<div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+					 <Particles
+                        particleColors={['#ffffff', '#ffffff']}
+                        particleCount={75}
+                        particleSpread={10}
+                        speed={0.1}
+                        particleBaseSize={100}
+                        moveParticlesOnHover={false}
+                        alphaParticles={false}
+                        disableRotation={false}
+                    />
 					<BackHome />
 					{/* <Galaxy> */}
 						
