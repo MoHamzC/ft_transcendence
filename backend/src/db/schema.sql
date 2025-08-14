@@ -34,6 +34,14 @@ CREATE TABLE IF NOT EXISTS stats (
     games_lost INTEGER DEFAULT 0
 );
 
+-- Préférences utilisateur
+CREATE TABLE IF NOT EXISTS user_settings (
+    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    theme TEXT DEFAULT 'dark',
+    notifications BOOLEAN DEFAULT TRUE,
+    language TEXT DEFAULT 'fr'
+);
+
 -- Leaderboard (vue)
 CREATE OR REPLACE VIEW leaderboard AS
 SELECT

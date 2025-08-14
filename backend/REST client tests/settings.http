@@ -1,0 +1,39 @@
+@host = http://localhost:3000
+
+### 0) Créer l'utilisateur si besoin
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "josejose@42.fr",
+  "password": "Abc12345!"
+}
+
+### 1) login pour récupérer le token
+# @name loginUser
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "josejose@42.fr",
+  "password": "Abc12345!"
+}
+
+### 2) Lire les préférences utilisateur (GET)
+GET {{host}}/api/user/settings
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### 3) Mettre à jour les préférences utilisateur (POST ou PATCH à adapter selon ta route)
+POST {{host}}/api/user/settings
+Authorization: Bearer {{loginUser.response.body.token}}
+Content-Type: application/json
+
+{
+  "theme": "light",
+  "notifications": false,
+  "language": "en"
+}
+
+### 4) Relire les préférences pour vérifier la mise à jour
+GET {{host}}/api/user/settings
+Authorization: Bearer {{loginUser.response.body.token}}
