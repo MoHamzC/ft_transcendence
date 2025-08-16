@@ -1,71 +1,79 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import PillNav from './PillNav.tsx';
+import logo from './assets/logo.svg'; // Chemin réel du logo
 import "./SideMenu.css";
 import "./App.tsx";
-import { useNavigate } from 'react-router-dom';
 
-
-
-
-
-export default function SideMenu({isLogged, setIsLogged}: any) {
+export default function SideMenu({ isLogged, setIsLogged }: any) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
+  // Navigation handlers
+  function handleNav(href: string) {
+    navigate(href);
+    setIsOpen(false);
+  }
 
-
-function gotoleaderbord()
-{
-	navigate('/leaderbord');
-	setIsOpen(false);
-}
-
-function gotofriends()
-{
-	navigate('/friends');
-	setIsOpen(false);
-}
-
-function gotosettings()
-{
-	navigate('/settings');
-	setIsOpen(false);
-}
-
-function gotomyprofile()
-{
-	navigate('/profile');
-	setIsOpen(false);
-}
-
-function goStats()
-{
-	navigate('/stats');
-	setIsOpen(false);
-}
   return (
     <div>
-	<button
-	  className="profile-button"
-	  onClick={() => {
-		if (!isLogged) {
-			setIsLogged(true);
-			navigate('/login');
-		} else {
-		setIsOpen((prev) => !prev);
-		}
-	  }}
-	>
-	  👤
-	</button>
+      <button
+        className="profile-button"
+        onClick={() => {
+          if (!isLogged) {
+            setIsLogged(true);
+            navigate('/login');
+          } else {
+            setIsOpen((prev) => !prev);
+          }
+        }}
+      >
+        👤
+      </button>
       {isOpen && (
-        <div className="side-menu">
-          <div className="profile-icon"></div>
-		<button className="menu-item" onClick={gotomyprofile}>profile</button>
-          <button onClick={goStats} className="menu-item">STATS</button>
-          <button onClick={gotoleaderbord} className="menu-item">LEADERBORD</button>
-          <button onClick={gotofriends} className="menu-item">FRIENDS</button>
-          <button onClick={gotosettings} className="menu-item">SETTINGS</button>
-          <button className="menu-item">LOGOUT</button>
+        <div
+          className="side-menu"
+          style={{
+            boxShadow: "none",
+            borderTopLeftRadius: "30px",
+            borderBottomLeftRadius: "30px",
+            paddingTop: "70px", // espace pour le bouton profil
+            paddingLeft: "10px",
+            paddingRight: "10px",
+            width: "100%",
+            maxHeight: "100vh",
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: "20px",
+            position: "fixed",
+            top: 0,
+            right: 0,
+            zIndex: 999,
+          }}
+        >
+          <PillNav
+            logo={logo}
+            logoAlt="Company Logo"
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Profile', href: '/profile' },
+              { label: 'Stats', href: '/stats' },
+              { label: 'Leaderbord', href: '/leaderbord' },
+              { label: 'Friends', href: '/friends' },
+              { label: 'Settings', href: '/settings' },
+              { label: 'Logout', href: '/logout' }
+            ]}
+            activeHref={window.location.pathname}
+            className="custom-nav"
+            ease="power2.easeOut"
+            baseColor="transparent"
+            pillColor="#ffffff"
+            hoveredPillTextColor="#ffffff"
+            pillTextColor="#000000"
+            onItemClick={item => handleNav(item.href)}
+          />
         </div>
       )}
     </div>

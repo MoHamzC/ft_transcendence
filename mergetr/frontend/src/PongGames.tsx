@@ -14,18 +14,22 @@ const PongGames: React.FC = () => {
         
         <div className="grid md:grid-cols-2 gap-8">
           {/* Pong Classique */}
-          <div className="group relative cursor-target">
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
-            <div className="relative bg-gray-800/90 backdrop-blur-sm rounded-2xl p-8 border border-gray-700 group-hover:border-gray-500 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
-              <h3 className="mb-6 text-blue-300 group-hover:text-blue-200 transition-colors duration-300 cursor-target">
+          <div
+            className="group relative cursor-target active:scale-95"
+            style={{ background: 'oklch(25.7% 0.09 281.288)', borderRadius: '1rem' }}
+          >
+            <div className="absolute -inset-1 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
+            <div className="relative backdrop-blur-sm rounded-2xl p-8 border border-gray-700 group-hover:border-gray-500 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
+              <h3 className="mb-6 text-blue-300 group-hover:text-blue-200 transition-colors duration-300">
                  Pong
               </h3>
-              <p className="text-gray-400 mb-6 group-hover:text-gray-300 transition-colors duration-300 cursor-target">
+              <p className="text-gray-400 mb-6 group-hover:text-gray-300 transition-colors duration-300">
                 A classic game of pong. 
               </p>
               <Link 
                 to="/pong/play"
-                className="block w-full text-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-target"
+                className="block w-full text-center px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-target"
+                style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
               >
                 Play now
               </Link>
@@ -33,10 +37,13 @@ const PongGames: React.FC = () => {
           </div>
 
           {/* Pong 3D */}
-          <div className="group relative cursor-target">
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
-            <div className="relative bg-gray-800/90 backdrop-blur-sm rounded-2xl p-8 border border-gray-700 group-hover:border-gray-500 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
-              <h3 className="mb-6 text-purple-300 group-hover:text-purple-200 transition-colors duration-300 cursor-target">
+          <div
+            className="group relative cursor-target active:scale-95"
+            style={{ background: 'oklch(25.7% 0.09 281.288)', borderRadius: '1rem' }}
+          >
+            <div className="absolute -inset-1 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
+            <div className="relative backdrop-blur-sm rounded-2xl p-8 border border-gray-700 group-hover:border-gray-500 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
+              <h3 className="mb-6 text-purple-300 group-hover:text-purple-200 transition-colors duration-300">
                  Pong 3D
               </h3>
               <p className="text-gray-400 mb-6 group-hover:text-gray-300 transition-colors duration-300">
@@ -44,7 +51,8 @@ const PongGames: React.FC = () => {
               </p>
               <button 
                 disabled
-                className="block w-full text-center px-6 py-3 bg-gray-600 cursor-not-allowed text-gray-400 rounded-xl opacity-60 cursor-target"
+                className="block w-full text-center px-6 py-3 rounded-xl opacity-60 cursor-target"
+                style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
               >
                 Available soon
               </button>
@@ -69,10 +77,9 @@ const PongGames: React.FC = () => {
         </div>
 
         {/* Retour */}
-        <div className="mt-8 text-center cursor-target">
+        <div className="mt-8 text-center hover:scale-105 active:scale-95">
           <Link 
             to="/"
-            className="inline-flex items-center px-8 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg border border-gray-600 hover:border-gray-500 cursor-target"
           >
             ← Back Home
           </Link>
