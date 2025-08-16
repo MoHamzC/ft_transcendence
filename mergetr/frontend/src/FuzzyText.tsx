@@ -21,13 +21,28 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
   baseIntensity = 0.12,
   hoverIntensity = 0.5,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement & { cleanupFuzzyText?: () => void}>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationFrameIdRef = useRef<number>();
+  const handlersRef = useRef<{
+    handleMouseMove?: (e: MouseEvent) => void;
+    handleMouseLeave?: () => void;
+    handleTouchMove?: (e: TouchEvent) => void;
+    handleTouchEnd?: () => void;
+  }>({});
 
   useEffect(() => {
-    let animationFrameId: number;
-    let isCancelled = false;
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    let isCancelled = false;
+    let isHovering = false;
+
+    // Always cleanup listeners and animation before init
+    window.cancelAnimationFrame(animationFrameIdRef.current);
+    canvas.removeEventListener("mousemove", handlersRef.current.handleMouseMove as EventListener);
+    canvas.removeEventListener("mouseleave", handlersRef.current.handleMouseLeave as EventListener);
+    canvas.removeEventListener("touchmove", handlersRef.current.handleTouchMove as EventListener);
+    canvas.removeEventListener("touchend", handlersRef.current.handleTouchEnd as EventListener);
 
     const init = async () => {
       if (document.fonts?.ready) {
@@ -37,6 +52,9 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
 
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
+
+      // Reset transform before applying new translation
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
 
       const computedFontFamily =
         fontFamily === "inherit"
@@ -92,14 +110,13 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
       const verticalMargin = 0;
       canvas.width = offscreenWidth + horizontalMargin * 2;
       canvas.height = tightHeight + verticalMargin * 2;
-      ctx.translate(horizontalMargin, verticalMargin);
+      ctx.setTransform(1, 0, 0, 1, horizontalMargin, verticalMargin);
 
       const interactiveLeft = horizontalMargin + xOffset;
       const interactiveTop = verticalMargin;
       const interactiveRight = interactiveLeft + textBoundingWidth;
       const interactiveBottom = interactiveTop + tightHeight;
 
-      let isHovering = false;
       const fuzzRange = 30;
 
       const run = () => {
@@ -125,7 +142,7 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
             1
           );
         }
-        animationFrameId = window.requestAnimationFrame(run);
+        animationFrameIdRef.current = window.requestAnimationFrame(run);
       };
 
       run();
@@ -136,7 +153,8 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
         y >= interactiveTop &&
         y <= interactiveBottom;
 
-      const handleMouseMove = (e: MouseEvent) => {
+      // Handlers
+      handlersRef.current.handleMouseMove = (e: MouseEvent) => {
         if (!enableHover) return;
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -144,11 +162,11 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
         isHovering = isInsideTextArea(x, y);
       };
 
-      const handleMouseLeave = () => {
+      handlersRef.current.handleMouseLeave = () => {
         isHovering = false;
       };
 
-      const handleTouchMove = (e: TouchEvent) => {
+      handlersRef.current.handleTouchMove = (e: TouchEvent) => {
         if (!enableHover) return;
         e.preventDefault();
         const rect = canvas.getBoundingClientRect();
@@ -158,40 +176,29 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
         isHovering = isInsideTextArea(x, y);
       };
 
-      const handleTouchEnd = () => {
+      handlersRef.current.handleTouchEnd = () => {
         isHovering = false;
       };
 
       if (enableHover) {
-        canvas.addEventListener("mousemove", handleMouseMove);
-        canvas.addEventListener("mouseleave", handleMouseLeave);
-        canvas.addEventListener("touchmove", handleTouchMove, {
+        canvas.addEventListener("mousemove", handlersRef.current.handleMouseMove);
+        canvas.addEventListener("mouseleave", handlersRef.current.handleMouseLeave);
+        canvas.addEventListener("touchmove", handlersRef.current.handleTouchMove, {
           passive: false,
         });
-        canvas.addEventListener("touchend", handleTouchEnd);
+        canvas.addEventListener("touchend", handlersRef.current.handleTouchEnd);
       }
-
-      const cleanup = () => {
-        window.cancelAnimationFrame(animationFrameId);
-        if (enableHover) {
-          canvas.removeEventListener("mousemove", handleMouseMove);
-          canvas.removeEventListener("mouseleave", handleMouseLeave);
-          canvas.removeEventListener("touchmove", handleTouchMove);
-          canvas.removeEventListener("touchend", handleTouchEnd);
-        }
-      };
-
-      canvas.cleanupFuzzyText = cleanup;
     };
 
     init();
 
     return () => {
       isCancelled = true;
-      window.cancelAnimationFrame(animationFrameId);
-      if (canvas && canvas.cleanupFuzzyText) {
-        canvas.cleanupFuzzyText();
-      }
+      window.cancelAnimationFrame(animationFrameIdRef.current);
+      canvas.removeEventListener("mousemove", handlersRef.current.handleMouseMove as EventListener);
+      canvas.removeEventListener("mouseleave", handlersRef.current.handleMouseLeave as EventListener);
+      canvas.removeEventListener("touchmove", handlersRef.current.handleTouchMove as EventListener);
+      canvas.removeEventListener("touchend", handlersRef.current.handleTouchEnd as EventListener);
     };
   }, [
     children,
