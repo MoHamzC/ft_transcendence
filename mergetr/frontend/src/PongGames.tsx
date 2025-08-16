@@ -2,18 +2,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import TargetCursor from './TargetCursor.tsx'; // Ajout de l'import
-
+import FuzzyText from './FuzzyText.tsx';
+import logo from './assets/logo.png'; // Assurez-vous que le chemin est correct
 const PongGames: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <TargetCursor spinDuration={2} hideDefaultCursor={true} />
       <div className="max-w-4xl w-full mx-4 p-8">
-        <h1 className="text-center mb-12 text-white cursor-target">
-          Logo
+        <h1 className="text-center mb-12 text-white cursor-target flex justify-center items-center">
+         
+          <FuzzyText
+            fontSize="clamp(2rem, 4.5vw, 4.5rem)"
+            style={{ display: "block", margin: "0 auto" }}
+          >
+            Pongz  
+          </FuzzyText>
         </h1>
         
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Pong Classique */}
+          
           <div
             className="group relative cursor-target active:scale-95"
             style={{ background: 'oklch(25.7% 0.09 281.288)', borderRadius: '1rem' }}
