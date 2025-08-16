@@ -1417,7 +1417,7 @@ export default function SplashCursor({
       return ((value - min) % range) + min;
     }
 
-    // Listeners
+    // Listeners définis comme fonctions nommées et stockés dans des refs pour garantir le cleanup
     const mouseDownListener = (e: MouseEvent) => {
       const pointer = pointers[0];
       const posX = scaleByPixelRatio(e.clientX);
@@ -1426,8 +1426,9 @@ export default function SplashCursor({
       clickSplat(pointer);
     };
     window.addEventListener("mousedown", mouseDownListener);
+    console.trace("[SplashCursor] Added mouse down listener");
 
-    function handleFirstMouseMove(e: MouseEvent) {
+    const handleFirstMouseMove = (e: MouseEvent) => {
       const pointer = pointers[0];
       const posX = scaleByPixelRatio(e.clientX);
       const posY = scaleByPixelRatio(e.clientY);
@@ -1435,7 +1436,7 @@ export default function SplashCursor({
       updateFrame();
       updatePointerMoveData(pointer, posX, posY, color);
       document.body.removeEventListener("mousemove", handleFirstMouseMove);
-    }
+    };
     document.body.addEventListener("mousemove", handleFirstMouseMove);
 
     const mouseMoveListener = (e: MouseEvent) => {
@@ -1447,7 +1448,7 @@ export default function SplashCursor({
     };
     window.addEventListener("mousemove", mouseMoveListener);
 
-    function handleFirstTouchStart(e: TouchEvent) {
+    const handleFirstTouchStart = (e: TouchEvent) => {
       const touches = e.targetTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
@@ -1457,7 +1458,7 @@ export default function SplashCursor({
         updatePointerDownData(pointer, touches[i].identifier, posX, posY);
       }
       document.body.removeEventListener("touchstart", handleFirstTouchStart);
-    }
+    };
     document.body.addEventListener("touchstart", handleFirstTouchStart);
 
     const touchStartListener = (e: TouchEvent) => {
@@ -1500,22 +1501,10 @@ export default function SplashCursor({
       window.removeEventListener("touchstart", touchStartListener, false);
       window.removeEventListener("touchmove", touchMoveListener, false);
       window.removeEventListener("touchend", touchEndListener);
+      console.log("[SplashCursor] Cleaned up all event listeners");
     };
   }, [
-    SIM_RESOLUTION,
-    DYE_RESOLUTION,
-    CAPTURE_RESOLUTION,
-    DENSITY_DISSIPATION,
-    VELOCITY_DISSIPATION,
-    PRESSURE,
-    PRESSURE_ITERATIONS,
-    CURL,
-    SPLAT_RADIUS,
-    SPLAT_FORCE,
-    SHADING,
-    COLOR_UPDATE_SPEED,
-    BACK_COLOR,
-    TRANSPARENT,
+   
   ]);
 
   return (

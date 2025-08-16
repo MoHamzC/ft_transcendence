@@ -305,13 +305,12 @@ const TargetCursor = ({
       window.removeEventListener("mousemove", moveHandler);
       window.removeEventListener("mouseover", enterHandler);
       window.removeEventListener("scroll", scrollHandler);
-
+      window.removeEventListener("mousedown", mouseDownHandler);
+      window.removeEventListener("mouseup", mouseUpHandler);
       if (activeTarget) {
         cleanupTarget(activeTarget);
       }
-
       console.log("Cleaning up TargetCursor");
-
       spinTl.current?.kill();
       document.body.style.cursor = originalCursor;
     };
