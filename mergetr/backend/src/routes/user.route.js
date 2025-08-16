@@ -93,7 +93,7 @@ export default async function userRoutes(app /* : FastifyInstance */)
     },
     async (request, reply) =>
     {
-        const uid   = request.user.id;
+        const uid   = request.user.id || request.user.sub;
         const stats = await StatsService.getStats(uid);
 
         // Pas de cache sur une ressource personnelle
@@ -160,7 +160,7 @@ export default async function userRoutes(app /* : FastifyInstance */)
     },
     async (request, reply) =>
     {
-        const uid     = request.user.id;
+        const uid     = request.user.id || request.user.sub;
         const friends = await FriendService.listFriends(uid);
         return { friends };
     });
@@ -199,7 +199,7 @@ export default async function userRoutes(app /* : FastifyInstance */)
     async (request, reply) =>
     {
         const { addresseeId } = request.body;
-        await FriendService.sendRequest(request.user.id, addresseeId);
+        await FriendService.sendRequest(request.user.id || request.user.sub, addresseeId);
         reply.code(201).send({ message: 'Friend request sent' });
     });
 
@@ -237,7 +237,7 @@ export default async function userRoutes(app /* : FastifyInstance */)
     async (request, reply) =>
     {
         const { requesterId } = request.body;
-        await FriendService.acceptRequest(request.user.id, requesterId);
+        await FriendService.acceptRequest(request.user.id || request.user.sub, requesterId);
         reply.code(200).send({ message: 'Friend request accepted' });
     });
 
@@ -264,9 +264,47 @@ export default async function userRoutes(app /* : FastifyInstance */)
     },
     async (request, reply) =>
     {
-        const uid      = request.user.id;
+        const uid      = request.user.id || request.user.sub;
         const settings = await SettingsService.getSettings(uid);
         return { settings };
+    });
+
+    // POST /api/user/settings
+    app.post('/settings',
+    {
+        schema:
+        {
+            summary: 'Mettre à jour les préférences utilisateur',
+            body:
+            {
+                type: 'object',
+                required: ['theme', 'notifications', 'language'],
+                additionalProperties: false,
+                properties:
+                {
+                    theme: { type: 'string' },
+                    notifications: { type: 'boolean' },
+                    language: { type: 'string' }
+                }
+            },
+            response:
+            {
+                200:
+                {
+                    type: 'object',
+                    properties:
+                    {
+                        success: { type: 'boolean' }
+                    }
+                }
+            }
+        }
+    },
+    async (request, reply) =>
+    {
+        const uid = request.user.id || request.user.sub;
+        await SettingsService.updateSettings(uid, request.body);
+        return { success: true };
     });
 
     //
@@ -293,7 +331,7 @@ export default async function userRoutes(app /* : FastifyInstance */)
     async (request /*, reply */) =>
     {
         // AuthService.logout peut invalider un refresh token côté store si vous en avez un.
-        const uid = request.user.id;
+        const uid = request.user.id || request.user.sub;
         await AuthService.logout(uid);
         return { success: true };
     });
