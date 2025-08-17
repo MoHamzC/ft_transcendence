@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import PillNav from './PillNav.tsx';
-import logo from './assets/logo.svg'; // Chemin réel du logo
+import logo from './assets/logo.png'; // Chemin réel du logo
 import "./SideMenu.css";
 import "./App.tsx";
 
@@ -60,7 +60,7 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
               { label: 'Home', href: '/' },
               { label: 'Profile', href: '/profile' },
               { label: 'Stats', href: '/stats' },
-              { label: 'Leaderbord', href: '/leaderbord' },
+              { label: 'Leaderboard', href: '/leaderbord' },
               { label: 'Friends', href: '/friends' },
               { label: 'Settings', href: '/settings' },
               { label: 'Logout', href: '/logout' }
@@ -68,10 +68,10 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
             activeHref={window.location.pathname}
             className="custom-nav"
             ease="power2.easeOut"
-            baseColor="transparent"
-            pillColor="#ffffff"
+            baseColor="oklch(25.7% 0.09 281.288)" // <-- couleur de l'actif
+            pillColor="oklch(38% 0.189 293.745)"   // <-- couleur normale
             hoveredPillTextColor="#ffffff"
-            pillTextColor="#000000"
+            pillTextColor="#ffffff"
             onItemClick={item => handleNav(item.href)}
           />
         </div>
