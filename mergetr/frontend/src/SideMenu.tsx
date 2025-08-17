@@ -60,7 +60,7 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
             ease="power2.easeOut"
             baseColor="oklch(25.7% 0.09 281.288)" 
             pillColor="oklch(38% 0.189 293.745)"   
-            pillTextColor="#ffffff"
+            pillTextColor="white"
             onMobileMenuClick={() => {}}
           />
         </div>
