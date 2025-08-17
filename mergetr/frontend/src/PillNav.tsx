@@ -2,6 +2,28 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { gsap } from "gsap";
 
+interface PillNavItem {
+  label: string;
+  href: string;
+  ariaLabel?: string;
+  onClick?: (event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement | HTMLSpanElement | HTMLDivElement | HTMLLIElement | HTMLLinkElement, MouseEvent>) => void;
+}
+
+interface PillNavProps {
+  logo: string;
+  logoAlt?: string;
+  items: PillNavItem[];
+  activeHref: string;
+  className?: string;
+  ease?: string;
+  baseColor?: string;
+  pillColor?: string;
+  hoveredPillTextColor?: string;
+  pillTextColor?: string;
+  onMobileMenuClick?: () => void;
+  initialLoadAnimation?: boolean;
+}
+
 const PillNav = ({
   logo,
   logoAlt = "Logo",
@@ -15,18 +37,18 @@ const PillNav = ({
   pillTextColor,
   onMobileMenuClick,
   initialLoadAnimation = true,
-}) => {
+}: PillNavProps) => {
   const resolvedPillTextColor = pillTextColor ?? baseColor;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const circleRefs = useRef([]);
-  const tlRefs = useRef([]);
-  const activeTweenRefs = useRef([]);
-  const logoImgRef = useRef(null);
-  const logoTweenRef = useRef(null);
-  const hamburgerRef = useRef(null);
-  const mobileMenuRef = useRef(null);
-  const navItemsRef = useRef(null);
-  const logoRef = useRef(null);
+  const circleRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const tlRefs = useRef<any[]>([]);
+  const activeTweenRefs = useRef<any[]>([]);
+  const logoImgRef = useRef<HTMLImageElement | null>(null);
+  const logoTweenRef = useRef<any>(null);
+  const hamburgerRef = useRef<HTMLButtonElement | null>(null);
+  const mobileMenuRef = useRef<HTMLDivElement | null>(null);
+  const navItemsRef = useRef<HTMLDivElement | null>(null);
+  const logoRef = useRef<HTMLAnchorElement | null>(null);
 
   useEffect(() => {
     const layout = () => {
@@ -131,22 +153,22 @@ const PillNav = ({
     return () => window.removeEventListener("resize", onResize);
   }, [items, ease, initialLoadAnimation]);
 
-  const handleEnter = (i) => {
+  const handleEnter = (i: number) => {
     const tl = tlRefs.current[i];
     if (!tl) return;
-    activeTweenRefs.current[i]?.kill();
-    activeTweenRefs.current[i] = tl.tweenTo(tl.duration(), {
+    activeTweenRefs.current[i]?.kill?.();
+    activeTweenRefs.current[i] = tl.tweenTo?.(tl.duration?.(), {
       duration: 0.3,
       ease,
       overwrite: "auto",
     });
   };
 
-  const handleLeave = (i) => {
+  const handleLeave = (i: number) => {
     const tl = tlRefs.current[i];
     if (!tl) return;
-    activeTweenRefs.current[i]?.kill();
-    activeTweenRefs.current[i] = tl.tweenTo(0, {
+    activeTweenRefs.current[i]?.kill?.();
+    activeTweenRefs.current[i] = tl.tweenTo?.(0, {
       duration: 0.2,
       ease,
       overwrite: "auto",
@@ -217,7 +239,7 @@ const PillNav = ({
     onMobileMenuClick?.();
   };
 
-  const isExternalLink = (href) =>
+  const isExternalLink = (href: string) =>
     href.startsWith("http://") ||
     href.startsWith("https://") ||
     href.startsWith("//") ||
@@ -225,7 +247,7 @@ const PillNav = ({
     href.startsWith("tel:") ||
     href.startsWith("#");
 
-  const isRouterLink = (href) => href && !isExternalLink(href);
+  const isRouterLink = (href: string) => href && !isExternalLink(href);
 
   const cssVars = {
     ["--base"]: baseColor,
@@ -305,7 +327,7 @@ const PillNav = ({
             className="list-none flex items-stretch m-0 p-[3px] h-full"
             style={{ gap: "var(--pill-gap)" }}
           >
-            {items.map((item, i) => {
+            {items.map((item: PillNavItem, i: number) => {
               const isActive = activeHref === item.href;
 
               const pillStyle = {
@@ -370,6 +392,7 @@ const PillNav = ({
                       aria-label={item.ariaLabel || item.label}
                       onMouseEnter={() => handleEnter(i)}
                       onMouseLeave={() => handleLeave(i)}
+                      onClick={item.onClick}
                     >
                       {PillContent}
                     </Link>
@@ -382,6 +405,7 @@ const PillNav = ({
                       aria-label={item.ariaLabel || item.label}
                       onMouseEnter={() => handleEnter(i)}
                       onMouseLeave={() => handleLeave(i)}
+                      onClick={item.onClick}
                     >
                       {PillContent}
                     </a>
@@ -424,16 +448,16 @@ const PillNav = ({
         }}
       >
         <ul className="list-none m-0 p-[3px] flex flex-col gap-[3px]">
-          {items.map((item) => {
+          {items.map((item: PillNavItem) => {
             const defaultStyle = {
               background: "var(--pill-bg, #fff)",
               color: "var(--pill-text, #fff)",
             };
-            const hoverIn = (e) => {
+            const hoverIn = (e: React.MouseEvent<HTMLAnchorElement>) => {
               e.currentTarget.style.background = "var(--base)";
               e.currentTarget.style.color = "var(--hover-text, #fff)";
             };
-            const hoverOut = (e) => {
+            const hoverOut = (e: React.MouseEvent<HTMLAnchorElement>) => {
               e.currentTarget.style.background = "var(--pill-bg, #fff)";
               e.currentTarget.style.color = "var(--pill-text, #fff)";
             };
