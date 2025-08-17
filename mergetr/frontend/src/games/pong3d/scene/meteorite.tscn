@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://bup5fgtfcpv2e"]
+
+[ext_resource type="PackedScene" uid="uid://dcu2k3iwxw2jw" path="res://asset/Asteroid_2a.glb" id="1_pf4js"]
+
+[node name="meteorite" type="Node3D"]
+
+[node name="Asteroid_2a2" parent="." instance=ExtResource("1_pf4js")]
