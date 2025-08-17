@@ -10,7 +10,6 @@ func _ready():
 	connect("body_entered", Callable(self, "_on_Ball_body_entered"))
 
 func _integrate_forces(state):
-	print("Global.game_start =", Global.game_start)
 	if Global.game_start == false:
 		linear_velocity = Vector3.ZERO
 		return
