@@ -56,13 +56,14 @@ const PongGames: React.FC = () => {
               <p className="text-gray-400 mb-6 group-hover:text-gray-300 transition-colors duration-300">
                 Pong, but with a whole new dimension!
               </p>
-              <button 
-                disabled
-                className="block w-full text-center px-6 py-3 rounded-xl opacity-60 cursor-target"
-                style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
-              >
-                Available soon
-              </button>
+			  <a href="/export_pong3D/index.html">
+				<button 
+				  className="block w-full text-center px-6 py-3 rounded-xl opacity-60 cursor-target"
+				  style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
+				>
+				  Available soon
+				</button>
+			  </a>
             </div>
           </div>
         </div>
