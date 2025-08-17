@@ -18,6 +18,7 @@ import PongGames from './PongGames.tsx';
 import PongGame from './games/PongGame.jsx';
 import Galaxy from './Galaxy.tsx';
 import Particles from './Particles.tsx';
+import RollingGallery from './RollingGallery.tsx';
 
 function startPong()
 {
@@ -72,6 +73,7 @@ function App()
 	const [isLogged, setIsLogged] = useState(false);
 	return (
 		<>
+		{/* <RollingGallery /> */}
 			<div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
 				<Particles
 					particleColors={['#ffffff', '#ffffff']}

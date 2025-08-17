@@ -25,10 +25,10 @@ export default function Stats() {
           padding: "2rem",
         }}
       >
-        <div style={{ width: 300, height: 300 }}>
+        <div style={{ width: 300, height: 300 }} className="chart hover:scale-105 active:scale-95">
           <MyPieChart data={chartData} />
         </div>
-        <div style={{ width: 300, height: 300 }}>
+        <div style={{ width: 300, height: 300 }} className="chart hover:scale-105 active:scale-95">
           <MyPieChart data={chartData} />
         </div>
       </div>

@@ -19,8 +19,8 @@ export default function BackHome()
       marginLeft: "1rem",  
       marginTop: "1rem",    
       marginRight: "4rem",
-      position: "relative",
-      zIndex: 100
+      position: "absolute",
+      zIndex: 999999999999
     }}
   /> 
 		</>

@@ -38,7 +38,7 @@ export default function LoginView()
         }
 
         try {
-            const response = await fetch(`${BACKEND_URL}/connect`, {
+            const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -72,21 +72,24 @@ hideDefaultCursor={true}
 />
                 <h1 className='transcendence cursor-target'>Login to play</h1>
                 <input
-                    className="px-4 py-3 bg-zinc-600 rounded text-white cursor-target"
+                    className="px-4 py-3 rounded text-white cursor-target"
+                    style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
                     type="text"
                     placeholder="Email"
                 />
                 <input
                     className="px-4 py-3 bg-zinc-600 rounded text-white cursor-target"
+                    style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
                     type="password"
                     placeholder="Password"
                 />
                 <button
-                    className="px-4 py-2 bg-zinc-400 rounded-full text-black mx-2 hover:cursor-pointer hover:bg-gray-500 shadow-xl cursor-target"
+                    className="px-4 py-2 rounded-full text-white mx-2 hover:cursor-pointer hover:bg-gray-500 active:scale-95 shadow-xl cursor-target"
+                    style={{ backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
                     type="submit"
                     onClick={handleLogin}
                 >
-                    connect
+                    Validate
                 </button>
             </div>
             <div className="flex flex-row justify-center items-center gap-4 mt-4">
