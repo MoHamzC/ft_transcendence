@@ -1,17 +1,22 @@
-[gd_scene load_steps=22 format=3 uid="uid://c2bec77ybm64d"]
+[gd_scene load_steps=27 format=3 uid="uid://c2bec77ybm64d"]
 
 [ext_resource type="Script" uid="uid://dsxcyf5pikbje" path="res://World.gd" id="1_jsnws"]
 [ext_resource type="PackedScene" uid="uid://dppsyvbwy6q8v" path="res://scene/All_Wall.tscn" id="1_yur6x"]
+[ext_resource type="PackedScene" uid="uid://bygu1k0lgtvuu" path="res://scene/Start_game_timer.tscn" id="2_hnm4a"]
 [ext_resource type="PackedScene" uid="uid://crkle0ntt1n8a" path="res://scene/ball.tscn" id="3_036b0"]
 [ext_resource type="PackedScene" uid="uid://q3ff73qgsqbc" path="res://scene/raquette.tscn" id="4_aqk2v"]
 [ext_resource type="Script" uid="uid://csejiboej5dty" path="res://script/raquette_left.gd" id="5_036b0"]
 [ext_resource type="PackedScene" uid="uid://cfuqttpb4mjqt" path="res://scene/Score3D.tscn" id="6_dwbse"]
 [ext_resource type="Script" uid="uid://dwepweuqw2qci" path="res://script/directional_light_3d.gd" id="6_na5tu"]
+[ext_resource type="Script" uid="uid://dxsygf75i08fl" path="res://script/camera_3_d.gd" id="7_tmyho"]
 [ext_resource type="Shader" uid="uid://bki8bep7dewi7" path="res://script/grain.gdshader" id="8_yur6x"]
 [ext_resource type="Script" uid="uid://ducyyx6ig708e" path="res://script/color_rect.gd" id="9_yur6x"]
 [ext_resource type="PackedScene" uid="uid://deyqdm12aoin2" path="res://scene/Background.tscn" id="10_7ghph"]
 [ext_resource type="Script" uid="uid://cwk2m072rfwf4" path="res://script/terre.gd" id="10_jsnws"]
 [ext_resource type="PackedScene" uid="uid://ql0qbo4uf7bx" path="res://scene/TV+colortscn.tscn" id="10_na5tu"]
+[ext_resource type="PackedScene" uid="uid://bup5fgtfcpv2e" path="res://scene/meteorite.tscn" id="13_f345f"]
+[ext_resource type="Script" uid="uid://bcv37aykddyg5" path="res://script/meteorite.gd" id="14_bqa5m"]
+[ext_resource type="PackedScene" uid="uid://dg7cf4i8r6g0w" path="res://scene/alert_texte.tscn" id="15_a0bac"]
 
 [sub_resource type="Gradient" id="Gradient_hcb8y"]
 offsets = PackedFloat32Array(0, 0.5, 1)
@@ -71,10 +76,14 @@ volumetric_fog_emission_energy = 12.2
 [node name="World" type="Node3D"]
 script = ExtResource("1_jsnws")
 
+[node name="start_game_timer" parent="." instance=ExtResource("2_hnm4a")]
+transform = Transform3D(1, 0, 0, 0, 0.984689, 0.174318, 0, -0.174318, 0.984689, 0.232654, 3.79594, 3.21887)
+pixel_size = 0.05
+
 [node name="ALL_WALL" parent="." instance=ExtResource("1_yur6x")]
 
 [node name="raquette" parent="." instance=ExtResource("4_aqk2v")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, 7.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5368, 0.000244141, 7.7023)
 script = ExtResource("5_036b0")
 
 [node name="raquette2" parent="." instance=ExtResource("4_aqk2v")]
@@ -97,9 +106,10 @@ fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_hcb8y")
 draw_pass_1 = SubResource("QuadMesh_y3jn2")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3Dtele" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.21644, 0.976296, 0, -0.976296, 0.21644, 0.996336, 18.6785, 17.2147)
 fov = 100.0
+script = ExtResource("7_tmyho")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.958893, 0.283682, -0.00705247, 0.0125227, -0.0174741, 0.999769, 0.283493, -0.958759, -0.0203081, -335.546, -21.3302, 11.9614)
@@ -130,3 +140,11 @@ environment = SubResource("Environment_7ghph")
 [node name="terre" parent="." instance=ExtResource("10_7ghph")]
 transform = Transform3D(-3.59253, 0, -19.6747, 0, 20, 0, 19.6747, 0, -3.59253, -180, -160, -47.646)
 script = ExtResource("10_jsnws")
+
+[node name="meteorite (win)" parent="." instance=ExtResource("13_f345f")]
+transform = Transform3D(-28.6628, -9.32178, -26.2973, 27.8996, -9.26408, -27.1254, 0.230938, -37.7794, 13.1402, -130.67, -119.268, -451.119)
+script = ExtResource("14_bqa5m")
+speed = 70.0
+
+[node name="Alert" parent="." instance=ExtResource("15_a0bac")]
+transform = Transform3D(5.99999, -0.00995537, -0.00289282, 0.00285641, -0.0219345, 5.99996, -0.00996588, -5.99995, -0.0219297, -0.131862, 0.088361, 9.47456)

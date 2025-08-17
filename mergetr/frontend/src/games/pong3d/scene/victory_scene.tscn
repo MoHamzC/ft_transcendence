@@ -1,0 +1,40 @@
+[gd_scene load_steps=7 format=3 uid="uid://claqyksm3kqvr"]
+
+[ext_resource type="PackedScene" uid="uid://dcu2k3iwxw2jw" path="res://asset/Asteroid_2a.glb" id="1_l2lc2"]
+[ext_resource type="Script" uid="uid://dulyfn6rk3osn" path="res://script/win_scene/asteroid_2a.gd" id="2_o8yqy"]
+[ext_resource type="Script" uid="uid://ckg7alt3dh0be" path="res://script/win_scene/nameWinner.gd" id="3_28edt"]
+[ext_resource type="Script" uid="uid://dxb7dess62ig8" path="res://script/win_scene/replay_button_ateroid.gd" id="4_xokl5"]
+
+[sub_resource type="Environment" id="Environment_o8yqy"]
+background_mode = 1
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_e6nox"]
+radius = 1.13732
+
+[node name="VictoryScene" type="Node3D"]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_o8yqy")
+
+[node name="Asteroid_2a2" parent="." instance=ExtResource("1_l2lc2")]
+transform = Transform3D(0.93306, -0.35972, 0, 0.356303, 0.924198, 0.137496, -0.0494602, -0.128292, 0.990502, 0, 0, -6.46368)
+script = ExtResource("2_o8yqy")
+
+[node name="Label3D" type="Label3D" parent="Asteroid_2a2"]
+transform = Transform3D(-0.0417804, 0.7622, 0.645993, 0.0866332, 0.646886, -0.75765, -0.995364, 0.0243092, -0.0930588, 0.849967, -0.590964, -0.158362)
+script = ExtResource("3_28edt")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Asteroid_2a2"]
+
+[node name="Area3D" type="Area3D" parent="Asteroid_2a2/MeshInstance3D"]
+transform = Transform3D(1, -2.468e-08, 0, -6.0536e-09, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("4_xokl5")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Asteroid_2a2/MeshInstance3D/Area3D"]
+transform = Transform3D(1, -1.05239e-07, -1.11759e-08, -1.86265e-09, 1, -2.98023e-08, -3.35276e-08, -1.93715e-07, 1, 0.000765502, -0.128276, -0.0395555)
+shape = SubResource("SphereShape3D_e6nox")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.559193, 0.828856, 0.0173621, -3.66169e-09, 0.0209424, -0.999781, -0.829038, 0.55907, 0.0117109, 0, 0, 0.965624)

@@ -13,7 +13,7 @@ text = "0
 font_size = 1500
 
 [node name="barre" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.163785, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.163785, -0.343008)
 text = "|
 |
 |
