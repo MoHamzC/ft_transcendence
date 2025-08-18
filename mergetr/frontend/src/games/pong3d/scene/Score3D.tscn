@@ -1,0 +1,45 @@
+[gd_scene load_steps=2 format=3 uid="uid://cfuqttpb4mjqt"]
+
+[ext_resource type="Script" uid="uid://dgrtmnbn0ubga" path="res://script/score_3d.gd" id="1_rguq8"]
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_rguq8")
+
+[node name="P1" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, 0)
+modulate = Color(1, 0.422194, 0.423937, 1)
+text = "0
+"
+font_size = 1500
+
+[node name="barre" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.163785, -0.343008)
+text = "|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|"
+font_size = 100
+
+[node name="P2" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0)
+modulate = Color(0.617963, 0.65599, 1, 1)
+text = "0"
+font_size = 1500

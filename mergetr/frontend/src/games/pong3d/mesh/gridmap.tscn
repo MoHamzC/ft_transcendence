@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://blriq72xli8d5"]
+
+[ext_resource type="PackedScene" uid="uid://ckdphqs1wcnix" path="res://mesh/cub_blanc.tscn" id="1_t6sm5"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="MeshInstance3D" parent="." instance=ExtResource("1_t6sm5")]

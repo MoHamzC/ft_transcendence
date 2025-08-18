@@ -1,0 +1,49 @@
+{
+  "name": "ft_transcendence",
+  "version": "1.0.0",
+  "description": "42 ft_transcendence project - A web application with Pong game",
+  "type": "module",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "start:dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:merged": "npm run build && npm start",
+    "migrate": "node backend/scripts/migrate.js",
+    "test:http": "httpyac \"backend/REST client tests/**/*.http\" --env local --bail",
+    "build": "cd frontend && npm run build && cp -r dist/* ../backend/public/",
+    "build:frontend": "cd frontend && npm run build",
+    "build:all": "npm run build",
+    "install:deps": "cd backend && npm install && cd ../frontend && npm install",
+    "setup": "npm install && npm run install:deps && echo 'Setup completed! Use npm run start:dev to start both services or npm run start:merged for production mode'",
+    "clean": "rm -rf backend/public/* && rm -rf frontend/dist",
+    "docker:build": "docker build -t mergetr .",
+    "docker:run": "docker run -p 3000:3000 mergetr"
+  },
+  "devDependencies": {
+    "httpyac": "^6.16.7",
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/jwt": "^9.1.0",
+    "@fastify/static": "^8.0.0",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.1",
+    "fastify": "^5.5.0",
+    "nodemailer": "^7.0.5",
+    "nodemon": "^3.1.10",
+    "pg": "^8.16.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.7.1",
+    "recharts": "^2.12.7",
+    "gl-matrix": "^3.4.3",
+    "ogl": "^1.0.11",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0",
+    "@tailwindcss/vite": "^4.0.0-alpha.5"
+  }
+}

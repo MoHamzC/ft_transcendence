@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dhq3ky88eei71"]
+
+[ext_resource type="PackedScene" uid="uid://bbvjw4pj5mha7" path="res://asset/CRT TV.glb" id="1_twjwg"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="CRT TV" parent="." instance=ExtResource("1_twjwg")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 1.94733, 0, 5.81301)
