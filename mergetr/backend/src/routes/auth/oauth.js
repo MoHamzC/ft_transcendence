@@ -1,5 +1,22 @@
 import pool from '../../config/db.js'
 
+async function	jwtTokenOauth(request, reply, user) {
+	try {
+		const payload = {
+			email: user.email,
+			name: user.name
+		}
+		const token = request.jwt.sign(payload);
+
+		reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:true });
+		const redirectUrl = request.query.next || 'http://localhost:5173/'
+		return reply.redirect(redirectUrl);
+	} catch (err) {
+		console.log(err);
+		return reply.code(400).send(err);
+	};
+};
+
 async function	authRoutes(fastify, options) {
 
 	// Test endpoint pour vérifier que les routes OAuth fonctionnent
@@ -14,7 +31,7 @@ async function	authRoutes(fastify, options) {
 			'response_type=code&' +
 			'scope=public'
 
-		reply.redirect(authUrl)
+		reply.code(302).redirect(authUrl)
 	})
 
 	fastify.get('/42/callback', async (request, reply) => {
@@ -67,17 +84,18 @@ async function	authRoutes(fastify, options) {
 			[userData.email]
 		)
 		if (existingUser.rows.length > 0) {
-			return reply.code(200).send(existingUser.rows[0])
+			const dbUser = existingUser.rows[0];
+			return jwtTokenOauth(request, reply, dbUser)
 		}
 		const result = await pool.query(
-			'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
+			'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
 			[userData.login, userData.email, userData.password || 'default_password']
 		)
 		if (!result) {
 			console.error('Erreur pendant l\'ajout des données utilisateur dans la base de données')
 			return reply.code(400).send({ error: 'Erreur lors de la création de l\'utilisateur' })
 		}
-		reply.code(201).send(result.rows[0])
+		return jwtTokenOauth(request, reply, userData);
 		} catch (err) {
 			console.error('❌ Erreur détaillée dans /auth/42/callback:', err.message)
 			console.error('❌ Stack trace:', err.stack)
@@ -150,17 +168,18 @@ async function	authRoutes(fastify, options) {
 			[userData.email]
 		)
 		if (existingUser.rows.length > 0) {
-			return reply.code(200).send(existingUser.rows[0])
+			const dbUser = existingUser.rows[0];
+			return jwtTokenOauth(request, reply, dbUser);
 		}
 		const result = await pool.query(
-			'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
+			'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
 			[userData.login, userData.email, userData.password || 'default_password']
 		)
 		if (!result) {
 			console.error('Erreur pendant l\'ajout des données utilisateur dans la base de données')
 			return reply.code(400).send({ error: 'Erreur lors de la création de l\'utilisateur' })
 		}
-		reply.code(201).send(result.rows[0])
+		jwtTokenOauth(request, reply, userData);
 		} catch (err) {
 			console.error('❌ Erreur détaillée dans /auth/42/callback:', err.message)
 			console.error('❌ Stack trace:', err.stack)
@@ -231,17 +250,18 @@ async function	authRoutes(fastify, options) {
 			[userData.email]
 		)
 		if (existingUser.rows.length > 0) {
-			return reply.code(200).send(existingUser.rows[0])
+			const dbUser = existingUser.rows[0];
+			return jwtTokenOauth(request, reply, dbUser);
 		}
 		const result = await pool.query(
-			'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
+			'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
 			[userData.name, userData.email, userData.password || 'default_password']
 		)
 		if (!result) {
 			console.error('Erreur pendant l\'ajout des données utilisateur dans la base de données')
 			return reply.code(400).send({ error: 'Erreur lors de la création de l\'utilisateur' })
 		}
-		reply.code(201).send(result.rows[0])
+		jwtTokenOauth(request, reply, userData);
 		} catch (err) {
 			console.error('❌ Erreur détaillée dans /auth/google/callback:', err.message)
 			console.error('❌ Stack trace:', err.stack)
