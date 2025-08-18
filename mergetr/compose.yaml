@@ -2,38 +2,46 @@ services:
   db:
     image: postgres:${POSTGRES_VERSION}
     restart: always
-    env_file: .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
     ports:
-      - "5434:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 2s
-      timeout: 2s
-      retries: 30
+      - 8080:8080
 
   node:
-    build: .
-    restart: always
-    env_file: .env
+    image: node:24
+    user: node
+    working_dir: /home/node/app
     environment:
-      NODE_ENV: production
-    depends_on:
-      db:
-        condition: service_healthy
+      - NODE_ENV=dev
+    volumes:
+      - ./:/home/node/app
     ports:
-      - "3000:3000"
-    # run: migrate => start (aucun npm install au runtime)
-    command: >
-      sh -lc "
-      npm run migrate &&
-      npm start
-      "
+      - 5001:5001
+    env_file:
+      - .env
+    command: bash -c "npm install fastify@5 && npm install pg && npm install dotenv && npm install bcrypt && npm install nodemon && npm install @fastify/jwt && npm install @fastify/cookie && npm install nodemailer && npx nodemon ./backend/src/server.js"
+
+  frontend:
+    image: node:24
+    user: node
+    working_dir: /home/node/app/frontend
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./:/home/node/app
+    ports:
+      - 5173:5173
+    depends_on:
+      - node
+    command: bash -c "npm install && npm run dev -- --host 0.0.0.0"
 
 volumes:
   pgdata:
