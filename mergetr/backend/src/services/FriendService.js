@@ -1,7 +1,7 @@
 // backend/src/services/FriendService.js
 // Allman
 
-import { pool } from '../db/pgClient.js';
+import pool from '../config/db.js';
 
 export class FriendService
 {
