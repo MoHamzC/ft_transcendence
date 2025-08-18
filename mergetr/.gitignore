@@ -1,5 +1,7 @@
 # Dépendances
 node_modules/
+./backend/REST client tests
+frontend/
 
 # Secrets
 

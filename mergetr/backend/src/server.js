@@ -1,48 +1,61 @@
-// backend/src/server.js
-import 'dotenv/config';
-import Fastify from 'fastify';
-import securityPlugin from './plugins/security.js';
-import jwtPlugin from './plugins/jwt.js';
-import { registerRoutes } from './routes/index.js';
+import Fastify from 'fastify'
+import pool from './config/db.js'
+import { initDatabase } from './config/initDb.js'
+import bcrypt from 'bcrypt'
+import dotenv from 'dotenv'
+import fastifyJwt from "@fastify/jwt";
+import fastifyCookie from "@fastify/cookie";
+import nodeMailer from "nodemailer";
 
-async function start()
-{
-    const app = Fastify({ logger: true });
+dotenv.config({ path: '../.env' })
 
-    // 1. Charger d'abord le plugin de sécurité (OBLIGATOIRE)
-    await app.register(securityPlugin);
+const fastify = Fastify({
+	logger: true
+})
 
-    app.get('/healthz', async () =>
-    {
-        return { ok: true, ts: Date.now() };
-    });
+//jwt
+fastify.register(fastifyJwt, { secret: process.env.SUPER_SECRET_CODE });
 
-    // 2. Puis JWT
-    await app.register(jwtPlugin);
-    
-    // 3. Enfin les routes
-    await registerRoutes(app);
+fastify.addHook('preHandler', (request, reply, next) => {
+	request.jwt = fastify.jwt
+	return next();
+})
 
-    // a virer plus tard vvvv
-    app.log.info(app.printRoutes());
-    // a virer plus tard ^^^^
+fastify.register(fastifyCookie, { secret: process.env.SUPER_SECRET_CODE, hook: 'preHandler'})
 
-    const port = Number(process.env.PORT ?? 3000);
+// Initialisation de la base de données
+const initDB = async () => {
+	try {
+		// Test de connexion
+		const res = await pool.query('SELECT NOW()');
+		console.log('✅ Connecté à la DB — Heure actuelle:', res.rows[0].now);
 
-    const close = async () =>
-    {
-        app.log.info('Shutting down...');
-        await app.close();
-        process.exit(0);
-    };
-    process.on('SIGINT', close);
-    process.on('SIGTERM', close);
+		// Initialiser les tables (supprime et recrée tout)
+		if (process.env.RESET_DB === 'true') {
+			await initDatabase();
+		}
+	} catch (err) {
+		console.error('❌ Erreur de connexion à la DB:', err.message);
+		process.exit(1);
+	}
+};
 
-    await app.listen({ host: '0.0.0.0', port });
-    app.log.info(`http://localhost:${port}`);
+await initDB();
+
+// Import des routes
+fastify.register(import('./routes/index.js'))
+fastify.register(import('./routes/oauth.js'), { prefix : '/auth' })
+fastify.register(import('./routes/user/user_route.js'), { prefix : 'api/users'})
+
+// Run the server!
+const start = async () => {
+	try {
+		await fastify.listen({port : 5001, host : '0.0.0.0'});
+		console.log("Server listening on 0.0.0.0:5001");
+	} catch (err) {
+		fastify.log.error(err);
+		console.log("Error: Can't start the server");
+		process.exit(1);
+	}
 }
-start().catch((err) =>
-{
-    console.error(err);
-    process.exit(1);
-});
+start()

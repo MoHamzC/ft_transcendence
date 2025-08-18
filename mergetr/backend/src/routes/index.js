@@ -1,30 +1,21 @@
-/*
-routes/index.ts — 📚 Registre central des routes
+async function indexRoutes(fastify, options){
+	fastify.get('/healthcheck', async (request, reply) => {
+		reply.send ({
+			status: 'OK',
+			timestamp: new Date().toISOString(),
+			message: 'ft_transcendence API is running'
+		});
+	})
 
-    - Rassemble toutes les routes en un seul endroit.
-
-    - Regroupe les modules de routes : auth, users, game, matchmaking, etc.
-
-    - Évite les appels app.get(...) dispersés partout
-
-    - Permet un autoload propre et lisible
-*/
-
-
-// src/routes/index.js
-import authRoutes from './auth.route.js';
-import userRoutes from './user.route.js';
-import oauthRoutes from './oauth.js';
-import userOtpRoutes from './user/user_route.js';
-import gdprRoutes from './gdpr.route.js';
-import vaultRoutes from './vault.route.js';
-
-export async function registerRoutes(app)
-{
-    app.register(authRoutes, { prefix: '/api/auth' });
-    app.register(userRoutes, { prefix: '/api/user' });
-    app.register(oauthRoutes, { prefix: '/auth' });
-    app.register(userOtpRoutes, { prefix: '/api/users' });
-    app.register(gdprRoutes, { prefix: '/api/gdpr' }); // Module GDPR OBLIGATOIRE
-    app.register(vaultRoutes, { prefix: '/api/vault' }); // Module Vault sécurisé
+	//graceful shutdown
+	const listeners = ['SIGINT', 'SIGTERM']
+	listeners.forEach((signal) => {
+		process.on(signal, async () => {
+			await fastify.close();
+			console.log("Server closed properly!");
+			process.exit(0);
+		})
+	})
 }
+
+export default indexRoutes

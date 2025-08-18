@@ -3,28 +3,28 @@ import TargetCursor from './TargetCursor';
 
 export default function LoginView()
 {
-    const navigate = useNavigate(); 
-    const BACKEND_URL = 'http://localhost:3000';
+    const navigate = useNavigate();
+    const BACKEND_URL = 'http://localhost:5001';
 
     function authentification42()
     {
-        
+
         window.location.href = `${BACKEND_URL}/auth/42`;
     }
 
     function authentificationGithub()
     {
-        
+
         window.location.href = `${BACKEND_URL}/auth/github`;
     }
-    
+
     function goHome() {
         navigate('/');
     }
-    
+
     function authentificationGoogle()
     {
-        
+
         window.location.href = `${BACKEND_URL}/auth/google`;
     }
 
