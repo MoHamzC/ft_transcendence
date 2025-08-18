@@ -1,5 +1,5 @@
 // src/services/UserService.js
-import { pool } from '../db/pgClient.js';
+import pool from '../config/db.js';
 import bcrypt from 'bcrypt';
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS ?? 10);

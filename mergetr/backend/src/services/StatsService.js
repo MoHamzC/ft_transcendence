@@ -5,7 +5,7 @@
     - Calcule les statistiques de jeu, victoires, etc.
 */
 
-import { pool } from '../db/pgClient.js';
+import pool from '../config/db.js';
 
 export class StatsService
 {

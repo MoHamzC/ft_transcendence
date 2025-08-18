@@ -11,7 +11,6 @@ import { StatsService }       from '../services/StatsService.js';
 import { LeaderboardService } from '../services/LeaderboardService.js';
 import { FriendService }      from '../services/FriendService.js';
 import { SettingsService }    from '../services/SettingsService.js';
-import { AuthService }        from '../services/AuthService.js';
 
 // Regex UUID (v4/v5) si ajv-formats n’est pas branché.
 const UUID_PATTERN =
@@ -269,4 +268,29 @@ export default async function userRoutes(app /* : FastifyInstance */)
         return { settings };
     });
 
+    //
+    // POST /api/user/logout
+    //
+    app.post('/logout',
+    {
+        schema:
+        {
+            summary: 'Déconnexion',
+            response:
+            {
+                200:
+                {
+                    type: 'object',
+                    properties:
+                    {
+                        success: { type: 'boolean' }
+                    }
+                }
+            }
+        }
+    },
+    async (request /*, reply */) =>
+    {
+        return { success: true };
+    });
 }
