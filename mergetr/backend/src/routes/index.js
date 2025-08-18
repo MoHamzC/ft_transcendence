@@ -1,21 +1,22 @@
-async function indexRoutes(fastify, options){
-	fastify.get('/healthcheck', async (request, reply) => {
-		reply.send ({
-			status: 'OK',
-			timestamp: new Date().toISOString(),
-			message: 'ft_transcendence API is running'
-		});
-	})
+// src/routes/index.js
+// Registre central des routes
 
-	//graceful shutdown
-	const listeners = ['SIGINT', 'SIGTERM']
-	listeners.forEach((signal) => {
-		process.on(signal, async () => {
-			await fastify.close();
-			console.log("Server closed properly!");
-			process.exit(0);
-		})
-	})
+/**
+ * Register all application routes
+ * @param {Object} fastify - Instance Fastify
+ */
+export async function registerRoutes(fastify) {
+    // Routes de santé/info
+    const indexRoutes = (await import('./health.js')).default
+    await fastify.register(indexRoutes)
+
+    // Routes d'authentification
+    const authRoutes =  (await import('./auth/oauth.js')).default
+    await fastify.register(authRoutes, { prefix: '/auth' })
+
+    // Routes utilisateurs
+    const userRoutes = (await import('./users/legacy/user_route.js')).default
+    await fastify.register(userRoutes, { prefix: '/api/users' })
+
+    fastify.log.info('✅ All routes registered')
 }
-
-export default indexRoutes

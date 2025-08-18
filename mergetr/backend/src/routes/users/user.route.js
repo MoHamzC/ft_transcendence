@@ -269,32 +269,4 @@ export default async function userRoutes(app /* : FastifyInstance */)
         return { settings };
     });
 
-    //
-    // POST /api/user/logout
-    //
-    app.post('/logout',
-    {
-        schema:
-        {
-            summary: 'Déconnexion',
-            response:
-            {
-                200:
-                {
-                    type: 'object',
-                    properties:
-                    {
-                        success: { type: 'boolean' }
-                    }
-                }
-            }
-        }
-    },
-    async (request /*, reply */) =>
-    {
-        // AuthService.logout peut invalider un refresh token côté store si vous en avez un.
-        const uid = request.user.id;
-        await AuthService.logout(uid);
-        return { success: true };
-    });
 }

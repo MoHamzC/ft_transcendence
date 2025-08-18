@@ -11,7 +11,7 @@ export async function initDatabase() {
         console.log('🔄 Initialisation de la base de données...');
 
         // Lire le fichier schema.sql
-        const schemaPath = path.join(__dirname, '../../schema.sql');
+        const schemaPath = path.join(__dirname, '../../database/schema.sql');
         const schema = fs.readFileSync(schemaPath, 'utf8');
 
         // Supprimer toutes les tables existantes (attention: supprime toutes les données!)

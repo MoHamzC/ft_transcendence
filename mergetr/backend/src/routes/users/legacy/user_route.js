@@ -1,12 +1,11 @@
 import bcrypt from 'bcrypt'
 import nodeMailer from 'nodemailer';
-import pool from '../../config/db.js'
+import pool from '../../../config/db.js'
 import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 	async function logout(request, reply) {
 		reply.clearCookie('access_token');
-
-		return reply.send({ message: 'Logout successful' });
+		return reply.redirect(302, '/');
 	}
 
 	async function verifyUser(request, reply) {
@@ -27,7 +26,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 		const { email, password } = request.body
 
 		const user = await pool.query(
-			'Select email, username, password FROM user WHERE email = $1',
+			'Select email, username, password FROM users WHERE email = $1',
 			[email]
 		)
 		console.log("Email retrieved from DB!");
@@ -103,7 +102,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			console.log(otp_Creation_Time);
 
 			const place_Otp_Db = await pool.query(
-				'UPDATE user SET otp_code = $1, otp_generated_at = $2 WHERE email = $3',
+				'UPDATE users SET otp_code = $1, otp_generated_at = $2 WHERE email = $3',
 				[code_Otp, otp_Creation_Time, email]
 			);
 			if (!place_Otp_Db){
@@ -128,7 +127,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 			//Check in DB if the email already exists
 			const checkEmailExist = await pool.query(
-				'SELECT email from user where email = $1',
+				'SELECT email from users where email = $1',
 				[email]
 			)
 			console.log("Email retrieved from DB!");
@@ -139,7 +138,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 			//Insert the user into the DB
 			const result = await pool.query(
-				'INSERT INTO user (email, username, password) VALUES ($1, $2, $3) RETURNING *',
+				'INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING *',
 				[email, username, hashedPassword]
 			)
 			console.log("User created!");
@@ -180,12 +179,12 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 		}
 	})
 
-	fastify.post('/login', login);
+	fastify.post('/login', login)
 
 	fastify.post('/verify-otp', async (request, reply) => {
 		try {
 			const { email, otp_Code } = request.body;
-			const result = await pool.query('SELECT otp_code, otp_generated_at, username from user WHERE email = $1',
+			const result = await pool.query('SELECT otp_code, otp_generated_at, username from users WHERE email = $1',
 				[email]
 			)
 
@@ -206,7 +205,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			if ((Date.now() - new Date(result.rows[0].otp_generated_at).getTime()) >= 5 * 60 * 1000){
 				console.log("OTP code expired");
 				const delete_Otp = await pool.query(
-					'UPDATE user SET otp_code = NULL, otp_generated_at = NULL WHERE email = $1',
+					'UPDATE users SET otp_code = NULL, otp_generated_at = NULL WHERE email = $1',
 					[email]
 				)
 				return reply.code(400).send({Message: "OTP code expired, please try to login again"});
@@ -214,7 +213,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 			console.log("OTP code correct! Giving client a JWT Token");
 			const delete_Otp = await pool.query(
-				'UPDATE user SET otp_code = NULL, otp_generated_at = NULL WHERE email = $1',
+				'UPDATE users SET otp_code = NULL, otp_generated_at = NULL WHERE email = $1',
 				[email]
 			)
 
@@ -222,11 +221,16 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			const payload = {username: result.rows[0].username, email: email}
 			const token = request.jwt.sign(payload)
 			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:true })
-			return { accessToken: token }
+			const redirectUrl = request.body.next || 'http://localhost:5173/';
+			return reply.code(303).redirect(redirectUrl);
 		} catch(err) {
 			console.log(err);
 			return reply.code(500).send({Error: "Internal Server Error"});
 		}
+	});
+
+	fastify.get('/protected', { preHandler: [verifyUser] }, async (req, reply) => {
+		return reply.code(200).send({message: "Tu peux accéder à cette ressource protégée!"});
 	});
 
 	fastify.post('/connect', async (req, reply) => {
