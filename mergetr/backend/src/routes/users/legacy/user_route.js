@@ -5,20 +5,21 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 	async function logout(request, reply) {
 		reply.clearCookie('access_token');
-		return reply.redirect(302, '/');
+		return reply.code(302).redirect('http://localhost:5173');
 	}
 
 	async function verifyUser(request, reply) {
 		try {
 			const token = request.cookies.access_token;
+
 			if (!token) {
-				return reply.code(401).send({ error: "You are not connected"})
+				return reply.code(401).send({ error: "You are not connected"});
 			}
 
 			const decoded = await request.jwt.verify(token);
 			request.user = decoded;
 		} catch (err) {
-			return reply.code(401).send({ error: "Token invalid or expired" });
+			return reply.code(500).send(err);
 		}
 	}
 
@@ -168,7 +169,8 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 		createUser,
 	)
 
-	fastify.delete('/logout', { preHandler: [verifyUser] }, logout)
+	fastify.delete('/logout', { preHandler: verifyUser }, logout)
+	fastify.get('/logout', logout);
 
 	fastify.get('/users', async (request, reply) => {
 		try {
@@ -178,6 +180,14 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			reply.code(500).send({ error: err.message })
 		}
 	})
+
+	fastify.get('/login', {preHandler: verifyUser}, async (request, reply) => {
+		if (request.user) {
+			return reply.redirect('http://localhost:5173');
+		}
+
+		return reply.send({showLogin: true});
+	});
 
 	fastify.post('/login', login)
 
