@@ -1,8 +1,4 @@
-# Makefile pour ft_transcendence
-# Gestion simplifiée du projet pour les tests de tournois
-
-
-#WIP sous les conseil de Midnight
+# Makefile pour ft_transcendence - Gestion des tournois
 
 # Variables
 COMPOSE_FILE = compose.yaml
@@ -11,7 +7,7 @@ YELLOW = \033[1;33m
 RED = \033[0;31m
 NC = \033[0m
 
-.PHONY: help up down build test-tournament test-tournament-detailed migrate
+.PHONY: help up down build test-tournament test-tournament-quick test-unit migrate seed status setup
 
 help:
 	@echo "$(GREEN)🎾 ft_transcendence - Commandes de test$(NC)"
@@ -53,8 +49,9 @@ build:
 # Migrations
 migrate:
 	@echo "$(YELLOW)🗄️  Exécution des migrations...$(NC)"
-	docker exec -i mergetr-db-1 psql -U $$POSTGRES_USER -d $$POSTGRES_DB < backend/database/schema.sql
-	docker exec -i mergetr-db-1 psql -U $$POSTGRES_USER -d $$POSTGRES_DB < backend/database/tournament_schema.sql
+	@if [ -f .env ]; then export $$(cat .env | grep -E "^POSTGRES_USER|^POSTGRES_DB" | xargs); fi && \
+	docker exec -i mergetr-db-1 psql -U admin -d db_transcendence < backend/database/schema.sql && \
+	docker exec -i mergetr-db-1 psql -U admin -d db_transcendence < backend/database/tournament_schema.sql
 	@echo "$(GREEN)✅ Migrations terminées$(NC)"
 
 # Données de test
