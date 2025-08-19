@@ -1,14 +1,20 @@
 #!/bin/bash
-# Script pour générer des certificats SSL auto-signés pour le développement
+# Generate SSL certificates for development
 
-# Créer le répertoire SSL
-mkdir -p /etc/nginx/ssl
+mkdir -p ./ssl
 
-# Générer une clé privée
-openssl genrsa -out /etc/nginx/ssl/key.pem 2048
+echo "🔐 Generating SSL certificate for localhost..."
 
-# Générer un certificat auto-signé
-openssl req -new -x509 -key /etc/nginx/ssl/key.pem -out /etc/nginx/ssl/cert.pem -days 365 -subj "/C=FR/ST=France/L=Paris/O=42School/OU=ft_transcendence/CN=localhost"
+# Generate private key
+openssl genrsa -out ./ssl/key.pem 2048
 
-echo "✅ Certificats SSL générés pour le développement"
-echo "⚠️  En production, utilisez des certificats valides (Let's Encrypt, etc.)"
+# Generate certificate
+openssl req -new -x509 -key ./ssl/key.pem -out ./ssl/cert.pem -days 365 \
+    -subj "/C=FR/ST=France/L=Paris/O=42School/OU=ft_transcendence/CN=localhost"
+
+echo "✅ SSL certificates generated:"
+echo "  - Private key: ./ssl/key.pem"
+echo "  - Certificate: ./ssl/cert.pem"
+echo "  - Valid for: 365 days"
+echo ""
+echo "⚠️  These are self-signed certificates for development only"

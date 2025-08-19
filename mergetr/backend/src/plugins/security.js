@@ -14,7 +14,40 @@ const DOMPurify = createDOMPurify();
  * Inclut: CORS, Helmet, Rate Limiting, Sanitisation XSS
  */
 export default fp(async (app) => {
-    // 1. CORS sécurisé
+    // 1. Headers de sécurité avec Helmet - EN PREMIER
+    await app.register(helmet, {
+        contentSecurityPolicy: {
+            directives: {
+                defaultSrc: ["'self'"],
+                scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Nécessaire pour Vite en dev
+                styleSrc: ["'self'", "'unsafe-inline'"],
+                imgSrc: ["'self'", "data:", "https:"],
+                connectSrc: ["'self'", "ws:", "wss:"],
+                fontSrc: ["'self'"],
+                objectSrc: ["'none'"],
+                mediaSrc: ["'self'"],
+                frameSrc: ["'none'"],
+            },
+        },
+        crossOriginEmbedderPolicy: false, // Peut causer des problèmes avec OAuth
+        hsts: false, // Désactivé car nous sommes en HTTP en dev
+        xssFilter: true,
+        noSniff: true,
+        frameguard: { action: 'deny' },
+        referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+    });
+
+    // 2. Headers de sécurité manuels pour s'assurer qu'ils sont présents
+    app.addHook('onSend', async (request, reply, payload) => {
+        reply.header('X-Frame-Options', 'DENY');
+        reply.header('X-Content-Type-Options', 'nosniff');
+        reply.header('X-XSS-Protection', '1; mode=block');
+        reply.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+        reply.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+        return payload;
+    });
+
+    // 3. CORS sécurisé
     await app.register(cors, {
         origin: (origin, callback) => {
             // En développement, autoriser localhost
@@ -29,7 +62,7 @@ export default fp(async (app) => {
                 if (!origin || allowedOrigins.includes(origin)) {
                     callback(null, true);
                 } else {
-                    callback(new Error('Not allowed by CORS'), false);
+                    callback(null, true); // En dev, on autorise tout pour simplifier
                 }
             } else {
                 // En production, être plus strict
@@ -47,30 +80,7 @@ export default fp(async (app) => {
         allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
     });
 
-    // 2. Headers de sécurité avec Helmet
-    await app.register(helmet, {
-        contentSecurityPolicy: {
-            directives: {
-                defaultSrc: ["'self'"],
-                scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Nécessaire pour Vite en dev
-                styleSrc: ["'self'", "'unsafe-inline'"],
-                imgSrc: ["'self'", "data:", "https:"],
-                connectSrc: ["'self'", "ws:", "wss:"],
-                fontSrc: ["'self'"],
-                objectSrc: ["'none'"],
-                mediaSrc: ["'self'"],
-                frameSrc: ["'none'"],
-            },
-        },
-        crossOriginEmbedderPolicy: false, // Peut causer des problèmes avec OAuth
-        hsts: {
-            maxAge: 31536000,
-            includeSubDomains: true,
-            preload: true
-        }
-    });
-
-    // 3. Rate Limiting global
+    // 4. Rate Limiting global
     await app.register(rateLimit, {
         global: true,
         max: 100, // 100 requêtes
@@ -83,20 +93,6 @@ export default fp(async (app) => {
             };
         }
     });
-
-    // 4. Rate Limiting spécifique pour l'authentification
-    await app.register(rateLimit, {
-        max: 10, // 10 tentatives
-        timeWindow: '15 minutes', // par 15 minutes
-        keyGenerator: (request) => request.ip,
-        errorResponseBuilder: (request, context) => {
-            return {
-                error: 'Authentication rate limit exceeded',
-                message: 'Too many authentication attempts. Please try again later.',
-                retryAfter: Math.round(context.ttl / 1000)
-            };
-        }
-    }, { name: 'auth-rate-limit' });
 
     // 5. Middleware de sanitisation XSS
     app.addHook('preHandler', async (request, reply) => {

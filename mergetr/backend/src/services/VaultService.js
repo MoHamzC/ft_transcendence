@@ -97,7 +97,7 @@ export class VaultService {
 
             console.log('✅ Dev secrets initialized in Vault');
         } catch (error) {
-            console.error('❌ Failed to initialize dev secrets:', error.message);
+            console.log('⚠️ Dev secrets initialization skipped:', error.message);
         }
     }
 

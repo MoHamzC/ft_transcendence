@@ -16,6 +16,26 @@ export default async function authRoutes(app)
                 max: 5, // 5 tentatives d'inscription
                 timeWindow: '1 hour' // par heure
             }
+        },
+        schema: {
+            body: {
+                type: 'object',
+                required: ['email', 'password'],
+                additionalProperties: false,
+                properties: {
+                    email: {
+                        type: 'string',
+                        format: 'email',
+                        maxLength: 254
+                    },
+                    password: {
+                        type: 'string',
+                        minLength: 12,
+                        maxLength: 128,
+                        pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]).{12,}$'
+                    }
+                }
+            }
         }
     }, async (req, reply) =>
     {
@@ -63,6 +83,25 @@ export default async function authRoutes(app)
             rateLimit: {
                 max: 10, // 10 tentatives de connexion
                 timeWindow: '15 minutes' // par 15 minutes
+            }
+        },
+        schema: {
+            body: {
+                type: 'object',
+                required: ['email', 'password'],
+                additionalProperties: false,
+                properties: {
+                    email: {
+                        type: 'string',
+                        format: 'email',
+                        maxLength: 254
+                    },
+                    password: {
+                        type: 'string',
+                        minLength: 1,
+                        maxLength: 128
+                    }
+                }
             }
         }
     }, async (req, reply) =>
