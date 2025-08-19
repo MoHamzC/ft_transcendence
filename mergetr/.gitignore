@@ -1,0 +1,49 @@
+# Fichiers d'environnement (SÉCURITÉ CRITIQUE)
+.env
+.env.local
+.env.production
+
+# Dépendances Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Builds
+dist/
+build/
+.next/
+
+# Cache et logs
+.npm
+.vscode/
+.DS_Store
+*.log
+
+# Base de données locale
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Tests
+coverage/
+.nyc_output/
+
+# Certificats SSL
+*.pem
+*.key
+*.crt
+
+# Backup files
+*.bak
+*.swp
+*.tmp
+
+# IDE
+.idea/
+*.sublime-*
+*.code-workspace

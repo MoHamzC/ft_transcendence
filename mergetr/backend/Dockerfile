@@ -25,8 +25,8 @@ USER nextjs
 EXPOSE 5001
 
 # Variables d'environnement par défaut
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 ENV PORT=5001
 
-# Commande de démarrage
-CMD ["node", "src/server.js"]
+# Commande de démarrage (sera surchargée par compose.yaml)
+CMD ["npm", "run", "dev"]

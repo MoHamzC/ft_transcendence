@@ -1,0 +1,117 @@
+// tests/tournament-routes.http
+
+### Tests d'intégration pour les routes des tournois
+### Utilisation : avec l'extension REST Client de VS Code
+
+@baseUrl = http://localhost:3000
+# Remplacer par l'ID du tournoi créé
+@tournamentId = your-tournament-id-here
+
+### 1. Créer un nouveau tournoi
+POST {{baseUrl}}/tournaments
+Content-Type: application/json
+
+{
+  "name": "Tournoi de Test HTTP",
+  "description": "Tournoi créé via les tests HTTP",
+  "maxPlayers": 8,
+  "type": "elimination"
+}
+
+### 2. Lister tous les tournois
+GET {{baseUrl}}/tournaments
+
+### 3. Lister les tournois en cours d'inscription
+GET {{baseUrl}}/tournaments?status=registration
+
+### 4. Récupérer les détails d'un tournoi
+GET {{baseUrl}}/tournaments/{{tournamentId}}
+
+### 5. S'inscrire au tournoi - Joueur 1
+POST {{baseUrl}}/tournaments/{{tournamentId}}/register
+Content-Type: application/json
+
+{
+  "alias": "Joueur1"
+}
+
+### 6. S'inscrire au tournoi - Joueur 2
+POST {{baseUrl}}/tournaments/{{tournamentId}}/register
+Content-Type: application/json
+
+{
+  "alias": "Joueur2"
+}
+
+### 7. S'inscrire au tournoi - Joueur 3
+POST {{baseUrl}}/tournaments/{{tournamentId}}/register
+Content-Type: application/json
+
+{
+  "alias": "Joueur3"
+}
+
+### 8. S'inscrire au tournoi - Joueur 4
+POST {{baseUrl}}/tournaments/{{tournamentId}}/register
+Content-Type: application/json
+
+{
+  "alias": "Joueur4"
+}
+
+### 9. Démarrer le tournoi
+POST {{baseUrl}}/tournaments/{{tournamentId}}/start
+
+### 10. Récupérer le prochain match
+GET {{baseUrl}}/tournaments/{{tournamentId}}/next-match
+
+### 11. Enregistrer un résultat de match (remplacer matchId)
+POST {{baseUrl}}/matches/{matchId}/result
+Content-Type: application/json
+
+{
+  "winnerId": "participant-uuid",
+  "player1Score": 11,
+  "player2Score": 9
+}
+
+### 12. Vérifier l'état du tournoi après le match
+GET {{baseUrl}}/tournaments/{{tournamentId}}
+
+### Tests d'erreur
+
+### 13. Créer un tournoi sans nom (erreur)
+POST {{baseUrl}}/tournaments
+Content-Type: application/json
+
+{
+  "description": "Tournoi sans nom"
+}
+
+### 14. S'inscrire avec un alias vide (erreur)
+POST {{baseUrl}}/tournaments/{{tournamentId}}/register
+Content-Type: application/json
+
+{
+  "alias": ""
+}
+
+### 15. S'inscrire à un tournoi inexistant (erreur)
+POST {{baseUrl}}/tournaments/00000000-0000-0000-0000-000000000000/register
+Content-Type: application/json
+
+{
+  "alias": "TestPlayer"
+}
+
+### 16. Démarrer un tournoi sans joueurs (erreur)
+POST {{baseUrl}}/tournaments
+Content-Type: application/json
+
+{
+  "name": "Tournoi Vide"
+}
+
+###
+# Utiliser l'ID du tournoi créé ci-dessus
+POST {{baseUrl}}/tournaments/your-tournament-id-here/start
