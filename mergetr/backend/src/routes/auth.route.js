@@ -10,13 +10,30 @@ export default async function authRoutes(app)
         return reply.send({ status: 'Auth module OK' });
     });
 
-    app.post('/register', async (req, reply) =>
+    app.post('/register', {
+        config: {
+            rateLimit: {
+                max: 5, // 5 tentatives d'inscription
+                timeWindow: '1 hour' // par heure
+            }
+        }
+    }, async (req, reply) =>
     {
         const { email, password } = req.body ?? {};
 
         if (!email || !password)
         {
             return reply.code(400).send({ error: 'Email and password are required' });
+        }
+
+        // Validation renforcée avec le plugin de sécurité
+        if (!app.validateEmail(email)) {
+            return reply.code(400).send({ error: 'Invalid email address' });
+        }
+
+        const passwordValidation = app.validatePassword(password);
+        if (!passwordValidation.valid) {
+            return reply.code(400).send({ error: passwordValidation.message });
         }
 
         try
@@ -34,10 +51,21 @@ export default async function authRoutes(app)
             {
                 return reply.code(400).send({ error: err.message });
             }
+            
+            // Log de l'erreur pour debugging
+            app.log.error('Registration error:', err);
+            return reply.code(500).send({ error: 'Internal server error' });
         }
     });
 
-    app.post('/login', async (req, reply) =>
+    app.post('/login', {
+        config: {
+            rateLimit: {
+                max: 10, // 10 tentatives de connexion
+                timeWindow: '15 minutes' // par 15 minutes
+            }
+        }
+    }, async (req, reply) =>
     {
         const { email, password } = req.body ?? {};
 
@@ -46,14 +74,46 @@ export default async function authRoutes(app)
             return reply.code(400).send({ error: 'Email and password are required' });
         }
 
-        const user = await UserService.authenticate(email, password);
-        if (!user)
-        {
-            return reply.code(401).send({ error: 'Invalid credentials' });
+        // Validation de l'email
+        if (!app.validateEmail(email)) {
+            return reply.code(400).send({ error: 'Invalid email address' });
         }
 
-        const token = app.jwt.sign({ sub: user.id, email: user.email });
-        return reply.send({ token });
+        try {
+            const user = await UserService.authenticate(email, password);
+            if (!user)
+            {
+                // Log des tentatives de connexion échouées
+                app.log.warn({
+                    type: 'failed_login',
+                    email: email,
+                    ip: req.ip,
+                    userAgent: req.headers['user-agent']
+                }, 'Failed login attempt');
+                
+                return reply.code(401).send({ error: 'Invalid credentials' });
+            }
+
+            // Log des connexions réussies
+            app.log.info({
+                type: 'successful_login',
+                userId: user.id,
+                email: user.email,
+                ip: req.ip
+            }, 'Successful login');
+
+            const token = app.jwt.sign({ 
+                sub: user.id, 
+                email: user.email,
+                iat: Math.floor(Date.now() / 1000), // Issued at
+                exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // Expire dans 24h
+            });
+            
+            return reply.send({ token });
+        } catch (error) {
+            app.log.error('Login error:', error);
+            return reply.code(500).send({ error: 'Internal server error' });
+        }
     });
 
     app.get('/protected', { preHandler: [ (req, _res) => req.jwtVerify() ] }, async (_req, reply) =>

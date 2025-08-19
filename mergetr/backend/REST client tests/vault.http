@@ -1,0 +1,54 @@
+### Tests des routes Vault pour ft_transcendence
+### ⚠️ Ces tests sont pour le développement uniquement
+
+@host = http://localhost:3001
+
+### 1) Health check de Vault
+# @name vaultHealth
+GET {{host}}/api/vault/health
+
+### 2) Liste des secrets (dev seulement)
+# @name vaultSecrets
+GET {{host}}/api/vault/secrets
+
+### 3) Lecture d'un secret spécifique - Database
+# @name vaultDatabase
+GET {{host}}/api/vault/secret/database
+
+### 4) Lecture d'un secret spécifique - JWT
+# @name vaultJWT
+GET {{host}}/api/vault/secret/jwt
+
+### 5) Lecture d'un secret spécifique - OAuth 42 (corrigé)
+# @name vaultOAuth42
+GET {{host}}/api/vault/secret/oauth/42
+
+### 6) Lecture d'un secret spécifique - OAuth GitHub (corrigé)
+# @name vaultOAuthGitHub
+GET {{host}}/api/vault/secret/oauth/github
+
+### 7) Lecture d'un secret spécifique - OAuth Google (corrigé)
+# @name vaultOAuthGoogle
+GET {{host}}/api/vault/secret/oauth/google
+
+### 8) Lecture d'un secret spécifique - Email
+# @name vaultEmail
+GET {{host}}/api/vault/secret/email
+
+### 9) Initialisation forcée des secrets de dev
+# @name vaultInitDev
+POST {{host}}/api/vault/init-dev-secrets
+
+### 10) Test d'un secret inexistant
+# @name vaultNotFound
+GET {{host}}/api/vault/secret/nonexistent
+
+### 11) Test avec path imbriqué complexe
+# @name vaultNestedPath
+GET {{host}}/api/vault/secret/oauth/42/client_id
+
+### 12) Test health en production (doit échouer)
+# @name vaultHealthProd
+GET {{host}}/api/vault/health
+Content-Type: application/json
+X-Environment: production

@@ -1,19 +1,29 @@
 // backend/src/server.js
 import 'dotenv/config';
 import Fastify from 'fastify';
+import securityPlugin from './plugins/security.js';
 import jwtPlugin from './plugins/jwt.js';
 import { registerRoutes } from './routes/index.js';
 
 async function start()
 {
-    const app = Fastify({ logger: true });
+    const app = Fastify({ 
+        logger: true,
+        trustProxy: true // Important pour les headers X-Forwarded-* depuis nginx
+    });
+
+    // 1. Charger d'abord le plugin de sécurité
+    await app.register(securityPlugin);
 
     app.get('/healthz', async () =>
     {
         return { ok: true, ts: Date.now() };
     });
 
+    // 2. Puis JWT
     await app.register(jwtPlugin);
+    
+    // 3. Enfin les routes
     await registerRoutes(app);
 
     // a virer plus tard vvvv

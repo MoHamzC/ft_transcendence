@@ -16,11 +16,19 @@
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.1.0",
+    "@fastify/helmet": "^13.0.1",
     "@fastify/jwt": "^9.1.0",
+    "@fastify/rate-limit": "^10.3.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.1",
+    "express-validator": "^7.2.1",
     "fastify": "^5.5.0",
+    "helmet": "^8.1.0",
+    "isomorphic-dompurify": "^2.26.0",
+    "node-vault": "^0.10.2",
     "nodemailer": "^7.0.5",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "validator": "^13.15.15"
   }
 }

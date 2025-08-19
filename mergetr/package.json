@@ -11,10 +11,19 @@
     "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "migrate": "node backend/scripts/migrate.js",
     "test:http": "httpyac \"backend/REST client tests/**/*.http\" --env local --bail",
+    "test:vault": "./scripts/test-vault.sh",
     "build": "cd frontend && npm run build",
     "build:all": "npm run build",
     "install:deps": "cd backend && npm install && cd ../frontend && npm install",
-    "setup": "npm install && npm run install:deps && echo 'Setup completed! Use npm run start:dev to start both services'"
+    "setup": "npm install && npm run install:deps && echo 'Setup completed! Use npm run start:dev to start both services'",
+    "vault:init": "./scripts/init-vault.sh",
+    "vault:test": "./scripts/test-vault.sh",
+    "vault:rebuild": "./scripts/rebuild-and-test.sh",
+    "vault:ui": "echo 'Vault UI: http://localhost:8200 - Token: myroot'",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:rebuild": "docker-compose down && docker-compose build --no-cache && docker-compose up -d",
+    "docker:logs": "docker-compose logs -f"
   },
   "devDependencies": {
     "httpyac": "^6.16.7",

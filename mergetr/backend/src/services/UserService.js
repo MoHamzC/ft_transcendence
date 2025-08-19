@@ -47,11 +47,28 @@ export class UserService
     {
         const e = normalizeEmail(email);
 
-        if (!password || password.length < 8)
+        // Validation renforcée du mot de passe
+        if (!password || password.length < 12)
         {
-            throw new Error('Password too short');
+            throw new Error('Password must be at least 12 characters long');
         }
 
+        if (password.length > 128)
+        {
+            throw new Error('Password must be less than 128 characters');
+        }
+
+        // Vérifier la complexité
+        const hasLower = /[a-z]/.test(password);
+        const hasUpper = /[A-Z]/.test(password);
+        const hasDigit = /\d/.test(password);
+        const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+        
+        if (!hasLower || !hasUpper || !hasDigit || !hasSpecial) {
+            throw new Error('Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character');
+        }
+
+        // Utiliser un salt plus élevé pour plus de sécurité
         const hash = await bcrypt.hash(password, SALT_ROUNDS);
 
         const { rows } = await pool.query(
@@ -77,6 +94,8 @@ export class UserService
         const user = await this.findByEmailForAuth(email);
         if (!user)
         {
+            // Utiliser une comparaison factice pour éviter les timing attacks
+            await bcrypt.compare('dummy_password', '$2b$10$dummy.hash.to.prevent.timing.attacks');
             return null;
         }
 

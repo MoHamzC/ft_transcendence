@@ -1,4 +1,5 @@
 import pool from '../config/db.js'
+import { OAuthService } from '../services/OAuthService.js'
 
 async function	authRoutes(fastify, options) {
 
@@ -8,13 +9,14 @@ async function	authRoutes(fastify, options) {
 	})
 
 	fastify.get('/42', async (request, reply) => {
-		const authUrl = 'https://api.intra.42.fr/oauth/authorize?' +
-			`client_id=${process.env.CLIENT_ID_42}&` +
-			`redirect_uri=${process.env.REDIRECT_URI}&` +
-			'response_type=code&' +
-			'scope=public'
-
-		reply.redirect(authUrl)
+		try {
+			const config = await OAuthService.getOAuthConfig('42');
+			const authUrl = OAuthService.generate42AuthUrl(config);
+			reply.redirect(authUrl);
+		} catch (error) {
+			console.error('❌ Error in /42 route:', error.message);
+			return reply.code(500).send({ error: 'Configuration OAuth non disponible' });
+		}
 	})
 
 	fastify.get('/42/callback', async (request, reply) => {
