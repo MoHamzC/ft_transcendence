@@ -73,14 +73,12 @@ const initDB = async () => {
 
 await initDB();
 
-// Handler pour les requêtes OPTIONS (preflight CORS)
-fastify.options('*', async (request, reply) => {
-    return reply.code(200).send();
-});
-
 // Import des routes
 fastify.register(import('./routes/health.js'));
-fastify.register(import('./routes/auth/oauth.js'), { prefix: '/auth' });
+fastify.register(import('./routes/auth/oauth/oauth.js'), { prefix: '/auth' });
+fastify.register(import('./routes/auth/oauth/googleOauth.js'), { prefix: '/auth'});
+fastify.register(import('./routes/auth/oauth/42Oauth.js'), { prefix: '/auth'});
+fastify.register(import('./routes/auth/oauth/githubOauth.js'), { prefix: '/auth'});
 fastify.register(import('./routes/users/legacy/user_route.js'), { prefix: '/api/users' })
 
 // Run the server!
