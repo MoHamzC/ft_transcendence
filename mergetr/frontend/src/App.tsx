@@ -20,6 +20,7 @@ import Galaxy from './Galaxy.tsx';
 import Particles from './Particles.tsx';
 import RollingGallery from './RollingGallery.tsx';
 import Register from './Register.tsx';
+import Logout from './Logout.tsx'
 function startPong()
 {
 	//todo
@@ -100,6 +101,7 @@ function App()
 								<Route path="/profile" element={<MyProfile />} />
 								<Route path="/stats" element={<Stats/>} />
 								<Route path="/register" element={<Register/>} />
+								<Route path="/logout" element={<Logout/>} />
 							</Routes>
 						</div>
 					</Profiler>
