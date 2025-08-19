@@ -19,7 +19,7 @@ import PongGame from './games/PongGame.jsx';
 import Galaxy from './Galaxy.tsx';
 import Particles from './Particles.tsx';
 import RollingGallery from './RollingGallery.tsx';
-
+import Register from './Register.tsx';
 function startPong()
 {
 	//todo
@@ -99,6 +99,7 @@ function App()
 								<Route path="/settings" element={<Settings />} />
 								<Route path="/profile" element={<MyProfile />} />
 								<Route path="/stats" element={<Stats/>} />
+								<Route path="/register" element={<Register/>} />
 							</Routes>
 						</div>
 					</Profiler>
