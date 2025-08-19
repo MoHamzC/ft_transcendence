@@ -29,7 +29,7 @@ GET {{baseUrl}}{{apiPrefix}}/statistics
 ### 4. Récupérer les statistiques (avec token)
 # Remplacez YOUR_JWT_TOKEN par le token obtenu lors du login
 GET {{baseUrl}}{{apiPrefix}}/statistics
-Authorization: Bearer YOUR_JWT_TOKEN
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoidGVzdC5zdGF0c0BleGFtcGxlLmNvbSIsImlhdCI6MTc1NTYwODA1MX0.Y8Pba_UpBehAwrKUGPf2W_PsDE8OjAftfoJvvPmvLFY
 
 ### 5. Test avec un token invalide
 GET {{baseUrl}}{{apiPrefix}}/statistics
@@ -37,15 +37,15 @@ Authorization: Bearer invalid.token.here
 
 ### 6. Récupérer le leaderboard
 GET {{baseUrl}}{{apiPrefix}}/leaderboard
-Authorization: Bearer YOUR_JWT_TOKEN
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoidGVzdC5zdGF0c0BleGFtcGxlLmNvbSIsImlhdCI6MTc1NTYwODA1MX0.Y8Pba_UpBehAwrKUGPf2W_PsDE8OjAftfoJvvPmvLFY
 
 ### 7. Récupérer le leaderboard avec pagination
 GET {{baseUrl}}{{apiPrefix}}/leaderboard?limit=5&offset=0
-Authorization: Bearer YOUR_JWT_TOKEN
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoidGVzdC5zdGF0c0BleGFtcGxlLmNvbSIsImlhdCI6MTc1NTYwODA1MX0.Y8Pba_UpBehAwrKUGPf2W_PsDE8OjAftfoJvvPmvLFY
 
 ### 8. Test de limites de pagination
 GET {{baseUrl}}{{apiPrefix}}/leaderboard?limit=200&offset=-1
-Authorization: Bearer YOUR_JWT_TOKEN
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoidGVzdC5zdGF0c0BleGFtcGxlLmNvbSIsImlhdCI6MTc1NTYwODA1MX0.Y8Pba_UpBehAwrKUGPf2W_PsDE8OjAftfoJvvPmvLFY
 
 ### 9. Health check du serveur
 GET {{baseUrl}}/healthcheck
