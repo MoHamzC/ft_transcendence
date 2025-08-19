@@ -1,10 +1,6 @@
 extends Node3D
 
-#func _ready():
-#	if (Global.score_left >= 5):
-#		_win("left player")
-#	elif (Global.score_right >= 5):
-#		_win("right player")
-
-#func _win(winner):
-	#label
+func on_goal_scored():
+	if Global.score_left >= Global.max_score or Global.score_right >= Global.max_score:
+		await get_tree().create_timer(7.5).timeout
+		get_tree().change_scene_to_file("res://scene/victory_scene.tscn")

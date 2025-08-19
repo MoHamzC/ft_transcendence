@@ -1,71 +1,68 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import PillNav from './PillNav.tsx';
+import logo from './assets/logo.png';
 import "./SideMenu.css";
 import "./App.tsx";
-import { useNavigate } from 'react-router-dom';
 
-
-
-
-
-export default function SideMenu({isLogged, setIsLogged}: any) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function SideMenu({ isLogged, setIsLogged }: any) {
+  
   const navigate = useNavigate();
 
+  function handleNav(href: string) {
+    navigate(href);
+    setIsOpen(false);
+    setIsLogged(true);
+  }
 
-
-function gotoleaderbord()
-{
-	navigate('/leaderbord');
-	setIsOpen(false);
-}
-
-function gotofriends()
-{
-	navigate('/friends');
-	setIsOpen(false);
-}
-
-function gotosettings()
-{
-	navigate('/settings');
-	setIsOpen(false);
-}
-
-function gotomyprofile()
-{
-	navigate('/profile');
-	setIsOpen(false);
-}
-
-function goStats()
-{
-	navigate('/stats');
-	setIsOpen(false);
-}
   return (
     <div>
-	<button
-	  className="profile-button"
-	  onClick={() => {
-		if (!isLogged) {
-			setIsLogged(true);
-			navigate('/login');
-		} else {
-		setIsOpen((prev) => !prev);
-		}
-	  }}
-	>
-	  👤
-	</button>
-      {isOpen && (
+      {!isLogged && (
         <div className="side-menu">
-          <div className="profile-icon"></div>
-		<button className="menu-item" onClick={gotomyprofile}>profile</button>
-          <button onClick={goStats} className="menu-item">STATS</button>
-          <button onClick={gotoleaderbord} className="menu-item">LEADERBORD</button>
-          <button onClick={gotofriends} className="menu-item">FRIENDS</button>
-          <button onClick={gotosettings} className="menu-item">SETTINGS</button>
-          <button className="menu-item">LOGOUT</button>
+          <PillNav
+            logo={logo}
+            logoAlt="Company Logo"
+            items={[{
+              label: 'Login',
+              href: '/login',
+              onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+                e.preventDefault();
+                setIsLogged(true);
+                navigate('/login');
+              }
+            }]}
+            activeHref={window.location.pathname}
+            className="custom-nav"
+            ease="power2.easeOut"
+            baseColor="oklch(25.7% 0.09 281.288)" 
+            pillColor="oklch(38% 0.189 293.745)"   
+            pillTextColor="#ffffff"
+            onMobileMenuClick={() => {}}
+          />
+        </div>
+      )}
+      {isLogged && (
+        <div className="side-menu">
+          <PillNav
+            logo={logo}
+            logoAlt="Company Logo"
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Profile', href: '/profile' },
+              { label: 'Stats', href: '/stats' },
+              { label: 'Leaderboard', href: '/leaderbord' },
+              { label: 'Friends', href: '/friends' },
+              { label: 'Settings', href: '/settings' },
+              { label: 'Logout', href: '/logout' }
+            ]}
+            activeHref={window.location.pathname}
+            className="custom-nav"
+            ease="power2.easeOut"
+            baseColor="oklch(25.7% 0.09 281.288)" 
+            pillColor="oklch(38% 0.189 293.745)"   
+            pillTextColor="white"
+            onMobileMenuClick={() => {}}
+          />
         </div>
       )}
     </div>

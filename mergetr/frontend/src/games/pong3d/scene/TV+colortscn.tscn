@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://ql0qbo4uf7bx"]
 
 [ext_resource type="PackedScene" uid="uid://slklmnar4lpa" path="res://asset/Complete CRT TV Set/Models/CRT TV.fbx" id="1_32qkf"]
-[ext_resource type="Texture2D" uid="uid://cxhii3toybr14" path="res://asset/CRT TV_Color Palette.jpg" id="2_cmtyy"]
+[ext_resource type="Texture2D" uid="uid://djll3l6tk0xjx" path="res://asset/CRT TV_Color Palette.jpg" id="2_cmtyy"]
 [ext_resource type="Script" uid="uid://c4p7bnigstxr5" path="res://script/boutonTv1.gd" id="3_cmtyy"]
 [ext_resource type="Script" uid="uid://desbhlk2evsw" path="res://script/buttonTv2.gd" id="4_en7n3"]
 

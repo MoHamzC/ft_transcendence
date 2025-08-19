@@ -1,26 +1,22 @@
-/*
-routes/index.ts — 📚 Registre central des routes
-
-    - Rassemble toutes les routes en un seul endroit.
-
-    - Regroupe les modules de routes : auth, users, game, matchmaking, etc.
-
-    - Évite les appels app.get(...) dispersés partout
-
-    - Permet un autoload propre et lisible
-*/
-
-
 // src/routes/index.js
-import authRoutes from './auth.route.js';
-import userRoutes from './user.route.js';
-import oauthRoutes from './oauth.js';
-import userOtpRoutes from './user/user_route.js';
+// Registre central des routes
 
-export async function registerRoutes(app)
-{
-    app.register(authRoutes, { prefix: '/api/auth' });
-    app.register(userRoutes, { prefix: '/api/user' });
-    app.register(oauthRoutes, { prefix: '/auth' });
-    app.register(userOtpRoutes, { prefix: '/api/users' });
+/**
+ * Register all application routes
+ * @param {Object} fastify - Instance Fastify
+ */
+export async function registerRoutes(fastify) {
+    // Routes de santé/info
+    const indexRoutes = (await import('./health.js')).default
+    await fastify.register(indexRoutes)
+
+    // Routes d'authentification
+    const authRoutes =  (await import('./auth/oauth.js')).default
+    await fastify.register(authRoutes, { prefix: '/auth' })
+
+    // Routes utilisateurs
+    const userRoutes = (await import('./users/legacy/user_route.js')).default
+    await fastify.register(userRoutes, { prefix: '/api/users' })
+
+    fastify.log.info('✅ All routes registered')
 }

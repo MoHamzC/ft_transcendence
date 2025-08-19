@@ -1,5 +1,5 @@
 import FuzzyText from "./FuzzyText";
-
+import Podium from "./Podium";
 const randomPlayers = [
 	{ name: "char", score: 950 },
 	{ name: "chat", score: 870 },
@@ -35,6 +35,8 @@ export function Leaderboard({ title, players }: Leaderboardstuff) {
   return (
     <div className="leaderboard">
       <FuzzyText>{title}</FuzzyText>
+      <Podium/>   
+      
       <table style={{ margin: "auto", color: "white" }}>
         <thead>
           <tr>

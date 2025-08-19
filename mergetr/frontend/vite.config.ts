@@ -6,19 +6,16 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
+    host: '0.0.0.0',
+    port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://node:5001',
         changeOrigin: true,
         secure: false
       },
       '/auth': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        secure: false
-      },
-      '/healthz': {
-        target: 'http://localhost:3001',
+        target: 'http://node:5001',
         changeOrigin: true,
         secure: false
       }

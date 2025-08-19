@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3 uid="uid://dg7cf4i8r6g0w"]
+
+[ext_resource type="Texture2D" uid="uid://crb3b5tphfcos" path="res://asset/text/alert.png" id="1_ppo12"]
+[ext_resource type="Script" uid="uid://2h13kq3e76f5" path="res://script/alert.gd" id="2_oh22l"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_oh22l"]
+size = Vector2(1, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6koc0"]
+transparency = 1
+albedo_texture = ExtResource("1_ppo12")
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00454679, -0.161319, 0.340989)
+visible = false
+modulate = Color(0.912271, 4.71681e-06, 6.73831e-07, 1)
+text = "ALERT"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.0270842, -0.999633, 0, 0.999633, -0.0270842, 1.37091e-05, 0.351169, 0.0168972)
+mesh = SubResource("PlaneMesh_oh22l")
+skeleton = NodePath("../Label3D")
+surface_material_override/0 = SubResource("StandardMaterial3D_6koc0")
+script = ExtResource("2_oh22l")

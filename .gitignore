@@ -1,0 +1,20 @@
+# Dépendances
+mergetr/node_modules/
+./backend/REST client tests
+mergetr/frontend/node_modules
+
+# Secrets
+.env
+
+# Fichiers de build / dev
+dist/
+*.log
+*.sqlite
+
+# Éditeurs
+.vscode/
+.idea/
+
+# Systèmes
+.DS_Store
+backend/data.db

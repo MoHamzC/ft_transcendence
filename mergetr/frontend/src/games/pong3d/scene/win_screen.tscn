@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://brf60un25eij6"]
+
+[ext_resource type="Script" uid="uid://lbh2333863xk" path="res://script/winner_screen.gd" id="1_dtvbk"]
+
+[node name="win screen" type="Node3D"]
+
+[node name="Victoire" type="Label3D" parent="."]
+pixel_size = 0.01
+text = "Victoire"
+
+[node name="winner" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3359, 0, 0)
+pixel_size = 0.009
+script = ExtResource("1_dtvbk")

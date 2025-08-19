@@ -17,11 +17,11 @@ type Props = {
   data: PieData[];
 };
 
-const COLORS: string[] = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042"];
+const COLORS: string[] = ["#0b3d91", "#1e2a78", "#5c5d67", "#f9fafc", "#a6c8ff", "#2e8b57"];
 
 const MyPieChart: React.FC<Props> = ({ data }) => {
   return (
-    <div style={{ width: "100%", height: 400 }}>
+    <div style={{ width: "100%", height: 400  }}>
       <ResponsiveContainer>
         <PieChart>
           <Pie

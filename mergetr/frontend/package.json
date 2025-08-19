@@ -14,6 +14,8 @@
     "@tailwindcss/vite": "^4.1.11",
     "autoprefixer": "^10.4.21",
     "gl-matrix": "^3.4.4",
+    "gsap": "^3.13.0",
+    "motion": "^12.23.12",
     "ogl": "^1.0.11",
     "postcss": "^8.5.6",
     "react": "^19.1.0",
