@@ -106,7 +106,7 @@ process_material = SubResource("ParticleProcessMaterial_hcb8y")
 draw_pass_1 = SubResource("QuadMesh_y3jn2")
 
 [node name="Camera3Dtele" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.21644, 0.976296, 0, -0.976296, 0.21644, 0.996336, 18.6785, 17.2147)
+transform = Transform3D(1, 0, 0, 0, 0.21644, 0.976296, 0, -0.976296, 0.21644, 0.996336, 17.4382, 14.8912)
 fov = 100.0
 script = ExtResource("7_tmyho")
 

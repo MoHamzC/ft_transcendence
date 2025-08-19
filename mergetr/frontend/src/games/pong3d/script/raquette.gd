@@ -1,63 +1,83 @@
 extends CharacterBody3D
 
 @export var speed: float = 20.0
+@export var update_interval: float = 1
+@export var z_min: float = -3.70 
+@export var z_max: float = 18.40
 
-var previous_position: Vector3
 var fixed_x: float
 var fixed_y: float
-
-var ball
+var traj_z: float = 0.0
+var ball: RigidBody3D
+var timer: float = 0.0
 
 func _ready():
-	previous_position = global_position
 	fixed_x = global_position.x
 	fixed_y = global_position.y
-	
 	ball = get_node("/root/World/ball")
 
 func ia_calcule():
+	var pos = ball.global_position
+	var vel = ball.linear_velocity
+	var distance_ball_x = global_position.x - pos.x
 
-	var ball_pos = ball.global_position
-	var ball_dir = ball.linear_velocity.normalized()
-	
-	var traj = ball_pos + ball_dir * 1.0
-	
-	if ball_pos.x >= 0.0:
-		ia_control(traj.z)
+	if vel.x == 0:
+		traj_z = pos.z
+		return
 
-func ia_control(traj_z):
+	var time_ball_to_raquette_x = distance_ball_x / vel.x
+	var future_z = pos.z
+	var velz = vel.z
+
+	var time_wall_z: float = 0.0
+	
+	# rebon contre le mure en haut et en bas laaa et vraiment
+	while time_ball_to_raquette_x > 0:
+		if velz > 0:
+			time_wall_z = (z_max - future_z) / velz
+		elif velz < 0:
+			time_wall_z = (z_min - future_z) / velz
+		else:
+			break
+
+		if time_wall_z >= time_ball_to_raquette_x:
+			future_z += velz * time_ball_to_raquette_x
+			break
+		else:
+			future_z += velz * time_wall_z
+			velz = -velz  # rebond
+			time_ball_to_raquette_x -= time_wall_z
+
+	traj_z = future_z
+
+func ia_control():
 	var direction = Vector3.ZERO
-	
-	if global_position.z > traj_z:
-		direction.z -= 1
-	elif global_position.z < traj_z:
-		direction.z += 1
+	if abs(global_position.z - traj_z) > 0.1:
+		direction.z = 1 if global_position.z < traj_z else -1
 
 	velocity = direction.normalized() * speed
 	move_and_slide()
 
-func _physics_process(_delta):
-	if Global.right_ia == true:
+func _physics_process(delta):
+	timer -= delta
+	if timer <= 0.0:
 		ia_calcule()
+		timer = update_interval
+
+	if Global.right_ia:
+		ia_control()
 	else:
 		var direction = Vector3.ZERO
+		if Input.is_action_just_pressed("up"):
+			direction.z -= 1
+		if Input.is_action_just_pressed("down"):
+			direction.z += 1
 		if Input.is_action_pressed("left"):
 			direction.z -= 1
 		if Input.is_action_pressed("right"):
 			direction.z += 1
-		if Input.is_action_pressed("up"):
-			direction.z -= 1
-		if Input.is_action_pressed("down"):
-			direction.z += 1
 		velocity = direction.normalized() * speed
 		move_and_slide()
 
-	# 🔒 Verrouille X et Y
 	global_position.x = fixed_x
 	global_position.y = fixed_y
-
-	previous_position = global_position
-
-func _on_Ball_body_entered(body):
-	if body.name == "ball":
-		print("Collision avec la balle!")

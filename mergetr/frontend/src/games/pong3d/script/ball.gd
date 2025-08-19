@@ -22,6 +22,7 @@ func _integrate_forces(state):
 		linear_velocity.x = 10 * sign(linear_velocity.x if linear_velocity.x != 0 else 1)
 
 func reset_ball():
+
 	custom_integrator = true
 	linear_velocity = Vector3.ZERO
 
