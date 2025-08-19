@@ -1,6 +1,7 @@
 import Fastify from 'fastify'
 import pool from './config/db.js'
 import { initDatabase } from './config/initDb.js'
+import { registerCors } from './config/cors.js'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import fastifyJwt from "@fastify/jwt";
@@ -12,6 +13,9 @@ dotenv.config({ path: '../.env' })
 const fastify = Fastify({
 	logger: true
 })
+
+// Configuration CORS
+await registerCors(fastify);
 
 //jwt
 fastify.register(fastifyJwt, { secret: process.env.SUPER_SECRET_CODE });
@@ -29,6 +33,24 @@ fastify.addHook('preHandler', (request, reply, next) => {
 	request.jwt = fastify.jwt
 	return next();
 })
+
+fastify.addHook('onSend', async (request, reply) => {
+	reply.header('X-Content-Type-Options', 'nosniff');
+	reply.header('X-Frame-Options', 'DENY');
+	reply.header('X-XSS-Protection', '1; mode=block');
+});
+
+fastify.addHook('preHandler', async (request, reply) => {
+	if (request.method === 'POST' || request.method === 'PUT') {
+		if (!request.headers['content-type']){
+			request.headers['content-type'] = 'application/json';
+		}
+	}
+});
+
+// fastify.options('*', async (request, reply) => {
+// 	return reply.code(200).send();
+// });
 
 fastify.register(fastifyCookie, { secret: process.env.SUPER_SECRET_CODE, hook: 'preHandler'})
 
@@ -51,11 +73,15 @@ const initDB = async () => {
 
 await initDB();
 
+// Handler pour les requêtes OPTIONS (preflight CORS)
+fastify.options('*', async (request, reply) => {
+    return reply.code(200).send();
+});
+
 // Import des routes
-fastify.register(import('./routes/index.js'));
-fastify.register(import('./routes/auth.route.js'), { prefix: '/api/auth' });
-fastify.register(import('./routes/oauth.js'), { prefix: '/api/auth' });
-fastify.register(import('./routes/user.route.js'), { prefix: '/api/user' })
+fastify.register(import('./routes/health.js'));
+fastify.register(import('./routes/auth/oauth.js'), { prefix: '/auth' });
+fastify.register(import('./routes/users/legacy/user_route.js'), { prefix: '/api/users' })
 
 // Run the server!
 const start = async () => {
