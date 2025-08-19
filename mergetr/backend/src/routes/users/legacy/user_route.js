@@ -134,7 +134,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			console.log("Email retrieved from DB!");
 			if (checkEmailExist.rows.length !== 0){
 				console.log("Email already registered on DB!");
-				return reply.code(400).send({message: 'Email already registered'});
+				return reply.code(409).send({message: 'Email already registered'});
 			}
 
 			//Insert the user into the DB
@@ -181,12 +181,8 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 		}
 	})
 
-	fastify.get('/login', {preHandler: verifyUser}, async (request, reply) => {
-		if (request.user) {
-			return reply.redirect('http://localhost:5173');
-		}
-
-		return reply.send({showLogin: true});
+	fastify.get('/protected', {preHandler: verifyUser}, async (request, reply) => {
+		return reply.code(200).send({showLogin: true});
 	});
 
 	fastify.post('/login', login)
@@ -237,10 +233,6 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			console.log(err);
 			return reply.code(500).send({Error: "Internal Server Error"});
 		}
-	});
-
-	fastify.get('/protected', { preHandler: [verifyUser] }, async (req, reply) => {
-		return reply.code(200).send({message: "Tu peux accéder à cette ressource protégée!"});
 	});
 
 	fastify.post('/connect', async (req, reply) => {
