@@ -7,10 +7,13 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(100),
     username VARCHAR(30) NOT NULL,
-    password VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255),
     otp_code VARCHAR(6),
     otp_generated_at TIMESTAMP,
+	google_id VARCHAR(255) UNIQUE,
+	github_id VARCHAR(255) UNIQUE,
+	intra42_id VARCHAR(255) UNIQUE,
+	providers TEXT[] DEFAULT '{}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -72,6 +75,10 @@ CREATE TABLE games (
 
 -- Index pour améliorer les performances
 CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_google_id ON users(google_id);
+CREATE INDEX idx_users_github_id ON users(github_id);
+CREATE INDEX idx_users_intra42_id ON users(intra42_id);
+CREATE INDEX idx_users_providers ON users USING GIN(providers);
 CREATE INDEX idx_friendships_requester ON friendships(requester_id);
 CREATE INDEX idx_friendships_addressee ON friendships(addressee_id);
 CREATE INDEX idx_stats_user ON stats(user_id);
