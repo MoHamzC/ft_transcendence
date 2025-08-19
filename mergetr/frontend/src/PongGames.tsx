@@ -1,9 +1,10 @@
 // PongGames.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import TargetCursor from './TargetCursor.tsx'; // Ajout de l'import
+import TargetCursor from './TargetCursor.tsx'; 
 import FuzzyText from './FuzzyText.tsx';
-import logo from './assets/logo.png'; // Assurez-vous que le chemin est correct
+import logo from './assets/logo.png'; 
+import ElasticSlider from './ElasticSlider'
 const PongGames: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -91,8 +92,17 @@ const PongGames: React.FC = () => {
           </div>
         </div>
 
-      
+        
         <div className="mt-8 text-center hover:scale-105 active:scale-95">
+        <ElasticSlider
+  leftIcon={<>off</>}
+  rightIcon={<>on</>}
+  startingValue={0}
+  defaultValue={0}
+  maxValue={1}
+  isStepped
+  stepSize={10}
+/>
           <Link 
             to="/"
           >

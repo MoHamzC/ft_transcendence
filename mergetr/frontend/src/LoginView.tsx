@@ -28,6 +28,11 @@ export default function LoginView()
         window.location.href = `${BACKEND_URL}/auth/google`;
     }
 
+    function handleRegister() 
+    {
+         navigate('/register');
+    }
+
     async function handleLogin() {
         const email = (document.querySelector('input[type="text"]') as HTMLInputElement)?.value;
         const password = (document.querySelector('input[type="password"]') as HTMLInputElement)?.value;
@@ -66,7 +71,6 @@ export default function LoginView()
             <TargetCursor 
 
 spinDuration={2}
-
 hideDefaultCursor={true}
 
 />
@@ -90,6 +94,14 @@ hideDefaultCursor={true}
                     onClick={handleLogin}
                 >
                     Validate
+                </button>
+                 <button
+                    className="px-4 py-2 rounded-full text-white mx-2 hover:cursor-pointer hover:bg-gray-500 active:scale-95 shadow-xl cursor-target"
+                    style={{ backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
+                    type="submit"
+                    onClick={handleRegister}
+                >
+                    Register
                 </button>
             </div>
             <div className="flex flex-row justify-center items-center gap-4 mt-4">
