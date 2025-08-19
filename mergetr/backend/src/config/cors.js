@@ -10,9 +10,12 @@ export async function registerCors(fastify) {
         const { default: fastifyCors } = await import('@fastify/cors')
 
         await fastify.register(fastifyCors, {
-            origin: true,
-            credentials: true
-        })
+            origin: true, // Autorise toutes origines en développement
+            credentials: true,
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With'],
+            exposedHeaders: ['Set-Cookie']
+        });
 
         fastify.log.info('✅ CORS configured')
     } catch (err) {
