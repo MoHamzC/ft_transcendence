@@ -16,6 +16,8 @@ import authRoutes from './auth.route.js';
 import userRoutes from './user.route.js';
 import oauthRoutes from './oauth.js';
 import userOtpRoutes from './user/user_route.js';
+import gdprRoutes from './gdpr.route.js';
+import vaultRoutes from './vault.route.js';
 
 export async function registerRoutes(app)
 {
@@ -23,4 +25,6 @@ export async function registerRoutes(app)
     app.register(userRoutes, { prefix: '/api/user' });
     app.register(oauthRoutes, { prefix: '/auth' });
     app.register(userOtpRoutes, { prefix: '/api/users' });
+    app.register(gdprRoutes, { prefix: '/api/gdpr' }); // Module GDPR OBLIGATOIRE
+    app.register(vaultRoutes, { prefix: '/api/vault' }); // Module Vault sécurisé
 }

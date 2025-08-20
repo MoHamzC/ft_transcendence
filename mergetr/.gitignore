@@ -2,7 +2,6 @@
 node_modules/
 
 # Secrets
-.env
 
 # Fichiers de build / dev
 dist/

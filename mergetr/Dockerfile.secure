@@ -1,0 +1,78 @@
+# Dockerfile.secure - Image sécurisée HTTPS pour ft_transcendence
+# Multi-stage build: nginx + Node.js pour déploiement HTTPS complet
+
+# Étape 1: Base nginx avec SSL
+FROM nginx:1.24-alpine AS nginx_base
+
+# Installation d'OpenSSL pour la génération de certificats
+RUN apk add --no-cache openssl
+
+# Copie de la configuration nginx
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# Étape 2: Build de l'application Node.js
+FROM node:18-alpine AS node_builder
+
+# Répertoire de travail
+WORKDIR /app
+
+# Copie des fichiers package.json
+COPY backend/package*.json ./
+RUN npm install --production
+
+# Copie du code source backend
+COPY backend/ ./
+
+# Étape 3: Image finale combinée
+FROM nginx:1.24-alpine AS production
+
+# Installation des outils nécessaires
+RUN apk add --no-cache \
+    nodejs \
+    npm \
+    openssl \
+    curl \
+    supervisor \
+    bash
+
+# Répertoire de travail
+WORKDIR /app
+
+# Copie de l'application Node.js depuis le builder
+COPY --from=node_builder /app /app/backend
+
+# Copie du frontend buildé
+COPY frontend/dist /usr/share/nginx/html
+
+# Copie de la configuration nginx
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# Copie du script de génération SSL
+COPY docker/nginx/generate-ssl.sh /usr/local/bin/generate-ssl.sh
+RUN chmod +x /usr/local/bin/generate-ssl.sh
+
+# Copie du script de démarrage
+COPY docker/start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Configuration Supervisor pour gérer nginx + Node.js
+RUN echo '[supervisord]' > /etc/supervisord.conf && \
+    echo 'nodaemon=true' >> /etc/supervisord.conf && \
+    echo 'user=root' >> /etc/supervisord.conf && \
+    echo '' >> /etc/supervisord.conf && \
+    echo '[program:nginx]' >> /etc/supervisord.conf && \
+    echo 'command=nginx -g "daemon off;"' >> /etc/supervisord.conf && \
+    echo 'autostart=true' >> /etc/supervisord.conf && \
+    echo 'autorestart=true' >> /etc/supervisord.conf && \
+    echo '' >> /etc/supervisord.conf && \
+    echo '[program:backend]' >> /etc/supervisord.conf && \
+    echo 'command=node /app/backend/src/server.js' >> /etc/supervisord.conf && \
+    echo 'directory=/app/backend' >> /etc/supervisord.conf && \
+    echo 'autostart=true' >> /etc/supervisord.conf && \
+    echo 'autorestart=true' >> /etc/supervisord.conf
+
+# Exposition du port HTTPS
+EXPOSE 443
+
+# Démarrage avec supervisor
+CMD ["/start.sh"]

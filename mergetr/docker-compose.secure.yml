@@ -1,0 +1,120 @@
+# docker-compose.secure.yml
+# Configuration Docker Compose sécurisée avec HTTPS
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL
+  db:
+    image: postgres:14
+    container_name: ft_transcendence_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password_change_me}
+      POSTGRES_DB: ${POSTGRES_DB:-db_transcendence}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/src/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-db_transcendence}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Sécurité: pas d'exposition de port externe
+
+  # HashiCorp Vault pour la gestion des secrets
+  vault:
+    image: hashicorp/vault:1.15
+    container_name: ft_transcendence_vault
+    restart: unless-stopped
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN:-myroot}
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_LOG_LEVEL: info
+    volumes:
+      - vault_data:/vault/data
+    networks:
+      - app_network
+    cap_add:
+      - IPC_LOCK
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Sécurité: pas d'exposition de port externe
+
+  # Application principale avec nginx + Node.js
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.secure
+    container_name: ft_transcendence_app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-secure_password_change_me}@db:5432/${POSTGRES_DB:-db_transcendence}
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: ${VAULT_TOKEN:-myroot}
+      JWT_SECRET: ${JWT_SECRET:-fallback_jwt_secret_change_me}
+      
+      # OAuth Configuration (via Vault en production)
+      CLIENT_ID_42: ${CLIENT_ID_42:-}
+      CLIENT_SECRET_42: ${CLIENT_SECRET_42:-}
+      REDIRECT_URI: https://localhost/auth/42/callback
+      
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GITHUB_REDIRECT_URI: https://localhost/auth/github/callback
+      
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: https://localhost/auth/google/callback
+      
+      # Email Configuration
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASS: ${MAIL_PASS:-}
+      
+      # Sécurité
+      ALLOWED_ORIGINS: https://localhost,https://127.0.0.1
+      SALT_ROUNDS: 12
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - app_network
+    depends_on:
+      db:
+        condition: service_healthy
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "https://localhost/healthz", "--insecure"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    volumes:
+      # Persistance des certificats SSL
+      - ./ssl:/etc/nginx/ssl
+    security_opt:
+      - no-new-privileges:true
+    read_only: false # nginx a besoin d'écrire des fichiers temporaires
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+
+networks:
+  app_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  postgres_data:
+    driver: local
+  vault_data:
+    driver: local

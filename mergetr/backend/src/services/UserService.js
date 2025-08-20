@@ -47,12 +47,29 @@ export class UserService
     {
         const e = normalizeEmail(email);
 
-        if (!password || password.length < 8)
+        // Validation renforcée du mot de passe (SÉCURITÉ OBLIGATOIRE)
+        if (!password || password.length < 12)
         {
-            throw new Error('Password too short');
+            throw new Error('Password must be at least 12 characters long');
         }
 
-        const hash = await bcrypt.hash(password, SALT_ROUNDS);
+        if (password.length > 128)
+        {
+            throw new Error('Password must be less than 128 characters');
+        }
+
+        // Vérifier la complexité (SÉCURITÉ OBLIGATOIRE)
+        const hasLower = /[a-z]/.test(password);
+        const hasUpper = /[A-Z]/.test(password);
+        const hasDigit = /\d/.test(password);
+        const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+        
+        if (!hasLower || !hasUpper || !hasDigit || !hasSpecial) {
+            throw new Error('Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character');
+        }
+
+        // Utiliser 12 rounds minimum pour sécurité (OBLIGATOIRE ft_transcendence)
+        const hash = await bcrypt.hash(password, Math.max(SALT_ROUNDS, 12));
 
         const { rows } = await pool.query(
         {
@@ -77,6 +94,8 @@ export class UserService
         const user = await this.findByEmailForAuth(email);
         if (!user)
         {
+            // Utiliser une comparaison factice pour éviter les timing attacks (SÉCURITÉ)
+            await bcrypt.compare('dummy_password', '$2b$12$dummy.hash.to.prevent.timing.attacks');
             return null;
         }
 
