@@ -54,22 +54,42 @@ export class UserService
 
         const hash = await bcrypt.hash(password, SALT_ROUNDS);
 
-        const { rows } = await pool.query(
-        {
-            text:
-                `INSERT INTO users(email, password_hash)
-                 VALUES ($1,$2)
-                 ON CONFLICT (email) DO NOTHING
-                 RETURNING id, email`,
-            values: [ e, hash ]
-        });
+        // Générer un username par défaut à partir de l'email
+        let username = e.split('@')[0].substring(0, 25); // Laisser de la place pour un suffixe
+        
+        // Gérer les conflits de username en ajoutant un suffixe numérique
+        let attempts = 0;
+        let finalUsername = username;
+        
+        while (attempts < 10) {
+            try {
+                const { rows } = await pool.query(
+                {
+                    text:
+                        `INSERT INTO users(email, username, password_hash)
+                         VALUES ($1, $2, $3)
+                         ON CONFLICT (email) DO NOTHING
+                         RETURNING id, email, username`,
+                    values: [ e, finalUsername, hash ]
+                });
 
-        if (!rows[0])
-        {
-            throw new DuplicateEmailError(e);
+                if (!rows[0]) {
+                    throw new DuplicateEmailError(e);
+                }
+
+                return rows[0];
+            } catch (error) {
+                if (error.code === '23505' && error.constraint === 'users_username_key') {
+                    // Conflit de username, essayer avec un suffixe
+                    attempts++;
+                    finalUsername = `${username}${attempts}`;
+                } else {
+                    throw error;
+                }
+            }
         }
-
-        return rows[0];
+        
+        throw new Error('Unable to generate unique username');
     }
 
     static async authenticate(email, password)

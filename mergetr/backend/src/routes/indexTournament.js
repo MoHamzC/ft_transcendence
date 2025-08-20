@@ -7,7 +7,7 @@
     - Consultation des résultats
 */
 
-import { TournamentService } from '../../services/TournamentService.js';
+import { TournamentService } from '../services/TournamentService.js';
 
 const tournamentRoutes = async (fastify, options) => {
     

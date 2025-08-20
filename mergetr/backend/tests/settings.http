@@ -1,4 +1,4 @@
-@host = http://localhost:3000
+@host = http://localhost:5001
 
 ### 0) Créer l'utilisateur si besoin
 POST {{host}}/api/auth/register

@@ -1,0 +1,77 @@
+@baseUrl = http://localhost:5001/api
+
+### 1. Créer un tournoi
+# @name createTournament
+POST {{baseUrl}}/tournaments
+Content-Type: application/json
+
+{
+  "name": "Tournoi REST",
+  "description": "Test API REST",
+  "maxPlayers": 4,
+  "type": "elimination"
+}
+
+### 2. Lister les tournois
+GET {{baseUrl}}/tournaments
+
+### 3. Récupérer les détails du tournoi créé
+GET {{baseUrl}}/tournaments/{{createTournament.response.body.tournament.id}}
+
+### 4. Inscrire Joueur 1
+# @name registerPlayer1
+POST {{baseUrl}}/tournaments/{{createTournament.response.body.tournament.id}}/register
+Content-Type: application/json
+
+{
+  "alias": "Alice"
+}
+
+### 5. Inscrire Joueur 2
+# @name registerPlayer2
+POST {{baseUrl}}/tournaments/{{createTournament.response.body.tournament.id}}/register
+Content-Type: application/json
+
+{
+  "alias": "Bob"
+}
+
+### 6. Inscrire Joueur 3
+# @name registerPlayer3
+POST {{baseUrl}}/tournaments/{{createTournament.response.body.tournament.id}}/register
+Content-Type: application/json
+
+{
+  "alias": "Charlie"
+}
+
+### 7. Inscrire Joueur 4
+# @name registerPlayer4
+POST {{baseUrl}}/tournaments/{{createTournament.response.body.tournament.id}}/register
+Content-Type: application/json
+
+{
+  "alias": "Diana"
+}
+
+### 8. Démarrer le tournoi
+# @name startTournament
+POST {{baseUrl}}/tournaments/{{createTournament.response.body.tournament.id}}/start
+
+### 9. Récupérer le prochain match
+# @name getNextMatch
+GET {{baseUrl}}/tournaments/{{createTournament.response.body.tournament.id}}/next-match
+
+### 10. Enregistrer un résultat de match (utilise les IDs récupérés du match précédent)
+# @name recordMatchResult
+POST {{baseUrl}}/matches/{{getNextMatch.response.body.match.id}}/result
+Content-Type: application/json
+
+{
+  "winnerId": "{{getNextMatch.response.body.match.player1_id}}",
+  "player1Score": 11,
+  "player2Score": 7
+}
+
+### 11. Vérifier l'état du tournoi après le match
+GET {{baseUrl}}/tournaments/{{createTournament.response.body.tournament.id}}

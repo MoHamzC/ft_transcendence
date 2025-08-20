@@ -1,4 +1,5 @@
 import pool from '../../config/db.js'
+import { UserService } from '../../services/UserService.js'
 
 async function	jwtTokenOauth(request, reply, user) {
 	try {
@@ -79,23 +80,20 @@ async function	authRoutes(fastify, options) {
 		if (!userData || !userData.login || !userData.email) {
 			return reply.code(400).send({ error: 'Données utilisateur manquantes' })
 		}
-		const existingUser = await pool.query(
-			'SELECT * FROM users WHERE email = $1',
-			[userData.email]
-		)
-		if (existingUser.rows.length > 0) {
-			const dbUser = existingUser.rows[0];
-			return jwtTokenOauth(request, reply, dbUser)
+		// Vérifier si l'utilisateur existe déjà
+		const existingUser = await UserService.findByEmailForAuth(userData.email)
+		if (existingUser) {
+			return jwtTokenOauth(request, reply, existingUser)
 		}
-		const result = await pool.query(
-			'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
-			[userData.login, userData.email, userData.password || 'default_password']
-		)
-		if (!result) {
-			console.error('Erreur pendant l\'ajout des données utilisateur dans la base de données')
-			return reply.code(400).send({ error: 'Erreur lors de la création de l\'utilisateur' })
+		
+		// Créer un nouvel utilisateur avec un mot de passe par défaut
+		try {
+			const newUser = await UserService.createUser(userData.email, 'OAuthUser123!')
+			return jwtTokenOauth(request, reply, newUser)
+		} catch (createError) {
+			console.error('Erreur lors de la création de l\'utilisateur:', createError)
+			return reply.code(500).send({ error: 'Erreur lors de la création de l\'utilisateur' })
 		}
-		return jwtTokenOauth(request, reply, userData);
 		} catch (err) {
 			console.error('❌ Erreur détaillée dans /auth/42/callback:', err.message)
 			console.error('❌ Stack trace:', err.stack)
@@ -163,23 +161,20 @@ async function	authRoutes(fastify, options) {
 		if (!userData || !userData.login || !userData.email) {
 			return reply.code(400).send({ error: 'Données utilisateur manquantes' })
 		}
-		const existingUser = await pool.query(
-			'SELECT * FROM users WHERE email = $1',
-			[userData.email]
-		)
-		if (existingUser.rows.length > 0) {
-			const dbUser = existingUser.rows[0];
-			return jwtTokenOauth(request, reply, dbUser);
+		// Vérifier si l'utilisateur existe déjà
+		const existingUser = await UserService.findByEmailForAuth(userData.email)
+		if (existingUser) {
+			return jwtTokenOauth(request, reply, existingUser)
 		}
-		const result = await pool.query(
-			'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
-			[userData.login, userData.email, userData.password || 'default_password']
-		)
-		if (!result) {
-			console.error('Erreur pendant l\'ajout des données utilisateur dans la base de données')
-			return reply.code(400).send({ error: 'Erreur lors de la création de l\'utilisateur' })
+		
+		// Créer un nouvel utilisateur avec un mot de passe par défaut
+		try {
+			const newUser = await UserService.createUser(userData.email, 'OAuthUser123!')
+			return jwtTokenOauth(request, reply, newUser)
+		} catch (createError) {
+			console.error('Erreur lors de la création de l\'utilisateur:', createError)
+			return reply.code(500).send({ error: 'Erreur lors de la création de l\'utilisateur' })
 		}
-		jwtTokenOauth(request, reply, userData);
 		} catch (err) {
 			console.error('❌ Erreur détaillée dans /auth/42/callback:', err.message)
 			console.error('❌ Stack trace:', err.stack)
@@ -245,23 +240,20 @@ async function	authRoutes(fastify, options) {
 		if (!userData || !userData.name || !userData.email) {
 			return reply.code(400).send({ error: 'Données utilisateur manquantes' })
 		}
-		const existingUser = await pool.query(
-			'SELECT * FROM users WHERE email = $1',
-			[userData.email]
-		)
-		if (existingUser.rows.length > 0) {
-			const dbUser = existingUser.rows[0];
-			return jwtTokenOauth(request, reply, dbUser);
+		// Vérifier si l'utilisateur existe déjà
+		const existingUser = await UserService.findByEmailForAuth(userData.email)
+		if (existingUser) {
+			return jwtTokenOauth(request, reply, existingUser)
 		}
-		const result = await pool.query(
-			'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
-			[userData.name, userData.email, userData.password || 'default_password']
-		)
-		if (!result) {
-			console.error('Erreur pendant l\'ajout des données utilisateur dans la base de données')
-			return reply.code(400).send({ error: 'Erreur lors de la création de l\'utilisateur' })
+		
+		// Créer un nouvel utilisateur avec un mot de passe par défaut
+		try {
+			const newUser = await UserService.createUser(userData.email, 'OAuthUser123!')
+			return jwtTokenOauth(request, reply, newUser)
+		} catch (createError) {
+			console.error('Erreur lors de la création de l\'utilisateur:', createError)
+			return reply.code(500).send({ error: 'Erreur lors de la création de l\'utilisateur' })
 		}
-		jwtTokenOauth(request, reply, userData);
 		} catch (err) {
 			console.error('❌ Erreur détaillée dans /auth/google/callback:', err.message)
 			console.error('❌ Stack trace:', err.stack)

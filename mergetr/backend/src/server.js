@@ -55,7 +55,8 @@ await initDB();
 fastify.register(import('./routes/health.js'));
 fastify.register(import('./routes/auth/auth.route.js'), { prefix: '/api/auth' });
 fastify.register(import('./routes/auth/oauth.js'), { prefix: '/api/auth' });
-fastify.register(import('./routes/users/user.route.js'), { prefix: '/api/user' })
+fastify.register(import('./routes/users/user.route.js'), { prefix: '/api/user' });
+fastify.register(import('./routes/indexTournament.js'), { prefix: '/api' });
 
 // Run the server!
 const start = async () => {

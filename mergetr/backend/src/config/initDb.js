@@ -1,60 +1,65 @@
-import fs from 'fs';
+import fs from 'fs/promises'; // Utilise la version asynchrone de fs
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pool from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const databaseDir = path.join(__dirname, '..', '..', 'database');
 
-export async function initDatabase() {
+// Fonction pour lire et exécuter un fichier SQL
+async function executeSqlFile(client, filePath, fileName) {
     try {
-        console.log('🔄 Initialisation de la base de données...');
-
-        // Lire le fichier schema.sql
-        const schemaPath = path.join(__dirname, '../../database/schema.sql');
-        const schema = fs.readFileSync(schemaPath, 'utf8');
-
-        // Supprimer toutes les tables existantes (attention: supprime toutes les données!)
-        await pool.query(`
-            DROP SCHEMA public CASCADE;
-            CREATE SCHEMA public;
-        `);
-
-        console.log('🗑️  Schema public recréé');
-
-        // Exécuter le schéma SQL
-        await pool.query(schema);
-
-        console.log('✅ Base de données initialisée avec succès!');
-        console.log('📋 Tables créées: users, friendships, stats, leaderboard, games');
-
+        const sql = await fs.readFile(filePath, 'utf8');
+        await client.query(sql);
+        console.log(`✅ Schéma '${fileName}' appliqué avec succès.`);
     } catch (error) {
-        console.error('❌ Erreur lors de l\'initialisation de la DB:', error.message);
-        throw error;
+        // Gère le cas où le fichier n'existe pas
+        if (error.code === 'ENOENT') {
+            console.warn(`⚠️  Fichier SQL '${fileName}' non trouvé, ignoré.`);
+        } else {
+            throw error; // Propage les autres erreurs
+        }
     }
 }
 
-// Option plus douce: ne supprime que les tables spécifiques
-export async function resetTables() {
+export async function initDatabase() {
+    const client = await pool.connect();
     try {
-        console.log('🔄 Reset des tables...');
+        console.log('🔄 Initialisation de la base de données...');
 
-        const tables = ['games', 'leaderboard', 'stats', 'friendships', 'users'];
+        // Réinitialiser proprement
+        await client.query(`DROP SCHEMA public CASCADE; CREATE SCHEMA public;`);
+        
+        // 1. Schéma principal
+        const schemaSQL = await fs.readFile(path.join(databaseDir, 'schema.sql'), 'utf8');
+        await client.query(schemaSQL);
+        console.log('✅ Schéma principal appliqué');
 
-        for (const table of tables) {
-            await pool.query(`DROP TABLE IF EXISTS ${table} CASCADE`);
-            console.log(`🗑️  Table ${table} supprimée`);
+        // 2. Schéma tournois (MANQUANT !)
+        const tournamentSQL = await fs.readFile(path.join(databaseDir, 'tournament_schema.sql'), 'utf8');
+        await client.query(tournamentSQL);
+        console.log('✅ Schéma tournois appliqué');
+
+        // 3. Données de test (optionnel)
+        try {
+            const testDataSQL = await fs.readFile(path.join(databaseDir, 'test_data_tournaments.sql'), 'utf8');
+            await client.query(testDataSQL);
+            console.log('✅ Données de test insérées');
+        } catch (testError) {
+            if (testError.code === 'ENOENT') {
+                console.log('⚠️  Fichier de données de test non trouvé, ignoré.');
+            } else {
+                console.warn('⚠️  Erreur lors de l\'insertion des données de test:', testError.message);
+            }
         }
 
-        // Relire et exécuter le schéma
-        const schemaPath = path.join(__dirname, '../../schema.sql');
-        const schema = fs.readFileSync(schemaPath, 'utf8');
-        await pool.query(schema);
-
-        console.log('✅ Tables recréées avec succès!');
-
+        console.log('🎉 Base de données initialisée avec succès !');
+        
     } catch (error) {
-        console.error('❌ Erreur lors du reset des tables:', error.message);
+        console.error('❌ Erreur init DB:', error.message);
         throw error;
+    } finally {
+        client.release();
     }
 }

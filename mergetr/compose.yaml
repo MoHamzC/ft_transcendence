@@ -34,6 +34,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=development
+      - RESET_DB=true  # <-- AJOUTE CETTE LIGNE POUR DÉCLENCHER L'INIT
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
       - POSTGRES_USER=${POSTGRES_USER}

@@ -1,0 +1,141 @@
+@host = http://localhost:5001
+
+### 0) status
+# @name status
+GET {{host}}/api/auth/status
+
+### 1) register un user
+# @name registerUser
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "lorislapoutreduhavre+test@42.fr",
+  "password": "Abc12345!"
+}
+
+### 1.1) register sans email
+# @name registerMissingEmail
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "password": "Abc12345!"
+}
+
+### 1.2) register sans password
+# @name registerMissingPassword
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "lorislapoutreduhavre+test@42.fr"
+}
+
+### 1.3) register duplicate TODO : PAS BON FIX
+# @name registerDuplicate
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "lorislapoutreduhavre+test@42.fr",
+  "password": "Abc12345!"
+}
+
+### 2) login et capture token
+# @name loginUser
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "lorislapoutreduhavre+test@42.fr",
+  "password": "Abc12345!"
+}
+
+### 2.1) login sans email
+# @name loginMissingEmail
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "password": "Abc12345!"
+}
+
+### 2.2) login sans password
+# @name loginMissingPassword
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "lorislapoutreduhavre+test@42.fr"
+}
+
+### 2.3) login mauvais mdp
+# @name loginWrongPassword
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "lorislapoutreduhavre+test@42.fr",
+  "password": "wrong"
+}
+
+### 2.4) login user inexistant
+# @name loginUnknownUser
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "unknown@42.fr",
+  "password": "Abc12345!"
+}
+
+### 3) route protegee OK
+# @name protectedOk
+GET {{host}}/api/auth/protected
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### 3.1) protected sans token
+# @name protectedNoToken
+GET {{host}}/api/auth/protected
+
+### 3.2) protected token invalide
+# @name protectedInvalid
+GET {{host}}/api/auth/protected
+Authorization: Bearer invalidtoken
+
+### 4) /me OK
+# @name meOk
+GET {{host}}/api/auth/me
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### 4.1) me sans token
+# @name meNoToken
+GET {{host}}/api/auth/me
+
+### 4.2) me token invalide
+# @name meInvalid
+GET {{host}}/api/auth/me
+Authorization: Bearer invalidtoken
+
+### Lister mes amis
+GET {{host}}/api/user/friends
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### Envoyer une demande d’ami
+POST {{host}}/api/user/friends
+Content-Type: application/json
+Authorization: Bearer {{loginUser.response.body.token}}
+
+{
+  "addresseeId": 2
+}
+
+### Accepter une demande d’ami
+POST {{host}}/api/user/friends/accept
+Content-Type: application/json
+Authorization: Bearer {{loginUser.response.body.token}}
+
+{
+  "requesterId": 2
+}

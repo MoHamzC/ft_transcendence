@@ -27,7 +27,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 		const { email, password } = request.body
 
 		const user = await pool.query(
-			'Select email, username, password FROM users WHERE email = $1',
+			'Select email, username, password_hash FROM users WHERE email = $1',
 			[email]
 		)
 		console.log("Email retrieved from DB!");
@@ -35,7 +35,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			return reply.code(400).send({ error: "User doesn't exist"});
 
 		try {
-			const isMatch = user && (await bcrypt.compare(password, user.rows[0].password))
+			const isMatch = user && (await bcrypt.compare(password, user.rows[0].password_hash))
 			if (!isMatch || !user){
 				return reply.code(401).send({ message: "Invalid email or password" })
 			}
@@ -139,7 +139,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 			//Insert the user into the DB
 			const result = await pool.query(
-				'INSERT INTO users (email, username, password) VALUES ($1, $2, $3) RETURNING *',
+				'INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING *',
 				[email, username, hashedPassword]
 			)
 			console.log("User created!");
@@ -251,7 +251,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 		try {
 		const resultPassword = await pool.query(
-			'SELECT password from users WHERE email = $1',
+			'SELECT password_hash from users WHERE email = $1',
 			[email]
 		)
 
@@ -259,7 +259,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			return reply.code(400).send({ error: "Utilisateur non trouvé" })
 		}
 
-		const hashedPassword = resultPassword.rows[0].password
+		const hashedPassword = resultPassword.rows[0].password_hash
 
 		const isValid = await bcrypt.compare(password, hashedPassword)
 		if (isValid){

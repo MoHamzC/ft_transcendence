@@ -11,6 +11,7 @@ CREATE TABLE tournaments (
     type VARCHAR(20) DEFAULT 'elimination' CHECK (type IN ('elimination', 'round_robin')),
     created_by UUID REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     started_at TIMESTAMP,
     finished_at TIMESTAMP,
     winner_id UUID REFERENCES users(id) ON DELETE SET NULL
@@ -56,4 +57,7 @@ CREATE INDEX idx_tournament_matches_status ON tournament_matches(status);
 
 -- Triggers pour les timestamps
 CREATE TRIGGER update_tournaments_updated_at BEFORE UPDATE ON tournaments
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_tournament_participants_updated_at BEFORE UPDATE ON tournament_participants
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
