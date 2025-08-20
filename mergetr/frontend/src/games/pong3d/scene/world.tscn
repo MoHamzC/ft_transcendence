@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://c2bec77ybm64d"]
+[gd_scene load_steps=28 format=3 uid="uid://c2bec77ybm64d"]
 
 [ext_resource type="Script" uid="uid://dsxcyf5pikbje" path="res://World.gd" id="1_jsnws"]
 [ext_resource type="PackedScene" uid="uid://dppsyvbwy6q8v" path="res://scene/All_Wall.tscn" id="1_yur6x"]
@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://bup5fgtfcpv2e" path="res://scene/meteorite.tscn" id="13_f345f"]
 [ext_resource type="Script" uid="uid://bcv37aykddyg5" path="res://script/meteorite.gd" id="14_bqa5m"]
 [ext_resource type="PackedScene" uid="uid://dg7cf4i8r6g0w" path="res://scene/alert_texte.tscn" id="15_a0bac"]
+[ext_resource type="PackedScene" uid="uid://bo2ac27uy3mdn" path="res://scene/quitButton.tscn" id="18_e4vd1"]
 
 [sub_resource type="Gradient" id="Gradient_hcb8y"]
 offsets = PackedFloat32Array(0, 0.5, 1)
@@ -74,6 +75,8 @@ volumetric_fog_emission_energy = 12.2
 
 [node name="World" type="Node3D"]
 script = ExtResource("1_jsnws")
+
+[node name="HTTPRequest" type="HTTPRequest" parent="."]
 
 [node name="start_game_timer" parent="." instance=ExtResource("2_hnm4a")]
 transform = Transform3D(1, 0, 0, 0, 0.984689, 0.174318, 0, -0.174318, 0.984689, 0.232654, 3.79594, 3.21887)
@@ -147,3 +150,5 @@ speed = 70.0
 
 [node name="Alert" parent="." instance=ExtResource("15_a0bac")]
 transform = Transform3D(5.99999, -0.00995537, -0.00289282, 0.00285641, -0.0219345, 5.99996, -0.00996588, -5.99995, -0.0219297, -0.131862, 0.088361, 9.47456)
+
+[node name="CanvasLayer" parent="." instance=ExtResource("18_e4vd1")]
