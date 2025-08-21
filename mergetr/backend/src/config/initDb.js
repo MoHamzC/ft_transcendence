@@ -26,7 +26,7 @@ export async function initDatabase() {
         await pool.query(schema);
 
         console.log('✅ Base de données initialisée avec succès!');
-        console.log('📋 Tables créées: users, friendships, stats, leaderboard, games');
+        console.log('📋 Tables créées: users, user_settings, friendships, stats, leaderboard, games');
 
     } catch (error) {
         console.error('❌ Erreur lors de l\'initialisation de la DB:', error.message);
