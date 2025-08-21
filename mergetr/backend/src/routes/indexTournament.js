@@ -2,9 +2,10 @@
 
 /* Routes pour la gestion des tournois
     - CRUD des tournois
-    - Inscription/désinscription
-    - Gestion des matchs
-    - Consultation des résultats
+    - Inscription/désinscription (avec ou sans compte utilisateur)
+    - Gestion des matchs avec règles uniformes
+    - Consultation des résultats et notifications
+    - Annonces des prochains matchs
 */
 
 import { TournamentService } from '../services/TournamentService.js';
@@ -12,14 +13,24 @@ import { TournamentService } from '../services/TournamentService.js';
 const tournamentRoutes = async (fastify, options) => {
     
     // Créer un nouveau tournoi
-    fastify.post('/tournaments', async (request, reply) => {
+    fastify.post('/tournaments', {
+        schema: {
+            summary: 'Créer un nouveau tournoi',
+            body: {
+                type: 'object',
+                required: ['name'],
+                properties: {
+                    name: { type: 'string', minLength: 3, maxLength: 255 },
+                    description: { type: 'string', maxLength: 1000 },
+                    maxPlayers: { type: 'integer', minimum: 2, maximum: 32, default: 8 },
+                    type: { type: 'string', enum: ['elimination', 'round_robin'], default: 'elimination' }
+                }
+            }
+        }
+    }, async (request, reply) => {
         try {
             const { name, description, maxPlayers, type } = request.body;
             
-            if (!name) {
-                return reply.code(400).send({ error: 'Le nom du tournoi est obligatoire' });
-            }
-
             const tournament = await TournamentService.createTournament(
                 name, 
                 description, 
@@ -28,14 +39,27 @@ const tournamentRoutes = async (fastify, options) => {
                 request.user?.id
             );
             
-            reply.code(201).send({ tournament });
+            reply.code(201).send({ 
+                success: true,
+                tournament
+            });
         } catch (error) {
             reply.code(500).send({ error: error.message });
         }
     });
 
     // Lister les tournois
-    fastify.get('/tournaments', async (request, reply) => {
+    fastify.get('/tournaments', {
+        schema: {
+            summary: 'Lister les tournois',
+            querystring: {
+                type: 'object',
+                properties: {
+                    status: { type: 'string', enum: ['registration', 'in_progress', 'finished', 'cancelled'] }
+                }
+            }
+        }
+    }, async (request, reply) => {
         try {
             const { status } = request.query;
             const tournaments = await TournamentService.listTournaments(status);
@@ -46,7 +70,17 @@ const tournamentRoutes = async (fastify, options) => {
     });
 
     // Récupérer les détails d'un tournoi
-    fastify.get('/tournaments/:id', async (request, reply) => {
+    fastify.get('/tournaments/:id', {
+        schema: {
+            summary: 'Détails d\'un tournoi',
+            params: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', format: 'uuid' }
+                }
+            }
+        }
+    }, async (request, reply) => {
         try {
             const { id } = request.params;
             const details = await TournamentService.getTournamentDetails(id);
@@ -56,59 +90,163 @@ const tournamentRoutes = async (fastify, options) => {
         }
     });
 
-    // S'inscrire à un tournoi
-    fastify.post('/tournaments/:id/register', async (request, reply) => {
+    // Vérifier si on peut rejoindre un tournoi avec un alias donné
+    fastify.post('/tournaments/:id/check-alias', {
+        schema: {
+            summary: 'Vérifier la disponibilité d\'un alias',
+            params: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', format: 'uuid' }
+                }
+            },
+            body: {
+                type: 'object',
+                required: ['alias'],
+                properties: {
+                    alias: { type: 'string', minLength: 2, maxLength: 50 }
+                }
+            }
+        }
+    }, async (request, reply) => {
         try {
             const { id } = request.params;
             const { alias } = request.body;
             
-            if (!alias) {
-                return reply.code(400).send({ error: 'Un alias est obligatoire' });
-            }
+            const result = await TournamentService.canJoinTournament(id, alias);
+            reply.send(result);
+        } catch (error) {
+            reply.code(500).send({ error: error.message });
+        }
+    });
 
-            const participant = await TournamentService.registerPlayer(
-                id, 
-                request.user?.id, 
-                alias
-            );
+    // S'inscrire à un tournoi (avec ou sans compte utilisateur)
+    fastify.post('/tournaments/:id/register', {
+        schema: {
+            summary: 'S\'inscrire à un tournoi',
+            params: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', format: 'uuid' }
+                }
+            },
+            body: {
+                type: 'object',
+                required: ['alias'],
+                properties: {
+                    alias: { type: 'string', minLength: 2, maxLength: 50 }
+                }
+            }
+        }
+    }, async (request, reply) => {
+        try {
+            const { id } = request.params;
+            const { alias } = request.body;
             
-            reply.code(201).send({ participant });
+            // L'utilisateur peut être connecté ou non
+            const userId = request.user?.id || null;
+            
+            const participant = await TournamentService.registerPlayer(id, userId, alias);
+            
+            reply.code(201).send({ 
+                success: true,
+                participant,
+                message: `${alias} s'est inscrit au tournoi avec succès`
+            });
         } catch (error) {
             reply.code(400).send({ error: error.message });
         }
     });
 
     // Démarrer un tournoi
-    fastify.post('/tournaments/:id/start', async (request, reply) => {
+    fastify.post('/tournaments/:id/start', {
+        schema: {
+            summary: 'Démarrer un tournoi',
+            params: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', format: 'uuid' }
+                }
+            }
+        }
+    }, async (request, reply) => {
         try {
             const { id } = request.params;
             const result = await TournamentService.startTournament(id);
-            reply.send(result);
+            
+            // Récupérer le premier match pour l'annonce
+            const nextMatch = await TournamentService.getNextMatch(id);
+            
+            reply.send({
+                ...result,
+                nextMatch
+            });
         } catch (error) {
             reply.code(400).send({ error: error.message });
         }
     });
 
     // Récupérer le prochain match
-    fastify.get('/tournaments/:id/next-match', async (request, reply) => {
+    fastify.get('/tournaments/:id/next-match', {
+        schema: {
+            summary: 'Prochain match à jouer',
+            params: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', format: 'uuid' }
+                }
+            }
+        }
+    }, async (request, reply) => {
         try {
             const { id } = request.params;
             const match = await TournamentService.getNextMatch(id);
-            reply.send({ match });
+            
+            if (!match) {
+                return reply.send({ 
+                    match: null, 
+                    message: 'Aucun match en attente' 
+                });
+            }
+            
+            reply.send({ 
+                match,
+                announcement: `Prochain match : ${match.player1_alias} vs ${match.player2_alias}`
+            });
         } catch (error) {
             reply.code(500).send({ error: error.message });
         }
     });
 
-    // Enregistrer le résultat d'un match
-    fastify.post('/matches/:matchId/result', async (request, reply) => {
+    // Enregistrer le résultat d'un match (simple)
+    fastify.post('/matches/:matchId/result', {
+        schema: {
+            summary: 'Enregistrer le résultat d\'un match',
+            params: {
+                type: 'object',
+                properties: {
+                    matchId: { type: 'string', format: 'uuid' }
+                }
+            },
+            body: {
+                type: 'object',
+                required: ['winnerId', 'player1Score', 'player2Score'],
+                properties: {
+                    winnerId: { type: 'string', format: 'uuid' },
+                    player1Score: { type: 'integer', minimum: 0 },
+                    player2Score: { type: 'integer', minimum: 0 }
+                }
+            }
+        }
+    }, async (request, reply) => {
         try {
             const { matchId } = request.params;
             const { winnerId, player1Score, player2Score } = request.body;
             
-            if (!winnerId || player1Score === undefined || player2Score === undefined) {
+            // Validation simple : pas de match nul
+            if (player1Score === player2Score) {
                 return reply.code(400).send({ 
-                    error: 'winnerId, player1Score et player2Score sont obligatoires' 
+                    error: 'Match nul non autorisé dans un tournoi à élimination' 
                 });
             }
 
@@ -119,11 +257,45 @@ const tournamentRoutes = async (fastify, options) => {
                 player2Score
             );
             
-            reply.send(result);
+            reply.send({
+                ...result,
+                message: 'Résultat enregistré avec succès'
+            });
         } catch (error) {
             reply.code(400).send({ error: error.message });
         }
     });
+
+    // Récupérer les notifications d'un tournoi
+    fastify.get('/tournaments/:id/notifications', {
+        schema: {
+            summary: 'Notifications d\'un tournoi',
+            params: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', format: 'uuid' }
+                }
+            },
+            querystring: {
+                type: 'object',
+                properties: {
+                    limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 }
+                }
+            }
+        }
+    }, async (request, reply) => {
+        try {
+            const { id } = request.params;
+            const { limit = 20 } = request.query;
+            
+            const notifications = await TournamentService.getTournamentNotifications(id, limit);
+            reply.send({ notifications });
+        } catch (error) {
+            reply.code(500).send({ error: error.message });
+        }
+    });
+
+    // Suppression de la route des règles (frontend gère tout)
 };
 
 export default tournamentRoutes;

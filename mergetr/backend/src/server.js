@@ -32,6 +32,9 @@ fastify.addHook('preHandler', (request, reply, next) => {
 
 fastify.register(fastifyCookie, { secret: process.env.SUPER_SECRET_CODE, hook: 'preHandler'})
 
+// Enregistrer le support WebSocket
+await fastify.register(import('@fastify/websocket'));
+
 // Initialisation de la base de données
 const initDB = async () => {
 	try {
@@ -58,11 +61,15 @@ fastify.register(import('./routes/auth/oauth.js'), { prefix: '/api/auth' });
 fastify.register(import('./routes/users/user.route.js'), { prefix: '/api/user' });
 fastify.register(import('./routes/indexTournament.js'), { prefix: '/api' });
 
+// Routes WebSocket pour les tournois
+fastify.register(import('./routes/websocket/tournamentWebSocket.js'), { prefix: '/api/ws' });
+
 // Run the server!
 const start = async () => {
 	try {
 		await fastify.listen({port : 5001, host : '0.0.0.0'});
 		console.log("Server listening on 0.0.0.0:5001");
+		console.log("🔌 WebSocket support enabled for tournaments");
 	} catch (err) {
 		fastify.log.error(err);
 		console.log("Error: Can't start the server");
