@@ -33,6 +33,11 @@ export default function LoginView()
          navigate('/register');
     }
 
+    function gotodoubleauth()
+    {
+        navigate('/doubleauth');
+    }
+
     async function handleLogin() {
         const email = (document.querySelector('input[type="text"]') as HTMLInputElement)?.value;
         const password = (document.querySelector('input[type="password"]') as HTMLInputElement)?.value;

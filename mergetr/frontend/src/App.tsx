@@ -41,17 +41,17 @@ function Home()
 					style={{ borderRadius: '8px', backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
 					onClick={() => navigate('/pong')}
 				>
-					Pong
+					PLAY
 				</button>
 				<SplashCursor />
 
-				<button 
+				{/* <button 
 					className="px-4 py-2 hover:scale-105 active:scale-90 bg-zinc-600 text-white mx-2 hover:cursor-pointer hover:bg-gray-500 shadow-xl"
 					style={{ borderRadius: '8px', backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
 					onClick={startPong}
 				>
 					gnop
-				</button>
+				</button> */}
 			</div>
 		</>
 	)
