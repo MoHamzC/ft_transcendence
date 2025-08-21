@@ -41,13 +41,13 @@ async function handleFtLogin(request, reply, ftUserData){
 
 	if (!result.rows[0].providers){
 		const addProvider = await pool.query (
-			'UPDATE users SET providers = COALESCE(providers, ARRAY[]::text[]) || "ft" WHERE id = $1',
+			'UPDATE users SET providers = COALESCE(providers, ARRAY[]::text[]) || "42" WHERE id = $1',
 			[result.rows[0].id]
 		)
 	}
 
 	const addProvider = await pool.query(
-		"UPDATE users SET providers = array_append(providers, 'ft') WHERE id = $1",
+		"UPDATE users SET providers = array_append(providers, '42') WHERE id = $1",
 		[result.rows[0].id]
 	)
 
