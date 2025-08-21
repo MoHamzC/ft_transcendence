@@ -35,12 +35,12 @@ services:
 
   node:
     image: node:24
-    user: node
-    working_dir: /home/node/app
+
+    working_dir: /home/sgoinfre
     environment:
       - NODE_ENV=dev
     volumes:
-      - ./:/home/node/app
+      - ./:/home/sgoinfre
     ports:
       - 5001:5001
     env_file:
@@ -49,7 +49,6 @@ services:
 
   frontend:
     image: node:24
-    user: node
     working_dir: /home/node/app/frontend
     environment:
       - NODE_ENV=development

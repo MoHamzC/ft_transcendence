@@ -9,11 +9,8 @@ export default function Logout() {
   useEffect(() => {
     const disconnect = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/logout`, {
+        const response = await fetch(`${BACKEND_URL}/api/users/logout`, {
           method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
           credentials: 'include', 
         });
 
