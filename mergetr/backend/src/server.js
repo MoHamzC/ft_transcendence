@@ -79,7 +79,8 @@ fastify.register(import('./routes/auth/oauth/oauth.js'), { prefix: '/auth' });
 fastify.register(import('./routes/auth/oauth/googleOauth.js'), { prefix: '/auth'});
 fastify.register(import('./routes/auth/oauth/42Oauth.js'), { prefix: '/auth'});
 fastify.register(import('./routes/auth/oauth/githubOauth.js'), { prefix: '/auth'});
-fastify.register(import('./routes/users/legacy/user_route.js'), { prefix: '/api/users' })
+fastify.register(import('./routes/users/user_route.js'), { prefix: '/api/users' });
+fastify.register(import('./routes/users/user_settings.js'), { prefix: '/api/users' });
 
 // Run the server!
 const start = async () => {
