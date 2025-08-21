@@ -68,6 +68,9 @@ const PongGames: React.FC = () => {
             </div>
           </div>
 
+
+        
+
         <div className="mt-12 grid md:grid-cols-2 gap-8 text-gray-400">
           
           <div className="flex flex-col items-center">
@@ -90,6 +93,7 @@ const PongGames: React.FC = () => {
           <div className="col-span-2 flex justify-center mt-4">
             <p className="text-sm">5 points = win</p>
           </div>
+          
         </div>
 
         
