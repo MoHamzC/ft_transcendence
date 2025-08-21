@@ -73,6 +73,16 @@ CREATE TABLE games (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE user_settings (
+    id SERIAL PRIMARY KEY,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    avatar_url TEXT,
+    two_factor_enabled BOOLEAN DEFAULT FALSE,
+    language VARCHAR(10) DEFAULT 'FR',
+    add_friend BOOLEAN DEFAULT TRUE,
+    profile_private BOOLEAN DEFAULT FALSE
+);
+
 -- Index pour améliorer les performances
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_google_id ON users(google_id);
