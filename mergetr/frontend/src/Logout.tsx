@@ -7,6 +7,8 @@ export default function Logout() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    navigate('/'); 
+
     const disconnect = async () => {
       try {
         const response = await fetch(`${BACKEND_URL}/api/users/logout`, {
@@ -14,11 +16,7 @@ export default function Logout() {
           credentials: 'include', 
         });
 
-        if (response.ok) {
-          const result = await response.text();
-          console.log(result);
-          navigate('/');
-        } else {
+        if (!response.ok) {
           const error = await response.json();
           alert(error.error || 'Logout failed');
         }
@@ -31,5 +29,5 @@ export default function Logout() {
     disconnect();
   }, [navigate]);
 
-  return <p>Login out...</p>;
+  return null;
 }
