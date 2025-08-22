@@ -1,10 +1,42 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import TargetCursor from './TargetCursor';
 
-export default function LoginView()
+export default function LoginView({ setIsLogged }: any)
 {
     const navigate = useNavigate();
     const BACKEND_URL = 'http://localhost:5001';
+
+    
+    useEffect(() => {
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const loginSuccess = urlParams.get('login');
+        
+        if (loginSuccess === 'success') {
+            setIsLogged(true);
+            navigate('/');
+            return;
+        }
+
+        const checkAuthStatus = async () => {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/users/profile`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+                if (response.ok) {
+                    setIsLogged(true);
+                    navigate('/');
+                }
+            } catch (err) {
+                console.error('Error checking auth status:', err);
+            }
+        };
+
+        checkAuthStatus();
+    }, [navigate, setIsLogged]);
 
     function authentification42()
     {
@@ -59,6 +91,7 @@ export default function LoginView()
             if (response.ok) {
                 const result = await response.text();
                 alert(result);
+                setIsLogged(true); 
                 navigate('/');
             } else {
                 const error = await response.json();

@@ -1,16 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+
 
 export default function Register() {
-    const navigate = useNavigate();
+    
     const BACKEND_URL = 'http://localhost:5001';
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-     function gotodoubleauth()
-    {
-        navigate('/doubleauth');
-    }
+ 
 
     async function handleRegister(e: React.FormEvent) {
         e.preventDefault();
@@ -28,7 +25,7 @@ export default function Register() {
             });
             if (response.ok) {
                 alert('Registration successful!');
-                navigate('/doubleauth');
+              
             } else {
                 const error = await response.json();
                 alert(error.error || 'Registration failed');

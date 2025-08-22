@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom';
 
 const BACKEND_URL = 'http://localhost:5001';
 
-export default function Logout() {
+export default function Logout({ setIsLogged }: any) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    setIsLogged(false);
     navigate('/'); 
 
     const disconnect = async () => {
