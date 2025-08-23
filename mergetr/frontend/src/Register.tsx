@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { useNavigate } from 'react-router-dom';
 
 export default function Register() {
     
@@ -7,7 +7,7 @@ export default function Register() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
- 
+   const navigate = useNavigate();
 
     async function handleRegister(e: React.FormEvent) {
         e.preventDefault();
@@ -25,6 +25,7 @@ export default function Register() {
             });
             if (response.ok) {
                 alert('Registration successful!');
+                navigate('/login');
               
             } else {
                 const error = await response.json();
