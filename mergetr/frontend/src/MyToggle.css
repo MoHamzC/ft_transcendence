@@ -1,0 +1,43 @@
+.mytoggle {
+    display: inline-block;
+}
+
+.toggle-button {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: #ccc;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    padding: 0;
+}
+
+.toggle-button.toggled {
+    background-color: #571a91;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: white;
+    transition: transform 0.3s;
+}
+
+.toggle-button.toggled .toggle-slider {
+    transform: translateX(30px);
+}
+
+.toggle-button:focus {
+    outline: 2px solid #90939b;
+    outline-offset: 2px;
+}
+
+.toggle-button:hover {
+    opacity: 0.9;
+}
