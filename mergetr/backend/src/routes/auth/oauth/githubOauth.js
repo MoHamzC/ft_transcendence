@@ -31,7 +31,7 @@ async function handleGithubLogin(request, reply, githubUserData){
 
 	const result = await pool.query(
 		'INSERT INTO users (username, email, github_id) VALUES ($1, $2, $3) RETURNING *',
-		[githubUserData.name, githubUserData.email, githubUserData.id]
+		[githubUserData.login, githubUserData.email, githubUserData.id]
 	)
 
 	if (!result) {
@@ -111,6 +111,7 @@ async function oauthGithubRoutes (fastify, options){
 			return reply.code(400).send({ error: 'Erreur lors de la récupération des données utilisateur' })
 		}
 		const userData = await userResponse.json()
+
 		if (!userData || !userData.login || !userData.email) {
 			return reply.code(400).send({ error: 'Données utilisateur manquantes' })
 		}
