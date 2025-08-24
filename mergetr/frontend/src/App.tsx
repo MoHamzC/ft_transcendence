@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import AboutUs from './AboutUs.tsx';
 import BackHome from './BackHome.tsx';
 import SideMenu from './SideMenu.tsx';
-import ProfilePage from './ProfilePage.tsx'; 
+import ProfilePage from './ProfilePage.tsx';
 import SplashCursor from './SplashCursor.tsx';
 import FuzzyText from './FuzzyText';
 import Leaderbord from './Leaderbord.tsx';
@@ -46,19 +46,19 @@ function App()
 	useEffect(() => {
 		const checkAuthStatus = async () => {
 			try {
-				const response = await fetch(`${BACKEND_URL}/api/users/profile`, {
+				const response = await fetch(`${BACKEND_URL}/api/users/protected`, {
 					method: 'GET',
 					credentials: 'include',
 				});
 
 				if (response.ok) {
-					
+
 					setIsLogged(true);
 				} else {
-					
+
 					setIsLogged(false);
 				}
-			} catch (err) 
+			} catch (err)
 			{
 				console.error('Error checking auth status:', err);
 				setIsLogged(false);
@@ -70,7 +70,7 @@ function App()
 
 	return (
 		<>
-		
+
 			<div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
 				<Particles
 					particleColors={['#ffffff', '#ffffff']}
