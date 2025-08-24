@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import TargetCursor from './TargetCursor';
 
 export default function LoginView({ setIsLogged }: any)
 {
     const navigate = useNavigate();
     const BACKEND_URL = 'http://localhost:5001';
+       const [email, setEmail] = useState("");
 
+        const [password, setPassword] = useState("");
 
     useEffect(() => {
 
@@ -21,7 +23,7 @@ export default function LoginView({ setIsLogged }: any)
 
         const checkAuthStatus = async () => {
             try {
-                
+                const response = await fetch(`${BACKEND_URL}/api/users/protected`, {
                     method: 'GET',
                     credentials: 'include',
                 });
@@ -71,8 +73,6 @@ export default function LoginView({ setIsLogged }: any)
     }
 
     async function handleLogin() {
-        const email = (document.querySelector('input[type="text"]') as HTMLInputElement)?.value;
-        const password = (document.querySelector('input[type="password"]') as HTMLInputElement)?.value;
 
         if (!email || !password) {
             alert('Please fill in all fields');
@@ -116,14 +116,18 @@ hideDefaultCursor={true}
                 <input 
                     className="px-4 py-3 rounded text-white cursor-target" 
                     style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
-                    type="text" 
-                    placeholder="Email" 
+                    type="text"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                 />
                 <input 
                     className="px-4 py-3 bg-zinc-600 rounded text-white cursor-target" 
                     style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
-                    type="password" 
-                    placeholder="Password" 
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                 />
                 <button 
                     className="px-4 py-2 rounded-full text-white mx-2 hover:cursor-pointer hover:bg-gray-500 active:scale-95 shadow-xl cursor-target" 
