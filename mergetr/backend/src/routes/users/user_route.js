@@ -79,7 +79,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 	async function logout(request, reply) {
 		reply.clearCookie('access_token');
-		return reply.code(302).redirect('http://localhost:5173');
+		return reply.code(200).redirect('http://localhost:5173');
 	}
 
 	async function verifyUser(request, reply) {
@@ -152,7 +152,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 		if (!email || !username || !password){
 				return reply.code(400).send({error: "Tous les champs sont requis pour créer l'utilisateur" })
 		}
-		const hashedPassword = await bcrypt.hash(password, 10) //Salt round in .env?
+		const hashedPassword = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS));
 		try {
 
 			//Check in DB if the email already exists
