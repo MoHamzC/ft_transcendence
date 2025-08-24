@@ -1,4 +1,5 @@
 import pool from '../../config/db.js'
+import bcrypt from 'bcrypt'
 import { verifyUser } from './user_route.js'
 
 async function userSettingsRoutes(fastify, options) {
@@ -28,6 +29,39 @@ async function userSettingsRoutes(fastify, options) {
 			return reply.code(200).send({message: "Les paramètres ont été mis à jour !"});
 		} catch (err) {
 			return reply.code(500).send({error: "Erreur lors de la mise à jour des paramètres" });
+		}
+	})
+
+	fastify.put("/reset_password", { preHandler: verifyUser }, async (request, reply) => {
+		try {
+			const userData = request.user;
+			const { newPassword, newPasswordConfirmation } = request.body;
+
+			if (!newPassword){
+				return reply.code(400).send({error: "La case nouveau password est vide"});
+			}
+			if (!newPasswordConfirmation){
+				return reply.code(400).send({error: "La case confirmation nouveau password est vide"});
+			}
+			console.log("Les champs de mot de passe sont remplis");
+
+			if (newPassword === newPasswordConfirmation){
+				const hashedPassword = await bcrypt.hash(newPassword, Number(process.env.SALT_ROUNDS));
+				const changePassword = pool.query(
+					"UPDATE users SET password_hash = $1 WHERE id = $2 RETURNING id",
+					[hashedPassword, userData.id]
+				);
+
+				if (changePassword.length === 0){
+					return reply.code(500).send({error: "Problème de communication avec la base de données"});
+				}
+				return reply.code(200).send({message: "Le mot de passe a été correctement remplacé"});
+			} else {
+				return reply.code(400).send({error: "Les mots de passe ne sont pas identiques"});
+			}
+		} catch (err) {
+			console.log(err);
+			return reply.code(500).send({error: "Internal Server Error"});
 		}
 	})
 }
