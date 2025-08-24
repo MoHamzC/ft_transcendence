@@ -7,12 +7,12 @@ export default function LoginView({ setIsLogged }: any)
     const navigate = useNavigate();
     const BACKEND_URL = 'http://localhost:5001';
 
-    
+
     useEffect(() => {
 
         const urlParams = new URLSearchParams(window.location.search);
         const loginSuccess = urlParams.get('login');
-        
+
         if (loginSuccess === 'success') {
             setIsLogged(true);
             navigate('/');
@@ -21,7 +21,7 @@ export default function LoginView({ setIsLogged }: any)
 
         const checkAuthStatus = async () => {
             try {
-                const response = await fetch(`${BACKEND_URL}/api/users/profile`, {
+                
                     method: 'GET',
                     credentials: 'include',
                 });
@@ -60,7 +60,7 @@ export default function LoginView({ setIsLogged }: any)
         window.location.href = `${BACKEND_URL}/auth/google`;
     }
 
-    function handleRegister() 
+    function handleRegister()
     {
          navigate('/register');
     }
@@ -91,7 +91,7 @@ export default function LoginView({ setIsLogged }: any)
             if (response.ok) {
                 const result = await response.text();
                 alert(result);
-                setIsLogged(true); 
+                setIsLogged(true);
                 navigate('/');
             } else {
                 const error = await response.json();
