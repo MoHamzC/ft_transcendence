@@ -1,0 +1,26 @@
+/* Full-viewport overlay that centers its content. Uses high z-index to appear above side menus. */
+.error-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000; /* above most UI elements */
+  pointer-events: none; /* allow clicks to pass through if desired */
+}
+
+/* The actual content should accept pointer events so links/buttons work */
+.error-content {
+  pointer-events: auto;
+  color: white;
+  text-align: center;
+}
+
+/* Make the message responsive */
+.error-content h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+}
