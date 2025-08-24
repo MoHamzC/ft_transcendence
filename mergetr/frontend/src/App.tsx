@@ -23,6 +23,7 @@ import Error from './Error.tsx';
 import Register from './Register.tsx';
 import Logout from './Logout.tsx'
 import Home from './Home.tsx';
+import ResetPassword from './ResetPassword.tsx';
 
 
 function onRenderCallback(
@@ -98,6 +99,7 @@ function App()
 								<Route path="/register" element={<Register/>} />
 								<Route path="/logout" element={<Logout setIsLogged={setIsLogged} />} />
 								<Route path="/error" element={<Error/>} />
+								<Route path="/ResetPassword" element={<ResetPassword />} />
 							</Routes>
 						</div>
 					</Profiler>
