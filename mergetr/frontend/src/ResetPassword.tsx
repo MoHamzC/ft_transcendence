@@ -5,11 +5,12 @@ import FuzzyText from "./FuzzyText";
 const BACKEND_URL = 'http://localhost:5001';
 export default function ResetPassword() {
     const navigate = useNavigate();
-    
-            
+    const [password, setPassword] = useState(""); 
+    const [confirmPassword, setConfirmPassword] = useState("");
+
         async function resetPassword() {
         const password = (document.querySelector('input[type="password"]') as HTMLInputElement)?.value;
-
+         const confirmpassword = (document.querySelector('input[type="password"]') as HTMLInputElement)?.value;
         if (!password) {
             alert('Please fill in all fields');
             return;
@@ -17,11 +18,11 @@ export default function ResetPassword() {
 
         try {
             const response = await fetch(`${BACKEND_URL}/api/users/reset_password`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ password }),
+                body: JSON.stringify({ password , confirmpassword}),
             });
 
             if (response.ok) {
@@ -45,7 +46,17 @@ export default function ResetPassword() {
                     className="px-4 py-3 bg-zinc-600 rounded text-white cursor-target"
                     style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
                     type="password"
-                    placeholder="new password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                <input
+                    className="px-4 py-3 bg-zinc-600 rounded text-white cursor-target"
+                    style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm Password"
                 />
              <button
                     className="px-4 py-2 rounded-full text-white mx-2 hover:cursor-pointer hover:bg-gray-500 active:scale-95 shadow-xl cursor-target"
