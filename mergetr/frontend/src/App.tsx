@@ -16,8 +16,9 @@ import Stats from './Stats.tsx';
 import LoginView from './LoginView.tsx';
 import PongGames from './PongGames.tsx';
 import PongGame from './games/PongGame.jsx';
-import Galaxy from './Galaxy.tsx';
+
 import Particles from './Particles.tsx';
+import Error from './Error.tsx';
 
 import Register from './Register.tsx';
 import Logout from './Logout.tsx'
@@ -96,6 +97,7 @@ function App()
 								<Route path="/stats" element={<Stats/>} />
 								<Route path="/register" element={<Register/>} />
 								<Route path="/logout" element={<Logout setIsLogged={setIsLogged} />} />
+								<Route path="/error" element={<Error/>} />
 							</Routes>
 						</div>
 					</Profiler>
