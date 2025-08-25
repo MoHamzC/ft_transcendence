@@ -1,11 +1,11 @@
 // src/routes/tournaments/index.js
 
-/* Routes pour la gestion des tournois
+/* Routes pour la gestion des tournois LOCAL
     - CRUD des tournois
     - Inscription/désinscription (avec ou sans compte utilisateur)
-    - Gestion des matchs avec règles uniformes
-    - Consultation des résultats et notifications
-    - Annonces des prochains matchs
+    - Gestion des matchs
+    - Consultation des résultats
+    - VERSION SIMPLIFIÉE POUR TOURNOI LOCAL (SANS WEBSOCKET/NOTIFICATIONS)
 */
 
 import { TournamentService } from '../services/TournamentService.js';
@@ -266,36 +266,6 @@ const tournamentRoutes = async (fastify, options) => {
         }
     });
 
-    // Récupérer les notifications d'un tournoi
-    fastify.get('/tournaments/:id/notifications', {
-        schema: {
-            summary: 'Notifications d\'un tournoi',
-            params: {
-                type: 'object',
-                properties: {
-                    id: { type: 'string', format: 'uuid' }
-                }
-            },
-            querystring: {
-                type: 'object',
-                properties: {
-                    limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 }
-                }
-            }
-        }
-    }, async (request, reply) => {
-        try {
-            const { id } = request.params;
-            const { limit = 20 } = request.query;
-            
-            const notifications = await TournamentService.getTournamentNotifications(id, limit);
-            reply.send({ notifications });
-        } catch (error) {
-            reply.code(500).send({ error: error.message });
-        }
-    });
-
-    // Suppression de la route des règles (frontend gère tout)
 };
 
 export default tournamentRoutes;

@@ -36,10 +36,10 @@ export async function initDatabase() {
         await client.query(schemaSQL);
         console.log('✅ Schéma principal appliqué');
 
-        // 2. Schéma tournois (MANQUANT !)
-        const tournamentSQL = await fs.readFile(path.join(databaseDir, 'tournament_schema.sql'), 'utf8');
+        // 2. Schéma tournois local (SIMPLIFIÉ)
+        const tournamentSQL = await fs.readFile(path.join(databaseDir, 'tournament_schema_local.sql'), 'utf8');
         await client.query(tournamentSQL);
-        console.log('✅ Schéma tournois appliqué');
+        console.log('✅ Schéma tournois local appliqué');
 
         // 3. Données de test (optionnel)
         try {

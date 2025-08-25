@@ -6,10 +6,6 @@
 @tournamentId = {{createTournament.response.body.tournament.id}}
 @matchId = {{getNextMatch.response.body.match.id}}
 
-### 1. Obtenir les règles de jeu standardisées
-GET {{baseUrl}}/tournament-rules
-Content-Type: application/json
-
 ### 2. Créer un nouveau tournoi
 # @name createTournament
 POST {{baseUrl}}/tournaments
@@ -74,6 +70,7 @@ Content-Type: application/json
 POST {{baseUrl}}/tournaments/{{tournamentId}}/start
 Content-Type: application/json
 
+{}
 ### 11. Obtenir le prochain match (avec annonce)
 # @name getNextMatch
 GET {{baseUrl}}/tournaments/{{tournamentId}}/next-match
