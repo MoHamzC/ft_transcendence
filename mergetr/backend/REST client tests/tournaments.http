@@ -1,28 +1,28 @@
-# Tests REST pour la gestion améliorée des tournois
-# Conformité avec les exigences du sujet ft_transcendence
+# Tests REST pour la gestion des tournois LOCAL
+# Conformité avec les exigences du sujet ft_transcendence - VERSION LOCALE
 
 ### Variables
 @baseUrl = http://localhost:5001/api
 @tournamentId = {{createTournament.response.body.tournament.id}}
 @matchId = {{getNextMatch.response.body.match.id}}
 
-### 2. Créer un nouveau tournoi
+### 1. Créer un nouveau tournoi
 # @name createTournament
 POST {{baseUrl}}/tournaments
 Content-Type: application/json
 
 {
-  "name": "Tournoi Test Conformité",
-  "description": "Test des règles uniformes et du matchmaking",
+  "name": "Tournoi Local Test",
+  "description": "Test du système de tournoi local 1v1",
   "maxPlayers": 4,
   "type": "elimination"
 }
 
-### 3. Lister les tournois
+### 2. Lister les tournois
 GET {{baseUrl}}/tournaments
 Content-Type: application/json
 
-### 4. Vérifier la disponibilité d'un alias
+### 3. Vérifier la disponibilité d'un alias
 POST {{baseUrl}}/tournaments/{{tournamentId}}/check-alias
 Content-Type: application/json
 
@@ -30,7 +30,7 @@ Content-Type: application/json
   "alias": "PlayerOne"
 }
 
-### 5. Inscription sans compte utilisateur - Joueur 1
+### 4. Inscription sans compte utilisateur - Joueur 1
 POST {{baseUrl}}/tournaments/{{tournamentId}}/register
 Content-Type: application/json
 
@@ -38,7 +38,7 @@ Content-Type: application/json
   "alias": "PlayerOne"
 }
 
-### 6. Inscription sans compte utilisateur - Joueur 2
+### 5. Inscription sans compte utilisateur - Joueur 2
 POST {{baseUrl}}/tournaments/{{tournamentId}}/register
 Content-Type: application/json
 
@@ -46,7 +46,7 @@ Content-Type: application/json
   "alias": "PlayerTwo"
 }
 
-### 7. Inscription sans compte utilisateur - Joueur 3
+### 6. Inscription sans compte utilisateur - Joueur 3
 POST {{baseUrl}}/tournaments/{{tournamentId}}/register
 Content-Type: application/json
 
@@ -54,7 +54,7 @@ Content-Type: application/json
   "alias": "PlayerThree"
 }
 
-### 8. Inscription sans compte utilisateur - Joueur 4
+### 7. Inscription sans compte utilisateur - Joueur 4
 POST {{baseUrl}}/tournaments/{{tournamentId}}/register
 Content-Type: application/json
 
@@ -62,66 +62,35 @@ Content-Type: application/json
   "alias": "PlayerFour"
 }
 
-### 9. Détails du tournoi avec participants
+### 8. Détails du tournoi avec participants
 GET {{baseUrl}}/tournaments/{{tournamentId}}
 Content-Type: application/json
 
-### 10. Démarrer le tournoi (génère les matchs avec règles uniformes)
+### 9. Démarrer le tournoi (génère les matchs du premier tour)
 POST {{baseUrl}}/tournaments/{{tournamentId}}/start
 Content-Type: application/json
 
 {}
-### 11. Obtenir le prochain match (avec annonce)
+
+### 10. Obtenir le prochain match (matchmaking automatique)
 # @name getNextMatch
 GET {{baseUrl}}/tournaments/{{tournamentId}}/next-match
 Content-Type: application/json
 
-### 12. Simuler un résultat de match avec validation des règles
+### 11. Enregistrer le résultat du premier match (simple)
 POST {{baseUrl}}/matches/{{matchId}}/result
 Content-Type: application/json
 
 {
   "winnerId": "{{getNextMatch.response.body.match.player1_id}}",
   "player1Score": 5,
-  "player2Score": 3,
-  "gameMetadata": {
-    "rules_validated": true,
-    "paddle_speed_player1": 5,
-    "paddle_speed_player2": 5,
-    "final_score_player1": 5,
-    "final_score_player2": 3,
-    "game_duration": 120,
-    "ball_hits": 24,
-    "game_type": "pong"
-  }
+  "player2Score": 3
 }
 
-### 13. Vérifier le prochain match après résultat
+### 12. Vérifier le prochain match après résultat
 GET {{baseUrl}}/tournaments/{{tournamentId}}/next-match
 Content-Type: application/json
-
-### 14. Obtenir les notifications du tournoi
-GET {{baseUrl}}/tournaments/{{tournamentId}}/notifications
-Content-Type: application/json
-
-### 15. Envoyer une notification de test
-POST {{baseUrl}}/tournaments/{{tournamentId}}/notify
-Content-Type: application/json
-
-{
-  "type": "test_notification",
-  "message": "Ceci est un test de notification",
-  "data": {
-    "test": true
-  },
-  "priority": "medium"
-}
-
-### 16. Statistiques des connexions WebSocket
-GET {{baseUrl}}/tournaments/ws-stats
-Content-Type: application/json
-
-### 17. Test d'inscription avec alias déjà utilisé (doit échouer)
+### 13. Test d'inscription avec alias déjà utilisé (doit échouer)
 POST {{baseUrl}}/tournaments/{{tournamentId}}/register
 Content-Type: application/json
 
@@ -129,36 +98,16 @@ Content-Type: application/json
   "alias": "PlayerOne"
 }
 
-### 18. Test de résultat invalide - match nul (doit échouer)
+### 14. Test de résultat invalide - match nul (doit échouer)
 POST {{baseUrl}}/matches/invalid-match-id/result
 Content-Type: application/json
 
 {
   "winnerId": "some-id",
   "player1Score": 3,
-  "player2Score": 3,
-  "gameMetadata": {
-    "rules_validated": true,
-    "paddle_speed_player1": 5,
-    "paddle_speed_player2": 5,
-    "final_score_player1": 3,
-    "final_score_player2": 3
-  }
+  "player2Score": 3
 }
 
-### 19. Test de règles invalides - vitesse de raquette différente (doit échouer)
-POST {{baseUrl}}/matches/{{matchId}}/result
+### 15. Détails finaux du tournoi
+GET {{baseUrl}}/tournaments/{{tournamentId}}
 Content-Type: application/json
-
-{
-  "winnerId": "some-id",
-  "player1Score": 5,
-  "player2Score": 2,
-  "gameMetadata": {
-    "rules_validated": true,
-    "paddle_speed_player1": 7,
-    "paddle_speed_player2": 5,
-    "final_score_player1": 5,
-    "final_score_player2": 2
-  }
-}

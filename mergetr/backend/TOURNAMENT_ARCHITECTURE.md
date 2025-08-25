@@ -1,12 +1,12 @@
-# Architecture de Gestion des Tournois - ft_transcendence
+# Architecture de Gestion des Tournois LOCAL - ft_transcendence
 
 ## 🎯 Vue d'ensemble
 
-Cette documentation décrit l'architecture améliorée de gestion des tournois pour le projet ft_transcendence, en respectant strictement les exigences du sujet qui exigent une séparation claire entre la logique de tournoi et le game design.
+Cette documentation décrit l'architecture LOCALE de gestion des tournois pour le projet ft_transcendence, conforme aux exigences du sujet pour un tournoi local 1v1 sur un seul PC.
 
 ## 📋 Séparation des Responsabilités
 
-### Backend (Node.js/Fastify) - Gestion Pure du Tournoi
+### Backend (Node.js/Fastify) - Gestion Pure du Tournoi LOCAL
 
 **Responsabilités :**
 - ✅ Création et gestion des tournois
@@ -14,40 +14,47 @@ Cette documentation décrit l'architecture améliorée de gestion des tournois p
 - ✅ Génération automatique des matchs (matchmaking)
 - ✅ Gestion de la progression des tours
 - ✅ Enregistrement des résultats de match (score uniquement)
-- ✅ Notifications en temps réel (WebSocket)
 - ✅ Annonces des prochains matchs
 - ✅ Gestion des statuts et de la progression
 
-**Ce que le backend NE gère PAS :**
+**Ce que le backend NE gère PAS (conformité stricte au sujet) :**
 - ❌ Vitesse de la balle
 - ❌ Vitesse des raquettes
 - ❌ Règles de gameplay spécifiques
 - ❌ Logique de collision
 - ❌ Rendu du jeu
 - ❌ Mécaniques de jeu
+- ❌ WebSocket/Notifications temps réel (version locale)
 
 ### Frontend (React/TypeScript) - Game Design et Interface
 
 **Responsabilités :**
 - ✅ Rendu du jeu Pong
 - ✅ Gestion des règles de gameplay
-- ✅ Configuration de la vitesse de balle/raquettes
+- ✅ Configuration de la vitesse de balle/raquettes (identique pour tous)
 - ✅ Détection des collisions
 - ✅ Interface utilisateur du tournoi
 - ✅ Envoi des résultats au backend après chaque match
-- ✅ Affichage des notifications en temps réel
 
-## 🏗️ Architecture Technique
+## 🏗️ Architecture Technique - VERSION LOCALE
 
 ### Services Backend
 
-#### 1. TournamentService.js
+#### 1. TournamentService.js (VERSION LOCALE)
 ```javascript
-// Fonctionnalités principales :
+// Fonctionnalités principales - VERSION SIMPLIFIÉE:
 - createTournament()          // Création de tournois
-- registerPlayer()            // Inscription joueurs
+- registerPlayer()            // Inscription joueurs (avec/sans compte)
 - startTournament()           // Démarrage automatique
-- recordMatchResult()         // Enregistrement des scores
+- recordMatchResult()         // Enregistrement des scores SEULEMENT
+- getNextMatch()             // Prochain match à jouer
+- getTournamentDetails()     // Détails et progression
+```
+
+**SUPPRIMÉ (version locale) :**
+- TournamentNotificationService.js (supprimé)
+- Toute logique WebSocket (supprimée)
+- Validation des règles de jeu (déplacée vers frontend)
 - generateNextRound()         // Progression automatique
 ```
 
