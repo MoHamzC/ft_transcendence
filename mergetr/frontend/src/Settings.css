@@ -1,11 +1,11 @@
-/* Center the settings page and layout items in a column */
+
 .settings {
-  position: relative; /* placed within app's centered container */
+  position: relative; 
   display: flex;
   flex-direction: column;
-  align-items: center; /* center horizontally */
-  justify-content: center; /* center vertically */
-  min-height: 60vh; /* take a good portion of viewport */
+  align-items: center; 
+  justify-content: center; 
+  min-height: 60vh;
   gap: 1.5rem;
   color: white;
   text-align: center;
@@ -14,7 +14,7 @@
 
 .setting-item {
   display: flex;
-  flex-direction: column; /* stack settings vertically */
+  flex-direction: column; 
   align-items: center;
   gap: 1rem;
   background: rgba(0,0,0,0.25);
@@ -34,7 +34,7 @@
   margin-top: 0.5rem;
 }
 
-/* smaller screens */
+
 @media (max-width: 480px) {
   .settings { min-height: 50vh; }
   .setting-item { padding: 1rem; max-width: 320px; }
