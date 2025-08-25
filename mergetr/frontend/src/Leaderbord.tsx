@@ -1,5 +1,8 @@
 import FuzzyText from "./FuzzyText";
 import Podium from "./Podium";
+import './Leaderbord.css';
+
+import TargetCursor from "./TargetCursor";
 const randomPlayers = [
 	{ name: "char", score: 950 },
 	{ name: "chat", score: 870 },
@@ -34,10 +37,13 @@ type Leaderboardstuff = {
 export function Leaderboard({ title, players }: Leaderboardstuff) {
   return (
     <div className="leaderboard">
-      <FuzzyText>{title}</FuzzyText>
+      <div className="leaderboard-header">
+        <FuzzyText>{title}</FuzzyText>
+      </div>
       <Podium/>   
       
-      <table style={{ margin: "auto", color: "white" }}>
+      <div className="leaderboard-list">
+        <table className="simple-leaderboard-table">
         <thead>
           <tr>
             <th>Rank</th>
@@ -49,14 +55,17 @@ export function Leaderboard({ title, players }: Leaderboardstuff) {
           {players
             .sort((a, b) => b.score - a.score)
             .map((player, idx) => (
-              <tr key={player.name + idx}>
-                <td>{idx + 1}</td>
-                <td>{player.name}</td>
-                <td>{player.score}</td>
+              <tr key={player.name + idx} className="cursor-target">
+                <td className="col-rank">{idx + 1}</td>
+                <td className="col-name">{player.name}</td>
+                <td className="col-score">{player.score}</td>
               </tr>
             ))}
         </tbody>
-      </table>
+        </table>
+      </div>
+  
+      <TargetCursor />
     </div>
   );
 }
