@@ -103,6 +103,12 @@ export default function LoginView({ setIsLogged }: any)
         }
     }
 
+
+    function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        void handleLogin();
+    }
+
     return (
         <>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -112,38 +118,43 @@ hideDefaultCursor={true}
 
 />
                 <h1 className='transcendence cursor-target'>Login to play</h1>
-                <input
-                    className="px-4 py-3 rounded text-white cursor-target"
-                    style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
-                    type="text"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <input
-                    className="px-4 py-3 bg-zinc-600 rounded text-white cursor-target"
-                    style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <button
-                    className="px-4 py-2 rounded-full text-white mx-2 hover:cursor-pointer hover:bg-gray-500 active:scale-95 shadow-xl cursor-target"
-                    style={{ backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
-                    type="submit"
-                    onClick={handleLogin}
-                >
-                    Validate
-                </button>
-                 <button
-                    className="px-4 py-2 rounded-full text-white mx-2 hover:cursor-pointer hover:bg-gray-500 active:scale-95 shadow-xl cursor-target"
-                    style={{ backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
-                    type="submit"
-                    onClick={handleRegister}
-                >
-                    Register
-                </button>
+
+               
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    <input
+                        className="px-4 py-3 rounded text-white cursor-target"
+                        style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
+                        type="text"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <input
+                        className="px-4 py-3 bg-zinc-600 rounded text-white cursor-target"
+                        style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button
+                            className="px-4 py-2 rounded-full text-white mx-2 hover:cursor-pointer hover:bg-gray-500 active:scale-95 shadow-xl cursor-target"
+                            style={{ backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
+                            type="submit"
+                        >
+                            Validate
+                        </button>
+                        <button
+                            className="px-4 py-2 rounded-full text-white mx-2 hover:cursor-pointer hover:bg-gray-500 active:scale-95 shadow-xl cursor-target"
+                            style={{ backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
+                            type="button"
+                            onClick={handleRegister}
+                        >
+                            Register
+                        </button>
+                    </div>
+                </form>
             </div>
             <div className="flex flex-row justify-center items-center gap-4 mt-4">
                 <button
