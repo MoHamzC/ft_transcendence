@@ -2,6 +2,7 @@ import FuzzyText from "./FuzzyText";
 import MyToggle from "./MyToggle";
 import React from "react";
 import {useNavigate } from 'react-router-dom';
+import './Settings.css';
 
 export default function Settings () {
 	const navigate = useNavigate();
