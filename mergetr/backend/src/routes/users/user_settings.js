@@ -1,6 +1,10 @@
 import pool from '../../config/db.js'
 import bcrypt from 'bcrypt'
 import { verifyUser } from './user_route.js'
+import multipart from '@fastify/multipart'
+import fastifyStatic from '@fastify/static'
+import path from 'path'
+import fs from 'fs'
 
 async function userSettingsRoutes(fastify, options) {
 	fastify.put('/settings', { preHandler: verifyUser }, async (request, reply) => {
@@ -64,6 +68,40 @@ async function userSettingsRoutes(fastify, options) {
 			return reply.code(500).send({error: "Internal Server Error"});
 		}
 	})
+
+	fastify.post('/avatar', { preHandler: verifyUser }, async (request, reply) => {
+		try {
+			const userId = request.user.id;
+			const data = await request.file();
+
+			if (!data) {
+				return reply.code(400).send({ error: "Aucun fichier fourni !"});
+			}
+
+			if (!data.mimetype.startsWith('image/')) {
+				return reply.code(400).send({ error: "Le fichier doit être de type image"});
+			}
+
+			const fileExtension = path.extname(data.filename);
+			const fileName = `${userId}_${Date.now()}${fileExtension}`;
+			const filePath = path.join(process.cwd(), 'uploads', 'avatars', fileName);
+
+			const buffer = await data.toBuffer();
+			fs.writeFileSync(filePath, buffer);
+
+			const avatarUrl = `/uploads/avatars/${fileName}`;
+
+			await pool.query(
+				'UPDATE user_settings SET avatar_url = $1 WHERE user_id = $2',
+				[avatarUrl, userId]
+			);
+
+			return reply.code(200).send({message: "Avatar mis à jour", avatar_url: avatarUrl});
+		} catch (err) {
+			console.log(err);
+			return reply.code(500).send({ error: "Erreur lors de l'upload de l'avatar" });
+		}
+	});
 }
 
 export default userSettingsRoutes;
