@@ -39,13 +39,22 @@ const PongGames: React.FC = () => {
               </p>
               <div className="flex flex-col gap-4">
                 <div className="relative w-full">
-                  <Link
+                    <Link
                     to="/pong/play"
                     className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
                     style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
-                  >
+                    >
                     Play now
-                  </Link>
+                    </Link>
+                    <div className="mt-2">
+                    <Link
+                      to="/pong/play"
+                      className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
+                      style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
+                    >
+                      Play in tournament
+                    </Link>
+                    </div>
                 </div>
               </div>
             </div>
@@ -113,15 +122,7 @@ const PongGames: React.FC = () => {
 
         
         <div className="mt-8 text-center hover:scale-105 active:scale-95">
-        <ElasticSlider
-  leftIcon={<>off</>}
-  rightIcon={<>on</>}
-  startingValue={0}
-  defaultValue={0}
-  maxValue={1}
-  isStepped
-  stepSize={10}
-/>
+        
           <Link 
             to="/"
           >
