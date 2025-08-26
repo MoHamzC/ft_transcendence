@@ -25,7 +25,7 @@ export default function LoginView({ setIsLogged }: any)
             try {
                 const response = await fetch(`${BACKEND_URL}/api/users/protected`, {
                     method: 'GET',
-                    credentials: 'include',
+                    credentials: 'include'
                 });
 
                 if (response.ok) {
@@ -52,10 +52,6 @@ export default function LoginView({ setIsLogged }: any)
         window.location.href = `${BACKEND_URL}/auth/github`;
     }
 
-    function goHome() {
-        navigate('/');
-    }
-
     function authentificationGoogle()
     {
 
@@ -67,11 +63,6 @@ export default function LoginView({ setIsLogged }: any)
          navigate('/register');
     }
 
-    function gotodoubleauth()
-    {
-        navigate('/doubleauth');
-    }
-
     async function handleLogin() {
 
         if (!email || !password) {
@@ -80,17 +71,18 @@ export default function LoginView({ setIsLogged }: any)
         }
 
         try {
-            const response = await fetch(`${BACKEND_URL}/api/users/connect`, {
+            const response = await fetch(`${BACKEND_URL}/api/users/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({ email, password }),
             });
 
             if (response.ok) {
-                const result = await response.text();
-                alert(result);
+                const result = await response.json();
+                alert(result.message || 'Login successful');
                 setIsLogged(true);
                 navigate('/');
             } else {
