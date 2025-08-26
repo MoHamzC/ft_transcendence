@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import TargetCursor from './TargetCursor';
-
+import FuzzyText from './FuzzyText';
 export default function LoginView({ setIsLogged }: any)
 {
     const navigate = useNavigate();
@@ -118,7 +118,7 @@ spinDuration={2}
 hideDefaultCursor={true}
 
 />
-                <h1 className='transcendence cursor-target'>Login to play</h1>
+                <h1 className='transcendence cursor-target'><FuzzyText>Login</FuzzyText></h1>
 
                
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
