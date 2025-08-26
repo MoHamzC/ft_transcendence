@@ -6,7 +6,10 @@ import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import fastifyJwt from "@fastify/jwt";
 import fastifyCookie from "@fastify/cookie";
+import fastifyStatic from "@fastify/static"
 import nodeMailer from "nodemailer";
+import path from "path";
+import fs from 'fs';
 
 dotenv.config({ path: '../.env' })
 
@@ -53,6 +56,11 @@ fastify.addHook('preHandler', async (request, reply) => {
 // });
 
 fastify.register(fastifyCookie, { secret: process.env.SUPER_SECRET_CODE, hook: 'preHandler'})
+
+await fastify.register(import('@fastify/static'), {
+	root: path.join(process.cwd(), 'uploads'),
+	prefix: '/uploads/',
+});
 
 // Initialisation de la base de données
 const initDB = async () => {
