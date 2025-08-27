@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 
-type Props = {
+type Props = 
+{
   value?: string;
   onChange?: (value: string) => void;
 };
@@ -13,7 +14,7 @@ export default function Select({ value: initialValue, onChange }: Props) {
     if (initialValue && initialValue !== value) {
       setValue(initialValue);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [initialValue]);
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {

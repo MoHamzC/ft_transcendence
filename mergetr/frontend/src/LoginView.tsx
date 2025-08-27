@@ -109,6 +109,10 @@ export default function LoginView({ setIsLogged }: any)
         void handleLogin();
     }
 
+    function goDoubleAuth() {
+        navigate('/doubleauth');
+    }
+
     return (
         <>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -179,6 +183,10 @@ hideDefaultCursor={true}
                     <img src="/assets/google.svg" alt="Google" className="w-6 h-6 cursor-target" />
                     Google
                 </button>
+                <button
+                    onClick={goDoubleAuth}
+                    className="px-6 py-3 bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 rounded-lg flex items-center gap-3 transition-all duration-200 hover:scale-105 shadow-lg cursor-target"
+                ></button>
             </div>
         </>
     );

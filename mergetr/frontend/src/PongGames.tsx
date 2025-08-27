@@ -60,7 +60,7 @@ const PongGames: React.FC = () => {
             </div>
           </div>
 
-          {/* Pong 3D - Structure identique */}
+          
           <div
             className="group relative cursor-target active:scale-95 overflow-hidden"
             style={{ background: 'oklch(25.7% 0.09 281.288)', borderRadius: '1rem' }}
@@ -76,7 +76,8 @@ const PongGames: React.FC = () => {
               <div className="flex flex-col gap-4">
                 <div className="relative w-full">
                   <button
-                    onClick={() => window.location.href = `/export_pong3D/index.html?ia=${AIopponent}`}
+                    // onClick={() => window.location.href = `/export_pong3D/index.html?ia=${AIopponent}`}
+                    onClick={() => window.location.href = `/export_pong3D/index.html?ia=true`}
                     className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
                     style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
                   >
