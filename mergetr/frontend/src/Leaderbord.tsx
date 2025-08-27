@@ -40,8 +40,8 @@ export function Leaderboard({ title, players }: Leaderboardstuff) {
       <div className="leaderboard-header">
         <FuzzyText>{title}</FuzzyText>
       </div>
-      <Podium/>   
-      
+      <Podium/>
+
       <div className="leaderboard-list">
         <table className="simple-leaderboard-table">
         <thead>
@@ -64,7 +64,7 @@ export function Leaderboard({ title, players }: Leaderboardstuff) {
         </tbody>
         </table>
       </div>
-  
+
       <TargetCursor />
     </div>
   );

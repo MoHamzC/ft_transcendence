@@ -1,20 +1,58 @@
+<<<<<<<< HEAD:.gitignore
 # Dépendances
 mergetr/node_modules/
 ./backend/REST client tests
 mergetr/frontend/node_modules
 
 # Secrets
+========
+# Fichiers d'environnement (SÉCURITÉ CRITIQUE)
+>>>>>>>> merge_Clement:mergetr/.gitignore
 .env
+.env.local
+.env.production
 
-# Fichiers de build / dev
+# Dépendances Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Builds
 dist/
-*.log
-*.sqlite
+build/
+.next/
 
-# Éditeurs
+# Cache et logs
+.npm
 .vscode/
-.idea/
-
-# Systèmes
 .DS_Store
-backend/data.db
+*.log
+
+# Base de données locale
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Tests
+coverage/
+.nyc_output/
+
+# Certificats SSL
+*.pem
+*.key
+*.crt
+
+# Backup files
+*.bak
+*.swp
+*.tmp
+
+# IDE
+.idea/
+*.sublime-*
+*.code-workspace

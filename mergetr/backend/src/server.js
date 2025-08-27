@@ -89,6 +89,7 @@ fastify.register(import('./routes/auth/oauth/42Oauth.js'), { prefix: '/auth'});
 fastify.register(import('./routes/auth/oauth/githubOauth.js'), { prefix: '/auth'});
 fastify.register(import('./routes/users/user_route.js'), { prefix: '/api/users' });
 fastify.register(import('./routes/users/user_settings.js'), { prefix: '/api/users' });
+fastify.register(import('./routes/indexTournament.js'), { prefix: '/api' });
 
 // Run the server!
 const start = async () => {

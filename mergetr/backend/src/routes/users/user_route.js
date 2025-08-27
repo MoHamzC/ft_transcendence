@@ -1,10 +1,52 @@
 import bcrypt from 'bcrypt'
 import nodeMailer from 'nodemailer';
-import pool from '../../config/db.js'
+import pool from '../../../config/db.js'
 import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
+<<<<<<<< HEAD:mergetr/backend/src/routes/users/user_route.js
 	async function otpAuth(request, reply, email){
 		// Generate a 6-digit code
+========
+	async function logout(request, reply) {
+		reply.clearCookie('access_token');
+		return reply.code(302).redirect('http://localhost:5173');
+	}
+
+	async function verifyUser(request, reply) {
+		try {
+			const token = request.cookies.access_token;
+
+			if (!token) {
+				return reply.code(401).send({ error: "You are not connected"});
+			}
+
+			const decoded = await request.jwt.verify(token);
+			request.user = decoded;
+		} catch (err) {
+			return reply.code(500).send(err);
+		}
+	}
+
+	async function login (request, reply){
+		const { email, password } = request.body
+
+		const user = await pool.query(
+			'Select email, username, password_hash FROM users WHERE email = $1',
+			[email]
+		)
+		console.log("Email retrieved from DB!");
+		if (user.rows.length === 0)
+			return reply.code(400).send({ error: "User doesn't exist"});
+
+		try {
+			const isMatch = user && (await bcrypt.compare(password, user.rows[0].password_hash))
+			if (!isMatch || !user){
+				return reply.code(401).send({ message: "Invalid email or password" })
+			}
+			console.log("Password match!");
+
+			// Generate a 6-digit code
+>>>>>>>> merge_Clement:mergetr/backend/src/routes/users/legacy/user_route.js
 			const code_Otp = Math.floor(100000 + Math.random() * 900000).toString();
 			if (!code_Otp){
 				console.log("Error code_Otp creation");
@@ -216,8 +258,17 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 		}
 	})
 
+<<<<<<<< HEAD:mergetr/backend/src/routes/users/user_route.js
 	fastify.get('/protected', {preHandler: verifyUser}, async (request, reply) => {
 		return reply.code(200).send({showLogin: true});
+========
+	fastify.get('/login', {preHandler: verifyUser}, async (request, reply) => {
+		if (request.user) {
+			return reply.redirect('http://localhost:5173');
+		}
+
+		return reply.send({showLogin: true});
+>>>>>>>> merge_Clement:mergetr/backend/src/routes/users/legacy/user_route.js
 	});
 
 	fastify.post('/login', login)
@@ -225,7 +276,11 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 	fastify.post('/verify-otp', async (request, reply) => {
 		try {
 			const { email, otp_Code } = request.body;
+<<<<<<<< HEAD:mergetr/backend/src/routes/users/user_route.js
 			const result = await pool.query('SELECT id, otp_code, otp_generated_at, username from users WHERE email = $1',
+========
+			const result = await pool.query('SELECT otp_code, otp_generated_at, username from users WHERE email = $1',
+>>>>>>>> merge_Clement:mergetr/backend/src/routes/users/legacy/user_route.js
 				[email]
 			)
 
@@ -261,12 +316,22 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			// Create JWT token
 			const payload = {id: result.rows[0].id, username: result.rows[0].username, email: email}
 			const token = request.jwt.sign(payload)
+<<<<<<<< HEAD:mergetr/backend/src/routes/users/user_route.js
 			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
 			return reply.code(200).send({ message: "OTP verification successful", username: result.rows[0].username });
+========
+			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:true })
+			const redirectUrl = request.body.next || 'http://localhost:5173/';
+			return reply.code(303).redirect(redirectUrl);
+>>>>>>>> merge_Clement:mergetr/backend/src/routes/users/legacy/user_route.js
 		} catch(err) {
 			console.log(err);
 			return reply.code(500).send({Error: "Internal Server Error"});
 		}
+	});
+
+	fastify.get('/protected', { preHandler: [verifyUser] }, async (req, reply) => {
+		return reply.code(200).send({message: "Tu peux accéder à cette ressource protégée!"});
 	});
 
 	fastify.post('/connect', async (req, reply) => {

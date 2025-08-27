@@ -18,5 +18,9 @@ export async function registerRoutes(fastify) {
     const userRoutes = (await import('./users/legacy/user_route.js')).default
     await fastify.register(userRoutes, { prefix: '/api/users' })
 
+    // Routes des tournois
+    const tournamentRoutes = (await import('./tournaments/index.js')).default
+    await fastify.register(tournamentRoutes, { prefix: '/api' })
+
     fastify.log.info('✅ All routes registered')
 }

@@ -1,9 +1,9 @@
 // PongGames.tsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import TargetCursor from './TargetCursor.tsx'; 
+import TargetCursor from './TargetCursor.tsx';
 import FuzzyText from './FuzzyText.tsx';
-import logo from './assets/logo.png'; 
+import logo from './assets/logo.png';
 import ElasticSlider from './ElasticSlider'
 import MyToggle from './MyToggle';
 
@@ -14,15 +14,15 @@ const PongGames: React.FC = () => {
       <TargetCursor spinDuration={2} hideDefaultCursor={true} />
       <div className="max-w-4xl w-full mx-4 p-8">
         <h1 className="text-center mb-12 text-white cursor-target flex justify-center items-center">
-         
+
           <FuzzyText
             fontSize="clamp(2rem, 4.5vw, 4.5rem)"
             style={{ display: "block", margin: "0 auto" }}
           >
-            Pongz  
+            Pongz
           </FuzzyText>
         </h1>
-        
+
         <div className="grid md:grid-cols-2 gap-8">
           {/* Pong */}
           <div
@@ -87,7 +87,7 @@ const PongGames: React.FC = () => {
         </div>
 
         <div className="mt-12 grid md:grid-cols-2 gap-8 text-gray-400">
-          
+
           <div className="flex flex-col items-center">
             <h4 className="mb-4 text-green-300">Player 1</h4>
             <div className="flex gap-2 mb-2">
@@ -97,7 +97,7 @@ const PongGames: React.FC = () => {
               <span>down</span>
             </div>
           </div>
-          
+
           <div className="flex flex-col items-center">
             <h4 className="mb-4 text-green-300">Player 2</h4>
             <div className="flex gap-2 mb-2">
@@ -108,10 +108,10 @@ const PongGames: React.FC = () => {
           <div className="col-span-2 flex justify-center mt-4">
             <p className="text-sm">5 points = win</p>
           </div>
-          
+
         </div>
 
-        
+
         <div className="mt-8 text-center hover:scale-105 active:scale-95">
         <ElasticSlider
   leftIcon={<>off</>}
@@ -122,7 +122,7 @@ const PongGames: React.FC = () => {
   isStepped
   stepSize={10}
 />
-          <Link 
+          <Link
             to="/"
           >
             ← Back Home

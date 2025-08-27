@@ -111,7 +111,7 @@ hideDefaultCursor={true}
 />
                 <h1 className='transcendence cursor-target'>Login to play</h1>
 
-               
+
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <input
                         className="px-4 py-3 rounded text-white cursor-target"

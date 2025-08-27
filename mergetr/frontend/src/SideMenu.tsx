@@ -6,12 +6,12 @@ import "./SideMenu.css";
 import "./App.tsx";
 
 export default function SideMenu({ isLogged, setIsLogged }: any) {
-  
+
   const navigate = useNavigate();
 
   function handleNav(href: string) {
     navigate(href);
- 
+
   }
 
   return (
@@ -27,14 +27,14 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
               onClick: (e: any) => {
                 e.preventDefault();
                 navigate('/login');
-                
+
               }
             }]}
             activeHref={window.location.pathname}
             className="custom-nav"
             ease="power2.easeOut"
-            baseColor="oklch(25.7% 0.09 281.288)" 
-            pillColor="oklch(38% 0.189 293.745)"   
+            baseColor="oklch(25.7% 0.09 281.288)"
+            pillColor="oklch(38% 0.189 293.745)"
             pillTextColor="#ffffff"
             onMobileMenuClick={() => {}}
           />
@@ -57,8 +57,8 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
             activeHref={window.location.pathname}
             className="custom-nav"
             ease="power2.easeOut"
-            baseColor="oklch(25.7% 0.09 281.288)" 
-            pillColor="oklch(38% 0.189 293.745)"   
+            baseColor="oklch(25.7% 0.09 281.288)"
+            pillColor="oklch(38% 0.189 293.745)"
             pillTextColor="white"
             onMobileMenuClick={() => {}}
           />

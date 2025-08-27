@@ -17,7 +17,6 @@ services:
 
   node:
     image: node:24
-
     working_dir: /home/sgoinfre
     environment:
       - NODE_ENV=dev
