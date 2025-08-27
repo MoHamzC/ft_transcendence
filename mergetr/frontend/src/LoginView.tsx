@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import TargetCursor from './TargetCursor';
-
+import FuzzyText from './FuzzyText';
 export default function LoginView({ setIsLogged }: any)
 {
     const navigate = useNavigate();
@@ -25,7 +25,7 @@ export default function LoginView({ setIsLogged }: any)
             try {
                 const response = await fetch(`${BACKEND_URL}/api/users/protected`, {
                     method: 'GET',
-                    credentials: 'include'
+                    credentials: 'include',
                 });
 
                 if (response.ok) {
@@ -52,6 +52,10 @@ export default function LoginView({ setIsLogged }: any)
         window.location.href = `${BACKEND_URL}/auth/github`;
     }
 
+    function goHome() {
+        navigate('/');
+    }
+
     function authentificationGoogle()
     {
 
@@ -63,6 +67,11 @@ export default function LoginView({ setIsLogged }: any)
          navigate('/register');
     }
 
+    function gotodoubleauth()
+    {
+        navigate('/doubleauth');
+    }
+
     async function handleLogin() {
 
         if (!email || !password) {
@@ -71,18 +80,17 @@ export default function LoginView({ setIsLogged }: any)
         }
 
         try {
-            const response = await fetch(`${BACKEND_URL}/api/users/login`, {
+            const response = await fetch(`${BACKEND_URL}/api/users/connect`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                credentials: 'include',
                 body: JSON.stringify({ email, password }),
             });
 
             if (response.ok) {
-                const result = await response.json();
-                alert(result.message || 'Login successful');
+                const result = await response.text();
+                alert(result);
                 setIsLogged(true);
                 navigate('/');
             } else {
@@ -101,6 +109,10 @@ export default function LoginView({ setIsLogged }: any)
         void handleLogin();
     }
 
+    function goDoubleAuth() {
+        navigate('/doubleauth');
+    }
+
     return (
         <>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -109,9 +121,9 @@ spinDuration={2}
 hideDefaultCursor={true}
 
 />
-                <h1 className='transcendence cursor-target'>Login to play</h1>
+                <h1 className='transcendence cursor-target'><FuzzyText>Login</FuzzyText></h1>
 
-
+               
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <input
                         className="px-4 py-3 rounded text-white cursor-target"
@@ -170,6 +182,10 @@ hideDefaultCursor={true}
                     <img src="/assets/google.svg" alt="Google" className="w-6 h-6 cursor-target" />
                     Google
                 </button>
+                <button
+                    onClick={goDoubleAuth}
+                    className="px-6 py-3 bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 rounded-lg flex items-center gap-3 transition-all duration-200 hover:scale-105 shadow-lg cursor-target"
+                ></button>
             </div>
         </>
     );

@@ -24,7 +24,7 @@ import Register from './Register.tsx';
 import Logout from './Logout.tsx'
 import Home from './Home.tsx';
 import ResetPassword from './ResetPassword.tsx';
-
+import DoubleAuth from './DoubleAuth.tsx';
 
 function onRenderCallback(
   id: string,
@@ -70,6 +70,7 @@ function App()
 
 	return (
 		<>
+
 			<div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
 				<Particles
 					particleColors={['#ffffff', '#ffffff']}
@@ -98,6 +99,7 @@ function App()
 								<Route path="/register" element={<Register/>} />
 								<Route path="/logout" element={<Logout setIsLogged={setIsLogged} />} />
 								<Route path="/error" element={<Error/>} />
+								<Route path="/doubleauth" element={<DoubleAuth />} />
 								<Route path="/ResetPassword" element={<ResetPassword />} />
 							</Routes>
 						</div>
