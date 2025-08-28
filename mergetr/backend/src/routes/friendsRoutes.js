@@ -116,7 +116,7 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
                     type: 'object',
                     properties:
                     {
-                        leaderboard: { type: 'array', items: { type: 'object' } }
+                        leaderboard: { type: 'array', items: { type: 'object', additionalProperties: true } }
                     }
                 }
             }
@@ -150,7 +150,8 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
                     type: 'object',
                     properties:
                     {
-                        friends: { type: 'array', items: { type: 'object' } }
+                        // IMPORTANT: without additionalProperties, fast-json-stringify strips fields -> [{}]
+                        friends: { type: 'array', items: { type: 'object', additionalProperties: true } }
                     }
                 }
             }
@@ -237,7 +238,7 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
                     type: 'object',
                     properties:
                     {
-                        pending: { type: 'array', items: { type: 'object' } }
+                        pending: { type: 'array', items: { type: 'object', additionalProperties: true } }
                     }
                 }
             }
