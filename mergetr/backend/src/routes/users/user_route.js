@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import nodeMailer from 'nodemailer';
 import pool from '../../config/db.js'
 import { createUserSchema, createUserResponseSchema } from './user_schema.js'
+import { generateUniqueUsername, validateUsername } from '../../utils/usernameGenerator.js'
 
 	async function otpAuth(request, reply, email){
 		// Generate a 6-digit code
@@ -152,6 +153,13 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 		if (!email || !username || !password){
 				return reply.code(400).send({error: "Tous les champs sont requis pour créer l'utilisateur" })
 		}
+
+		// Valider le username
+		const validation = validateUsername(username);
+		if (!validation.isValid) {
+			return reply.code(400).send({ error: validation.error });
+		}
+
 		const hashedPassword = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS));
 		try {
 
@@ -167,19 +175,22 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 				return reply.code(409).send({message: 'Email already registered'});
 			}
 
-			//Insert the user into the DB
-			const result = await pool.query(
-				'INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING *',
-				[email, username, hashedPassword]
-			)
-			console.log("User created!");
+			// Générer un username unique
+			const uniqueUsername = await generateUniqueUsername(username);
 
-			await pool.query(
-				'INSERT INTO user_settings (user_id) VALUES ($1)',
-				[result.rows[0].id]
-			)
+		//Insert the user into the DB
+		const result = await pool.query(
+			'INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING *',
+			[email, uniqueUsername, hashedPassword]
+		)
+		console.log("User created!");
 
-			//create a Response corresponding to the ResponseSchema
+		// Créer les paramètres utilisateur avec l'avatar par défaut
+		await pool.query(
+			'INSERT INTO user_settings (user_id, avatar_url) VALUES ($1, $2)',
+			[result.rows[0].id, '/uploads/avatars/default_avatar.jpg']
+		)
+		console.log("✅ Avatar par défaut assigné lors de l'inscription");			//create a Response corresponding to the ResponseSchema
 			const userResponse = {
 				email: result.rows[0].email,
 				username: result.rows[0].username,

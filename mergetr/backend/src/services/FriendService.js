@@ -10,10 +10,10 @@ export class FriendService
         const { rows } = await pool.query(
         {
             text:
-                `SELECT u.id, u.email, f.status
-                 FROM friendships f
-                 JOIN users u ON u.id = f.addressee_id
-                 WHERE f.requester_id = $1 AND f.status = 'accepted'`,
+            `SELECT u.id, u.email, f.status
+            FROM friendships f
+            JOIN users u ON u.id = f.addressee_id
+            WHERE f.requester_id = $1 AND f.status = 'accepted'`,
             values: [ userId ]
         });
 

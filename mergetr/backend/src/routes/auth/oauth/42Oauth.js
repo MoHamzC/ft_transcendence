@@ -1,11 +1,33 @@
 import pool from '../../../config/db.js'
 import { jwtTokenOauth } from './oauth.js';
+import { generateUniqueUsername } from '../../../utils/usernameGenerator.js';
 
 async function linkFtAccount(user, ftUserData){
 	const addFtDataInDb = await pool.query(
 		'UPDATE users SET intra42_id = $1 WHERE id = $2',
 		[ftUserData.id, user.rows[0].id]
 	)
+
+	// Vérifier s'il y a déjà un avatar avant de le remplacer
+	if (ftUserData.image && ftUserData.image.versions && ftUserData.image.versions.medium) {
+		const currentAvatar = await pool.query(
+			'SELECT avatar_url FROM user_settings WHERE user_id = $1',
+			[user.rows[0].id]
+		);
+
+		// Ne mettre à jour que s'il n'y a pas d'avatar ou si c'est l'avatar par défaut
+		if (currentAvatar.rows.length === 0 ||
+			!currentAvatar.rows[0].avatar_url ||
+			currentAvatar.rows[0].avatar_url === '/uploads/avatars/default_avatar.svg') {
+			await pool.query(
+				'UPDATE user_settings SET avatar_url = $1 WHERE user_id = $2',
+				[ftUserData.image.versions.medium, user.rows[0].id]
+			)
+			console.log('✅ Avatar 42 ajouté pour utilisateur existant (remplace avatar par défaut)');
+		} else {
+			console.log('ℹ️  Avatar personnalisé existant conservé, 42 non appliqué');
+		}
+	}
 }
 
 async function handleFtLogin(request, reply, ftUserData){
@@ -29,9 +51,12 @@ async function handleFtLogin(request, reply, ftUserData){
 	//Si utilisateur pas existant
 	console.log("L'utilisateur n'existe pas, création de l'utilisateur");
 
+	// Générer un username unique basé sur le login 42
+	const uniqueUsername = await generateUniqueUsername(ftUserData.login);
+
 	const result = await pool.query(
 		'INSERT INTO users (username, email, intra42_id) VALUES ($1, $2, $3) RETURNING *',
-		[ftUserData.login, ftUserData.email, ftUserData.id]
+		[uniqueUsername, ftUserData.email, ftUserData.id]
 	)
 
 	if (!result) {
@@ -41,8 +66,8 @@ async function handleFtLogin(request, reply, ftUserData){
 
 	if (!result.rows[0].providers){
 		const addProvider = await pool.query (
-			'UPDATE users SET providers = COALESCE(providers, ARRAY[]::text[]) || "42" WHERE id = $1',
-			[result.rows[0].id]
+			'UPDATE users SET providers = COALESCE(providers, ARRAY[]::text[]) || ARRAY[$2] WHERE id = $1',
+			[result.rows[0].id, '42']
 		)
 	}
 
@@ -51,7 +76,22 @@ async function handleFtLogin(request, reply, ftUserData){
 		[result.rows[0].id]
 	)
 
-	jwtTokenOauth(request, reply, ftUserData);
+	await pool.query(
+		'INSERT INTO user_settings (user_id) VALUES ($1)',
+		[result.rows[0].id]
+	)
+
+	const addAvatar = await pool.query(
+		'UPDATE user_settings SET avatar_url = $1 WHERE user_id = $2 RETURNING avatar_url',
+		[ftUserData.image.versions.medium, result.rows[0].id]
+	)
+
+	if (!addAvatar || addAvatar.rows.length === 0) {
+		console.log("Erreur pendant l'ajout de l'avatar dans la DB")
+		return reply.code(500).send("Internal server error");
+	}
+
+	return jwtTokenOauth(request, reply, ftUserData);
 }
 
 async function oauth42Routes(fastify, options){

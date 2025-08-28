@@ -8,6 +8,7 @@ import fastifyJwt from "@fastify/jwt";
 import fastifyCookie from "@fastify/cookie";
 import fastifyStatic from "@fastify/static"
 import nodeMailer from "nodemailer";
+import multipart from '@fastify/multipart';
 import path from "path";
 import fs from 'fs';
 
@@ -57,10 +58,16 @@ fastify.addHook('preHandler', async (request, reply) => {
 
 fastify.register(fastifyCookie, { secret: process.env.SUPER_SECRET_CODE, hook: 'preHandler'})
 
-await fastify.register(import('@fastify/static'), {
-	root: path.join(process.cwd(), 'uploads'),
+await fastify.register(fastifyStatic, {
+	root: path.join(process.cwd(), 'backend', 'uploads'),
 	prefix: '/uploads/',
 });
+
+await fastify.register(multipart, {
+	limits: {
+		fileSize: 10 * 1024 * 1024
+	}
+})
 
 // Initialisation de la base de données
 const initDB = async () => {
@@ -90,6 +97,7 @@ fastify.register(import('./routes/auth/oauth/githubOauth.js'), { prefix: '/auth'
 fastify.register(import('./routes/users/user_route.js'), { prefix: '/api/users' });
 fastify.register(import('./routes/users/user_settings.js'), { prefix: '/api/users' });
 fastify.register(import('./routes/indexTournament.js'), { prefix: '/api' });
+fastify.register(import('./routes/friendsRoutes.js'), { prefix: '/api/users' });
 
 // Run the server!
 const start = async () => {
