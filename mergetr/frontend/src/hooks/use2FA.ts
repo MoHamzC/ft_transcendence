@@ -17,7 +17,7 @@ interface Use2FAReturn {
 export function use2FA(): Use2FAReturn {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    
+
     const BACKEND_URL = 'http://localhost:5001';
 
     const clearError = () => setError(null);
@@ -25,7 +25,7 @@ export function use2FA(): Use2FAReturn {
     const login = async (email: string, password: string): Promise<LoginResponse> => {
         setLoading(true);
         setError(null);
-        
+
         try {
             const response = await fetch(`${BACKEND_URL}/api/users/login`, {
                 method: 'POST',
@@ -62,9 +62,9 @@ export function use2FA(): Use2FAReturn {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',
-                body: JSON.stringify({ 
-                    email: email, 
-                    otp_Code: otpCode 
+                body: JSON.stringify({
+                    email: email,
+                    otp_Code: otpCode
                 }),
             });
 
