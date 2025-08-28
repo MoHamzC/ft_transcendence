@@ -197,8 +197,109 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
     async (request, reply) =>
     {
         const { addresseeId } = request.body;
-        await FriendService.sendRequest(request.user.id, addresseeId);
-        reply.code(201).send({ message: 'Friend request sent' });
+        try
+        {
+            const result = await FriendService.sendRequest(request.user.id, addresseeId);
+            reply.code(201).send(result);
+        }
+        catch (err)
+        {
+            if (err.message.includes('already friends') || 
+                err.message.includes('already exists') ||
+                err.message.includes('previously rejected'))
+            {
+                reply.code(409).send({ message: err.message });
+            }
+            else if (err.message.includes('not found') ||
+                     err.message.includes('yourself'))
+            {
+                reply.code(400).send({ message: err.message });
+            }
+            else
+            {
+                throw err;
+            }
+        }
+    });
+
+    //
+    // GET /api/user/friends/pending - Liste des demandes reçues
+    //
+    app.get('/friends/pending',
+    {
+        schema:
+        {
+            summary: 'Liste des demandes d\'amis reçues en attente',
+            response:
+            {
+                200:
+                {
+                    type: 'object',
+                    properties:
+                    {
+                        pending: { type: 'array', items: { type: 'object' } }
+                    }
+                }
+            }
+        }
+    },
+    async (request, reply) =>
+    {
+        const uid = request.user.id;
+        const pending = await FriendService.listPendingRequests(uid);
+        return { pending };
+    });
+
+    //
+    // POST /api/user/friends/reject - Rejeter une demande d'ami
+    // Body: { requesterId }
+    //
+    app.post('/friends/reject',
+    {
+        schema:
+        {
+            summary: 'Rejeter une demande d\'ami',
+            body: schemas.friendsAcceptBody, // Même schéma que accept
+            response:
+            {
+                200:
+                {
+                    type: 'object',
+                    properties:
+                    {
+                        message: { type: 'string' }
+                    }
+                },
+                404:
+                {
+                    type: 'object',
+                    properties:
+                    {
+                        message: { type: 'string' }
+                    }
+                }
+            }
+        }
+    },
+    async (request, reply) =>
+    {
+        const { requesterId } = request.body;
+        try
+        {
+            await FriendService.rejectRequest(request.user.id, requesterId);
+            reply.code(200).send({ message: 'Friend request rejected' });
+        }
+        catch (err)
+        {
+            if (err.message.includes('not found'))
+            {
+                reply.code(404).send({ message: err.message });
+            }
+            else
+            {
+                throw err;
+            }
+        }
     });
 
     //
@@ -235,8 +336,22 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
     async (request, reply) =>
     {
         const { requesterId } = request.body;
-        await FriendService.acceptRequest(request.user.id, requesterId);
-        reply.code(200).send({ message: 'Friend request accepted' });
+        try
+        {
+            const result = await FriendService.acceptRequest(request.user.id, requesterId);
+            reply.code(200).send(result);
+        }
+        catch (err)
+        {
+            if (err.message.includes('not found'))
+            {
+                reply.code(404).send({ message: err.message });
+            }
+            else
+            {
+                throw err;
+            }
+        }
     });
 
     //
