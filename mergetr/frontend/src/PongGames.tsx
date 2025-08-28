@@ -48,7 +48,7 @@ const PongGames: React.FC = () => {
                     </Link>
                     <div className="mt-2">
                     <Link
-                      to="/pong/play"
+                      to="/selectplayers"
                       className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
                       style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
                     >
