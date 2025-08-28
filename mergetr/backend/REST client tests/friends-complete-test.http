@@ -5,27 +5,29 @@
 
 ### 1) Créer user1
 # @name createUser1
-POST {{host}}/api/auth/register
+POST {{host}}/api/users/register
 Content-Type: application/json
 
 {
   "email": "friendtest1@42.fr",
+  "username": "friendtest1", 
   "password": "TestPass123!"
 }
 
 ### 2) Créer user2
 # @name createUser2
-POST {{host}}/api/auth/register
+POST {{host}}/api/users/register
 Content-Type: application/json
 
 {
   "email": "friendtest2@42.fr",
+  "username": "friendtest2",
   "password": "TestPass123!"
 }
 
 ### 3) Login user1
 # @name loginUser1
-POST {{host}}/api/auth/login
+POST {{host}}/api/users/login
 Content-Type: application/json
 
 {
@@ -35,7 +37,7 @@ Content-Type: application/json
 
 ### 4) Login user2
 # @name loginUser2
-POST {{host}}/api/auth/login
+POST {{host}}/api/users/login
 Content-Type: application/json
 
 {
@@ -43,14 +45,14 @@ Content-Type: application/json
   "password": "TestPass123!"
 }
 
-### 5) user1 envoie une demande d'ami à user2
+### 5) user1 envoie une demande d'ami à user2 par nom d'utilisateur
 # @name sendFriendRequest
 POST {{host}}/api/user/friends
 Content-Type: application/json
 Authorization: Bearer {{loginUser1.response.body.token}}
 
 {
-  "addresseeId": "{{createUser2.response.body.id}}"
+  "username": "friendtest2"
 }
 
 ### 6) Vérifier la demande d'ami en attente pour user2
@@ -84,7 +86,7 @@ Content-Type: application/json
 Authorization: Bearer {{loginUser1.response.body.token}}
 
 {
-  "addresseeId": "{{createUser2.response.body.id}}"
+  "username": "friendtest2"
 }
 
 ### 11) Test error case: user2 tries to accept non-existent request (should fail with 404)
@@ -117,13 +119,13 @@ Content-Type: application/json
   "password": "TestPass123!"
 }
 
-### 14) user3 envoie une demande à user1
+### 14) user3 envoie une demande à user1 par nom d'utilisateur
 POST {{host}}/api/user/friends
 Content-Type: application/json
 Authorization: Bearer {{loginUser3.response.body.token}}
 
 {
-  "addresseeId": "{{createUser1.response.body.id}}"
+  "username": "friendtest1"
 }
 
 ### 15) user1 rejette la demande de user3

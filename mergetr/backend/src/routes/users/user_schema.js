@@ -13,18 +13,18 @@ export const createUserSchema = {
 		},
 		password: {
 			type: 'string',
-			minLength: 12,
-			maxLength: 30,
+			minLength: 6,
+			maxLength: 50,
 		},
 	},
 };
 
 export const createUserResponseSchema = {
 	type: 'object',
-	required: ["email", "username", "password"],
+	required: ["id", "email", "username"],
 	properties: {
+		id: { type: 'string' },
 		email: { type: 'string', format: 'email' },
-		username: { type: 'string' },
-		password: { type: 'string' }
+		username: { type: 'string' }
 	}
 };

@@ -1,0 +1,476 @@
+/* Friends.css */
+.friends-container {
+  min-height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #0c0c0c, #1a1a2e);
+  color: #fff;
+  font-family: 'Courier New', monospace;
+}
+
+.friends-header {
+  padding: 2rem;
+  border-bottom: 1px solid #0f3460;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+}
+
+.friends-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.friends-title {
+  color: #00d4ff;
+  font-size: 2.5rem;
+  margin: 0;
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.friends-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-primary {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(45deg, #00d4ff, #0099cc);
+  border: none;
+  border-radius: 8px;
+  color: #1a1a2e;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+}
+
+.btn-secondary {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 1px solid #00d4ff;
+  border-radius: 8px;
+  color: #00d4ff;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-secondary:hover {
+  background: rgba(0, 212, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.friends-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.friends-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #0f3460;
+}
+
+.tab-button {
+  padding: 1rem 2rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tab-button.active {
+  border-bottom-color: #00d4ff;
+  color: #00d4ff;
+}
+
+.tab-button.pending.active {
+  border-bottom-color: #ffa502;
+  color: #ffa502;
+}
+
+.tab-button:not(.active) {
+  color: #666;
+}
+
+.tab-button:hover:not(.active) {
+  color: #999;
+}
+
+.error-message {
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid #ff4757;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  color: #ff4757;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-close {
+  background: none;
+  border: none;
+  color: #ff4757;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 3rem;
+  color: #00d4ff;
+  font-size: 1.2rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.friends-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.friend-card {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border: 1px solid #0f3460;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.1);
+}
+
+.friend-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
+  border-color: #00d4ff;
+}
+
+.friend-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.friend-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.friend-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #00d4ff, #0099cc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #1a1a2e;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}
+
+.friend-details h3 {
+  color: #fff;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.friend-details p {
+  color: #999;
+  margin: 0.25rem 0 0 0;
+  font-size: 0.9rem;
+}
+
+.friend-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.friend {
+  background: #2ed573;
+  color: #fff;
+}
+
+.status-badge.pending {
+  background: #ffa502;
+  color: #fff;
+}
+
+.status-badge.sent {
+  background: #5352ed;
+  color: #fff;
+}
+
+.friend-date {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.friend-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: column;
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-accept {
+  background: #2ed573;
+  color: #fff;
+}
+
+.btn-accept:hover {
+  background: #26d069;
+  transform: translateY(-1px);
+}
+
+.btn-reject, .btn-remove {
+  background: #ff4757;
+  color: #fff;
+}
+
+.btn-reject:hover, .btn-remove:hover {
+  background: #ff3742;
+  transform: translateY(-1px);
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  padding: 2rem;
+  border-radius: 15px;
+  border: 1px solid #0f3460;
+  min-width: 400px;
+  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-title {
+  color: #00d4ff;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  background: #0f3460;
+  border: 1px solid #00d4ff;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #00d4ff;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+.form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.alert {
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.alert-error {
+  color: #ff4757;
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid #ff4757;
+}
+
+.alert-success {
+  color: #2ed573;
+  background: rgba(46, 213, 115, 0.1);
+  border: 1px solid #2ed573;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 1px solid #666;
+  border-radius: 8px;
+  color: #666;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-cancel:hover {
+  border-color: #999;
+  color: #999;
+}
+
+.btn-submit {
+  padding: 0.75rem 1.5rem;
+  background: #00d4ff;
+  border: none;
+  border-radius: 8px;
+  color: #1a1a2e;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: #0099cc;
+  transform: translateY(-1px);
+}
+
+.btn-submit:disabled {
+  background: #0a2040;
+  color: #666;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .friends-header-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .friends-title {
+    font-size: 2rem;
+  }
+  
+  .friends-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .friends-tabs {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .friend-card-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .friend-actions {
+    flex-direction: row;
+  }
+  
+  .modal-content {
+    min-width: 300px;
+    margin: 1rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}

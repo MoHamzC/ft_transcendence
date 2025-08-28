@@ -27,13 +27,23 @@ fastify.register(fastifyJwt, { secret: process.env.SUPER_SECRET_CODE });
 // Ajout du décorateur authenticate pour les routes protégées
 fastify.decorate("authenticate", async function(request, reply) {
   try {
-    await request.jwtVerify();
+    // Chercher le token dans les cookies d'abord, puis dans les headers
+    const token = request.cookies.access_token || request.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+      return reply.code(401).send({ error: 'No token provided' });
+    }
+    
+    // Vérifier le token manuellement
+    const decoded = await fastify.jwt.verify(token);
+    request.user = decoded;
+    
     // Transform the user object to map sub to id
     if (request.user && request.user.sub) {
       request.user.id = request.user.sub;
     }
   } catch (err) {
-    reply.send(err);
+    reply.code(401).send({ error: 'Invalid token' });
   }
 });
 
@@ -101,7 +111,7 @@ fastify.register(import('./routes/auth/oauth/githubOauth.js'), { prefix: '/auth'
 fastify.register(import('./routes/users/user_route.js'), { prefix: '/api/users' });
 fastify.register(import('./routes/users/user_settings.js'), { prefix: '/api/users' });
 fastify.register(import('./routes/indexTournament.js'), { prefix: '/api' });
-fastify.register(import('./routes/friendsRoutes.js'), { prefix: '/api/users' });
+fastify.register(import('./routes/friendsRoutes.js'), { prefix: '/api/user' });
 
 // Run the server!
 const start = async () => {

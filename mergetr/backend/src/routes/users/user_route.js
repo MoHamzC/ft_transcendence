@@ -137,11 +137,16 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 			}
 
 			// Create JWT token
-			const payload = {id: user.rows[0].id, username: user.rows[0].username, email: email}
+			const payload = {sub: user.rows[0].id, username: user.rows[0].username, email: email}
 			console.log(payload);
 			const token = request.jwt.sign(payload)
 			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
-			return reply.code(200).send({ message: "Login successful", username: user.rows[0].username });
+			return reply.code(200).send({ 
+				message: "Login successful", 
+				username: user.rows[0].username,
+				token: token,
+				id: user.rows[0].id
+			});
 		} catch(err) {
 			console.log(err);
 			return reply.code(500).send({ message: "Error server"});
@@ -192,9 +197,9 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 		)
 		console.log("✅ Avatar par défaut assigné lors de l'inscription");			//create a Response corresponding to the ResponseSchema
 			const userResponse = {
+				id: result.rows[0].id,
 				email: result.rows[0].email,
-				username: result.rows[0].username,
-				password: result.rows[0].password_hash
+				username: result.rows[0].username
 			}
 			reply.code(201).send(userResponse)
 		} catch (err) {
@@ -270,7 +275,7 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 			)
 
 			// Create JWT token
-			const payload = {id: result.rows[0].id, username: result.rows[0].username, email: email}
+			const payload = {sub: result.rows[0].id, username: result.rows[0].username, email: email}
 			const token = request.jwt.sign(payload)
 			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
 			return reply.code(200).send({ message: "OTP verification successful", username: result.rows[0].username });
