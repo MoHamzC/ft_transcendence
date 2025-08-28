@@ -199,15 +199,15 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
     },
     async (request, reply) =>
     {
-        const { username } = request.body;
+        const { addresseeId } = request.body;
         try
         {
-            const result = await FriendService.sendRequestByUsername(request.user.id, username);
+            const result = await FriendService.sendRequest(request.user.id, addresseeId);
             reply.code(201).send(result);
         }
         catch (err)
         {
-            if (err.message.includes('already friends') || 
+            if (err.message.includes('already friends') ||
                 err.message.includes('already exists') ||
                 err.message.includes('previously rejected'))
             {
@@ -223,7 +223,9 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
                 throw err;
             }
         }
-    });    //
+    });
+
+    //
     // GET /api/user/friends/pending - Liste des demandes reçues
     //
     app.get('/friends/pending',
@@ -238,7 +240,7 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
                     type: 'object',
                     properties:
                     {
-                        pending: { type: 'array', items: { type: 'object', additionalProperties: true } }
+                        pending: { type: 'array', items: { type: 'object' } }
                     }
                 }
             }
@@ -337,6 +339,22 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
     async (request, reply) =>
     {
         const { requesterId } = request.body;
+        try
+        {
+            const result = await FriendService.acceptRequest(request.user.id, requesterId);
+            reply.code(200).send(result);
+        }
+        catch (err)
+        {
+            if (err.message.includes('not found'))
+            {
+                reply.code(404).send({ message: err.message });
+            }
+            else
+            {
+                throw err;
+            }
+        }
         try
         {
             const result = await FriendService.acceptRequest(request.user.id, requesterId);

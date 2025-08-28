@@ -28,6 +28,10 @@ fastify.register(fastifyJwt, { secret: process.env.SUPER_SECRET_CODE });
 fastify.decorate("authenticate", async function(request, reply) {
   try {
     await request.jwtVerify();
+    // Transform the user object to map sub to id
+    if (request.user && request.user.sub) {
+      request.user.id = request.user.sub;
+    }
   } catch (err) {
     reply.code(401).send({ error: 'Invalid token' });
   }
