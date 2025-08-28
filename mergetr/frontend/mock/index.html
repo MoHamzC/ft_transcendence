@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Maquette - Leaderboard & Friends</title>
+  <style>
+    body { font-family: Inter, system-ui, Arial; padding: 24px; max-width: 900px; margin: auto }
+    header { display:flex; gap:12px; align-items:center; margin-bottom:18px }
+    .panel { border:1px solid #eee; padding:12px; border-radius:8px; margin-bottom:12px }
+    button { padding:6px 10px; margin-left:6px }
+    input, textarea { padding:8px; width:100% }
+    .row { display:flex; gap:12px }
+    .col { flex:1 }
+    ul { padding-left:20px }
+    .small { font-size:0.9em; color:#666 }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Maquette : Leaderboard & Friendlist</h1>
+  </header>
+
+  <section class="panel">
+    <h3>Configuration</h3>
+    <div style="display:flex;gap:12px;align-items:center">
+      <label class="small">Backend base URL</label>
+      <input id="baseUrl" value="http://localhost:5001" />
+      <label class="small">Bearer token (optionnel)</label>
+      <input id="token" placeholder="ey..." />
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>Leaderboard</h3>
+    <div class="row">
+      <div class="col">
+        <button id="loadLeaderboard">Charger leaderboard</button>
+        <div id="leaderboard" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>Friends</h3>
+    <div style="display:flex;gap:12px">
+      <div style="flex:1">
+        <button id="loadFriends">Charger mes amis</button>
+        <div id="friends" style="margin-top:12px"></div>
+      </div>
+      <div style="flex:1">
+        <h4>Envoyer une demande</h4>
+        <input id="addresseeId" placeholder="UUID de l'utilisateur destinataire" />
+        <button id="sendRequest">Envoyer</button>
+
+        <h4 style="margin-top:12px">Accepter une demande</h4>
+        <input id="requesterId" placeholder="UUID du demandeur" />
+        <button id="acceptRequest">Accepter</button>
+
+        <div id="friendResult" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>Logs</h3>
+    <pre id="log" style="height:200px;overflow:auto;background:#f6f7fb;padding:8px;border-radius:6px"></pre>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
