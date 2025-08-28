@@ -80,7 +80,9 @@ CREATE TABLE user_settings (
     two_factor_enabled BOOLEAN DEFAULT FALSE,
     language VARCHAR(10) DEFAULT 'FR',
     add_friend BOOLEAN DEFAULT TRUE,
-    profile_private BOOLEAN DEFAULT FALSE
+    profile_private BOOLEAN DEFAULT FALSE,
+    pong_color VARCHAR(7) DEFAULT '#FFFFFF', -- Couleur hexadécimale pour le skin Pong
+    pong_skin_type VARCHAR(20) DEFAULT 'color' CHECK (pong_skin_type IN ('color', 'avatar')) -- Choix entre couleur ou avatar
 );
 
 -- Index pour améliorer les performances
