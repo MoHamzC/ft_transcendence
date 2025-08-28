@@ -25,6 +25,7 @@ import Logout from './Logout.tsx'
 import Home from './Home.tsx';
 import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
+import SelectPlayers from './SelectPlayers.tsx';
 
 function onRenderCallback(
   id: string,
@@ -101,6 +102,7 @@ function App()
 								<Route path="/error" element={<Error/>} />
 								<Route path="/doubleauth" element={<DoubleAuth />} />
 								<Route path="/ResetPassword" element={<ResetPassword />} />
+								<Route path="/selectplayers" element={<SelectPlayers />} />
 							</Routes>
 						</div>
 					</Profiler>
