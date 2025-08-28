@@ -78,7 +78,68 @@ export class FriendService
         return rows;
     }
 
-    // Envoyer une demande d'ami
+    // Envoyer une demande d'ami par nom d'utilisateur
+    static async sendRequestByUsername(requesterId, addresseeUsername)
+    {
+        // Vérifier que l'addressee existe et récupérer son ID
+        const { rows: userCheck } = await pool.query(
+            'SELECT id, username FROM users WHERE username = $1',
+            [addresseeUsername]
+        );
+
+        if (userCheck.length === 0)
+        {
+            throw new Error('User not found');
+        }
+
+        const addresseeId = userCheck[0].id;
+
+        // Vérifier que l'utilisateur ne s'ajoute pas lui-même
+        if (requesterId === addresseeId)
+        {
+            throw new Error('Cannot send friend request to yourself');
+        }
+
+        // Vérifier qu'il n'y a pas déjà une relation existante dans les deux sens
+        const { rows: existingFriendship } = await pool.query(
+        {
+            text:
+                `SELECT id, status FROM friendships
+                 WHERE (requester_id = $1 AND addressee_id = $2)
+                    OR (requester_id = $2 AND addressee_id = $1)`,
+            values: [ requesterId, addresseeId ]
+        });
+
+        if (existingFriendship.length > 0)
+        {
+            const status = existingFriendship[0].status;
+            if (status === 'accepted')
+            {
+                throw new Error('Users are already friends');
+            }
+            else if (status === 'pending')
+            {
+                throw new Error('Friend request already exists');
+            }
+            else if (status === 'rejected')
+            {
+                throw new Error('Friend request was previously rejected');
+            }
+        }
+
+        // Créer la demande d'ami
+        await pool.query(
+        {
+            text:
+                `INSERT INTO friendships (requester_id, addressee_id, status)
+                 VALUES ($1, $2, 'pending')`,
+            values: [ requesterId, addresseeId ]
+        });
+
+        return { message: `Friend request sent successfully to ${addresseeUsername}` };
+    }
+
+    // Envoyer une demande d'ami (méthode originale par ID - conservée pour compatibilité)
     static async sendRequest(requesterId, addresseeId)
     {
         // Vérifier que l'utilisateur ne s'ajoute pas lui-même

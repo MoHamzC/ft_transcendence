@@ -1,0 +1,76 @@
+@host = http://localhost:5001
+
+### Test de santé du serveur
+GET {{host}}/healthz
+
+### 1) Créer user1
+# @name createUser1
+POST {{host}}/api/users/register
+Content-Type: application/json
+
+{
+  "email": "test1@example.com",
+  "username": "testuser1", 
+  "password": "TestPass123!"
+}
+
+### 2) Créer user2
+# @name createUser2
+POST {{host}}/api/users/register
+Content-Type: application/json
+
+{
+  "email": "test2@example.com",
+  "username": "testuser2",
+  "password": "TestPass123!"
+}
+
+### 3) Login user1
+# @name loginUser1
+POST {{host}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "test1@example.com",
+  "password": "TestPass123!"
+}
+
+### 4) Login user2
+# @name loginUser2
+POST {{host}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "test2@example.com",
+  "password": "TestPass123!"
+}
+
+### 5) user1 envoie une demande d'ami à user2
+POST {{host}}/api/user/friends
+Content-Type: application/json
+Authorization: Bearer {{loginUser1.response.body.token}}
+
+{
+  "addresseeId": "{{createUser2.response.body.id}}"
+}
+
+### 6) Vérifier la demande d'ami en attente pour user2
+GET {{host}}/api/user/friends/pending
+Authorization: Bearer {{loginUser2.response.body.token}}
+
+### 7) user2 accepte la demande d'ami de user1
+POST {{host}}/api/user/friends/accept
+Content-Type: application/json
+Authorization: Bearer {{loginUser2.response.body.token}}
+
+{
+  "requesterId": "{{createUser1.response.body.id}}"
+}
+
+### 8) user1 liste ses amis (doit contenir user2)
+GET {{host}}/api/user/friends
+Authorization: Bearer {{loginUser1.response.body.token}}
+
+### 9) user2 liste ses amis (doit contenir user1)
+GET {{host}}/api/user/friends
+Authorization: Bearer {{loginUser2.response.body.token}}

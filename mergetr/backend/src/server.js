@@ -29,7 +29,7 @@ fastify.decorate("authenticate", async function(request, reply) {
   try {
     await request.jwtVerify();
   } catch (err) {
-    reply.send(err);
+    reply.code(401).send({ error: 'Invalid token' });
   }
 });
 
@@ -97,7 +97,7 @@ fastify.register(import('./routes/auth/oauth/githubOauth.js'), { prefix: '/auth'
 fastify.register(import('./routes/users/user_route.js'), { prefix: '/api/users' });
 fastify.register(import('./routes/users/user_settings.js'), { prefix: '/api/users' });
 fastify.register(import('./routes/indexTournament.js'), { prefix: '/api' });
-fastify.register(import('./routes/friendsRoutes.js'), { prefix: '/api/users' });
+fastify.register(import('./routes/friendsRoutes.js'), { prefix: '/api/user' });
 
 // Run the server!
 const start = async () => {
