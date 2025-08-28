@@ -1,17 +1,25 @@
 import Fastify from 'fastify'
 import pool from './config/db.js'
 import { initDatabase } from './config/initDb.js'
+import { registerCors } from './config/cors.js'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 import fastifyJwt from "@fastify/jwt";
 import fastifyCookie from "@fastify/cookie";
+import fastifyStatic from "@fastify/static"
 import nodeMailer from "nodemailer";
+import multipart from '@fastify/multipart';
+import path from "path";
+import fs from 'fs';
 
 dotenv.config({ path: '../.env' })
 
 const fastify = Fastify({
 	logger: true
 })
+
+// Configuration CORS
+await registerCors(fastify);
 
 //jwt
 fastify.register(fastifyJwt, { secret: process.env.SUPER_SECRET_CODE });
@@ -34,7 +42,36 @@ fastify.addHook('preHandler', (request, reply, next) => {
 	return next();
 })
 
+fastify.addHook('onSend', async (request, reply) => {
+	reply.header('X-Content-Type-Options', 'nosniff');
+	reply.header('X-Frame-Options', 'DENY');
+	reply.header('X-XSS-Protection', '1; mode=block');
+});
+
+fastify.addHook('preHandler', async (request, reply) => {
+	if (request.method === 'POST' || request.method === 'PUT') {
+		if (!request.headers['content-type']){
+			request.headers['content-type'] = 'application/json';
+		}
+	}
+});
+
+// fastify.options('*', async (request, reply) => {
+// 	return reply.code(200).send();
+// });
+
 fastify.register(fastifyCookie, { secret: process.env.SUPER_SECRET_CODE, hook: 'preHandler'})
+
+await fastify.register(fastifyStatic, {
+	root: path.join(process.cwd(), 'backend', 'uploads'),
+	prefix: '/uploads/',
+});
+
+await fastify.register(multipart, {
+	limits: {
+		fileSize: 10 * 1024 * 1024
+	}
+})
 
 // Initialisation de la base de données
 const initDB = async () => {
@@ -57,10 +94,14 @@ await initDB();
 
 // Import des routes
 fastify.register(import('./routes/health.js'));
-fastify.register(import('./routes/auth/auth.route.js'), { prefix: '/api/auth' });
-fastify.register(import('./routes/auth/oauth.js'), { prefix: '/api/auth' });
-fastify.register(import('./routes/users/user.route.js'), { prefix: '/api/user' });
+fastify.register(import('./routes/auth/oauth/oauth.js'), { prefix: '/auth' });
+fastify.register(import('./routes/auth/oauth/googleOauth.js'), { prefix: '/auth'});
+fastify.register(import('./routes/auth/oauth/42Oauth.js'), { prefix: '/auth'});
+fastify.register(import('./routes/auth/oauth/githubOauth.js'), { prefix: '/auth'});
+fastify.register(import('./routes/users/user_route.js'), { prefix: '/api/users' });
+fastify.register(import('./routes/users/user_settings.js'), { prefix: '/api/users' });
 fastify.register(import('./routes/indexTournament.js'), { prefix: '/api' });
+fastify.register(import('./routes/friendsRoutes.js'), { prefix: '/api/users' });
 
 // Run the server!
 const start = async () => {

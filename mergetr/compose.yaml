@@ -1,5 +1,4 @@
 services:
-  # Base de données PostgreSQL
   db:
     image: postgres:${POSTGRES_VERSION}
     restart: always
@@ -9,70 +8,38 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"  # Changé pour éviter le conflit avec PostgreSQL système
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  # Interface d'administration DB
   adminer:
     image: adminer
     restart: always
     ports:
-      - "8080:8080"
-    depends_on:
-      - db
+      - 8080:8080
 
-  # Backend Node.js avec Fastify
-  backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    restart: always
+  node:
+    image: node:24
+    working_dir: /home/sgoinfre
     environment:
-      - NODE_ENV=development
-      - RESET_DB=true  # <-- AJOUTE CETTE LIGNE POUR DÉCLENCHER L'INIT
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - SUPER_SECRET_CODE=${SUPER_SECRET_CODE}
-      - MAIL_HOST=${MAIL_HOST}
-      - MAIL_PORT=${MAIL_PORT}
-      - MAIL_USER=${MAIL_USER}
-      - MAIL_PASS=${MAIL_PASS}
+      - NODE_ENV=dev
     volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - ./:/home/sgoinfre
     ports:
-      - "5001:5001"
-    depends_on:
-      db:
-        condition: service_healthy
-    command: npm run dev
+      - 5001:5001
+    env_file:
+      - .env
+    command: bash -c "npm install fastify@5 && npm install pg && npm install dotenv && npm install bcrypt && npm install nodemon && npm install @fastify/jwt && npm install @fastify/cookie && npm install @fastify/cors && npm install nodemailer && npm install @fastify/multipart && npm install @fastify/static && npx nodemon ./backend/src/server.js"
 
-  # Frontend React + Vite
   frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-      target: builder  # Utiliser le stage de développement
-    restart: always
+    image: node:24
+    working_dir: /home/node/app/frontend
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://localhost:5001
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - ./:/home/node/app
     ports:
-      - "5173:5173"
+      - 5173:5173
     depends_on:
-      - backend
-    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+      - node
+    command: bash -c "npm install && npm run dev -- --host 0.0.0.0"
 
 volumes:
   pgdata:

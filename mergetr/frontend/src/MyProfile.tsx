@@ -13,7 +13,7 @@ export default function MyProfile()
         <div className="myprofile">
             <FuzzyText>Profile</FuzzyText>
             <p>Coming soon</p>
-            <div style={{ height: '600px', position: 'relative' }}>
+            {/* <div style={{ height: '600px', position: 'relative' }}>
                 <GooeyNav
                     items={items}
                     particleCount={15}
@@ -24,7 +24,7 @@ export default function MyProfile()
                     timeVariance={300}
                     colors={[1, 2, 3, 1, 2, 3, 1, 4]}
                 />
-            </div>
+            </div> */}
         </div>
     )
 }

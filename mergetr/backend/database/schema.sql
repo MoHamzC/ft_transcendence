@@ -6,10 +6,14 @@ CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(100),
-    username VARCHAR(30) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
+    username VARCHAR(30) NOT NULL,
+    password_hash VARCHAR(255),
     otp_code VARCHAR(6),
     otp_generated_at TIMESTAMP,
+	google_id VARCHAR(255) UNIQUE,
+	github_id VARCHAR(255) UNIQUE,
+	intra42_id VARCHAR(255) UNIQUE,
+	providers TEXT[] DEFAULT '{}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -69,8 +73,24 @@ CREATE TABLE games (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE user_settings (
+    id SERIAL PRIMARY KEY,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    avatar_url TEXT,
+    two_factor_enabled BOOLEAN DEFAULT FALSE,
+    language VARCHAR(10) DEFAULT 'FR',
+    add_friend BOOLEAN DEFAULT TRUE,
+    profile_private BOOLEAN DEFAULT FALSE,
+    pong_color VARCHAR(7) DEFAULT '#FFFFFF', -- Couleur hexadécimale pour le skin Pong
+    pong_skin_type VARCHAR(20) DEFAULT 'color' CHECK (pong_skin_type IN ('color', 'avatar')) -- Choix entre couleur ou avatar
+);
+
 -- Index pour améliorer les performances
 CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_google_id ON users(google_id);
+CREATE INDEX idx_users_github_id ON users(github_id);
+CREATE INDEX idx_users_intra42_id ON users(intra42_id);
+CREATE INDEX idx_users_providers ON users USING GIN(providers);
 CREATE INDEX idx_friendships_requester ON friendships(requester_id);
 CREATE INDEX idx_friendships_addressee ON friendships(addressee_id);
 CREATE INDEX idx_stats_user ON stats(user_id);
