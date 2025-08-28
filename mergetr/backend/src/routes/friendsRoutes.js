@@ -199,10 +199,10 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
     },
     async (request, reply) =>
     {
-        const { addresseeId } = request.body;
+        const { username } = request.body;
         try
         {
-            const result = await FriendService.sendRequest(request.user.id, addresseeId);
+            const result = await FriendService.sendRequestByUsername(request.user.id, username);
             reply.code(201).send(result);
         }
         catch (err)
@@ -223,9 +223,7 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
                 throw err;
             }
         }
-    });
-
-    //
+    });    //
     // GET /api/user/friends/pending - Liste des demandes reçues
     //
     app.get('/friends/pending',
