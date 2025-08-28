@@ -1,12 +1,15 @@
 @host = http://localhost:5001
 
+### TEST COMPLET DE LA FRIEND LIST
+### Exécuter dans l'ordre pour tester toute la fonctionnalité
+
 ### 1) Créer user1
 # @name createUser1
 POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "user1test@42.fr",
+  "email": "friendtest1@42.fr",
   "password": "TestPass123!"
 }
 
@@ -16,7 +19,7 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "user2test@42.fr",
+  "email": "friendtest2@42.fr",
   "password": "TestPass123!"
 }
 
@@ -26,7 +29,7 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "user1test@42.fr",
+  "email": "friendtest1@42.fr",
   "password": "TestPass123!"
 }
 
@@ -36,11 +39,11 @@ POST {{host}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "user2test@42.fr",
+  "email": "friendtest2@42.fr",
   "password": "TestPass123!"
 }
 
-### 5) user1 envoie une demande d’ami à user2
+### 5) user1 envoie une demande d'ami à user2
 # @name sendFriendRequest
 POST {{host}}/api/user/friends
 Content-Type: application/json
@@ -50,7 +53,11 @@ Authorization: Bearer {{loginUser1.response.body.token}}
   "addresseeId": "{{createUser2.response.body.id}}"
 }
 
-### 6) user2 accepte la demande d’ami de user1
+### 6) Vérifier la demande d'ami en attente pour user2
+GET {{host}}/api/user/friends/pending
+Authorization: Bearer {{loginUser2.response.body.token}}
+
+### 7) user2 accepte la demande d'ami de user1
 # @name acceptFriendRequest
 POST {{host}}/api/user/friends/accept
 Content-Type: application/json
@@ -60,17 +67,17 @@ Authorization: Bearer {{loginUser2.response.body.token}}
   "requesterId": "{{createUser1.response.body.id}}"
 }
 
-### 7) user1 liste ses amis
+### 8) user1 liste ses amis (doit contenir user2)
 # @name listFriendsUser1
 GET {{host}}/api/user/friends
 Authorization: Bearer {{loginUser1.response.body.token}}
 
-### 8) user2 liste ses amis
+### 9) user2 liste ses amis (doit contenir user1)
 # @name listFriendsUser2
 GET {{host}}/api/user/friends
 Authorization: Bearer {{loginUser2.response.body.token}}
 
-### 9) Test error case: user1 tries to send another request to user2 (should fail)
+### 10) Test error case: user1 tries to send another request to user2 (should fail with 409)
 # @name testDuplicateRequest
 POST {{host}}/api/user/friends
 Content-Type: application/json
@@ -80,7 +87,7 @@ Authorization: Bearer {{loginUser1.response.body.token}}
   "addresseeId": "{{createUser2.response.body.id}}"
 }
 
-### 10) Test error case: user2 tries to accept non-existent request
+### 11) Test error case: user2 tries to accept non-existent request (should fail with 404)
 # @name testInvalidAccept
 POST {{host}}/api/user/friends/accept
 Content-Type: application/json
@@ -88,4 +95,42 @@ Authorization: Bearer {{loginUser2.response.body.token}}
 
 {
   "requesterId": "00000000-0000-0000-0000-000000000000"
+}
+
+### 12) Test rejection: Créer user3 et rejeter sa demande
+# @name createUser3
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "friendtest3@42.fr",
+  "password": "TestPass123!"
+}
+
+### 13) Login user3
+# @name loginUser3
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "friendtest3@42.fr",
+  "password": "TestPass123!"
+}
+
+### 14) user3 envoie une demande à user1
+POST {{host}}/api/user/friends
+Content-Type: application/json
+Authorization: Bearer {{loginUser3.response.body.token}}
+
+{
+  "addresseeId": "{{createUser1.response.body.id}}"
+}
+
+### 15) user1 rejette la demande de user3
+POST {{host}}/api/user/friends/reject
+Content-Type: application/json
+Authorization: Bearer {{loginUser1.response.body.token}}
+
+{
+  "requesterId": "{{createUser3.response.body.id}}"
 }
