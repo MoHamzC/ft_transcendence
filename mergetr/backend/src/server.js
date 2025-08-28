@@ -123,6 +123,7 @@ fastify.register(import('./routes/indexTournament.js'), { prefix: '/api' });
 // Routes de sécurité
 fastify.register(import('./routes/gdpr.route.js'), { prefix: '/api/gdpr' });
 fastify.register(import('./routes/vault.route.js'), { prefix: '/api/vault' });
+fastify.register(import('./routes/friendsRoutes.js'), { prefix: '/api/user' });
 
 // Run the server!
 const start = async () => {
