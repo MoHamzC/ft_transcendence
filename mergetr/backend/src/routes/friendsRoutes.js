@@ -240,7 +240,7 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
                     type: 'object',
                     properties:
                     {
-                        pending: { type: 'array', items: { type: 'object' } }
+                        pending: { type: 'array', items: { type: 'object', additionalProperties: true } }
                     }
                 }
             }
