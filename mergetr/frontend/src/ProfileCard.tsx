@@ -323,7 +323,13 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
               loading="lazy"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.style.display = "none";
+                // Essayer d'abord avec l'avatar par défaut local
+                if (!target.src.includes('default_avatar.svg')) {
+                  target.src = "/uploads/avatars/default_avatar.svg";
+                } else {
+                  // Si même l'avatar par défaut ne marche pas, masquer l'image
+                  target.style.display = "none";
+                }
               }}
             />
             {showUserInfo && (

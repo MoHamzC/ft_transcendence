@@ -95,6 +95,41 @@ export class ApiService {
       body: JSON.stringify({ username }),
     });
   }
+
+  // Profile endpoints
+  static async getUserProfile(userId?: string) {
+    const endpoint = userId ? `/api/users/${userId}/profile` : '/api/users/profile';
+    return this.request(endpoint);
+  }
+
+  static async updateUserProfile(profileData: any) {
+    return this.request('/api/users/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  static async getUserSettings() {
+    return this.request('/api/users/user-settings');
+  }
+
+  static async updateUserSettings(settings: any) {
+    return this.request('/api/users/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    });
+  }
+
+  static async uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    return this.request('/api/users/avatar', {
+      method: 'POST',
+      headers: {}, // Don't set Content-Type for FormData
+      body: formData,
+    });
+  }
 }
 
 export default ApiService;

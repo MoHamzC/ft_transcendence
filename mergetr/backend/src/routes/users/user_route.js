@@ -6,13 +6,13 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 
 	async function otpAuth(request, reply, email){
 		// Generate a 6-digit code
-			const code_Otp = Math.floor(100000 + Math.random() * 900000).toString();
-			if (!code_Otp){
-				console.log("Error code_Otp creation");
-				return reply.send({Error: "Internal Servor Error"});
-			}
-			else
-				console.log(code_Otp);
+		const code_Otp = Math.floor(100000 + Math.random() * 900000).toString();
+		if (!code_Otp){
+			console.log("Error code_Otp creation");
+			return reply.code(500).send({Error: "Internal Server Error"});
+		}
+		else
+			console.log(code_Otp);
 
 			//Create transporter
 			const transporter = nodeMailer.createTransport({
@@ -25,12 +25,10 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 				},
 			});
 
-			if (!transporter){
-				console.log("Error transporter");
-				return reply.send({Error: "transporter creation failed"});
-			};
-
-			console.log("transporter variable successfuly created");
+		if (!transporter){
+			console.log("Error transporter");
+			return reply.code(500).send({Error: "Transporter creation failed"});
+		};			console.log("transporter variable successfuly created");
 
 			const otpHtml = (code_Otp) => `
 				<div style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 32px;">
@@ -72,10 +70,10 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 			);
 			if (!place_Otp_Db){
 				console.log("Error d'insert dans DB");
-				return reply.code(400).send({Error: "DB"});
+				return reply.code(500).send({Error: "Database error"});
 			}
 			console.log("Information about OTP correctly placed in DB!");
-			return reply.send({ "step": "otp", "message": "Un code OTP a été envoyé à votre email." });
+			return reply.code(200).send({ "step": "otp", "message": "Un code OTP a été envoyé à votre email." });
 	}
 
 	async function logout(request, reply) {
@@ -231,6 +229,63 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 		return reply.code(200).send({showLogin: true});
 	});
 
+	// Route pour récupérer les informations de l'utilisateur connecté
+	fastify.get('/me', { preHandler: verifyUser }, async (request, reply) => {
+		try {
+			const userId = request.user.id;
+
+			// Récupérer les informations de base de l'utilisateur (sans avatar_url qui n'existe pas dans users)
+			const userResult = await pool.query(
+				'SELECT id, username, email, created_at, providers FROM users WHERE id = $1',
+				[userId]
+			);
+
+			if (userResult.rows.length === 0) {
+				return reply.code(404).send({ error: "Utilisateur non trouvé" });
+			}
+
+			const user = userResult.rows[0];
+
+			// Récupérer les paramètres utilisateur s'ils existent
+			let settings = null;
+			try {
+				const settingsResult = await pool.query(
+					'SELECT * FROM user_settings WHERE user_id = $1',
+					[userId]
+				);
+				settings = settingsResult.rows[0] || null;
+			} catch (settingsError) {
+				console.warn('Settings not found for user:', userId);
+			}
+
+			// Déterminer l'URL de l'avatar (priorité: settings > default)
+			let avatarUrl = '/uploads/avatars/default_avatar.svg';
+			if (settings?.avatar_url) {
+				avatarUrl = settings.avatar_url;
+			}
+
+			// Construire la réponse avec toutes les données disponibles
+			const userData = {
+				id: user.id,
+				username: user.username,
+				email: user.email,
+				joinDate: user.created_at,
+				providers: user.providers || [],
+				avatarUrl: avatarUrl,
+				settings: settings
+			};
+
+			console.log('✅ Photo de profil récupérée:', avatarUrl);
+			return reply.code(200).send({
+				message: "Informations utilisateur récupérées",
+				user: userData
+			});
+		} catch (err) {
+			console.error('Erreur récupération utilisateur:', err);
+			return reply.code(500).send({ error: "Erreur serveur" });
+		}
+	});
+
 	fastify.post('/login', login)
 
 	fastify.post('/verify-otp', async (request, reply) => {
@@ -251,7 +306,7 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 
 			if (otp_Code != result.rows[0].otp_code){
 				console.log("OTP code are not the same");
-				return reply.send("Wrong OTP code!");
+				return reply.code(400).send({Error: "Code OTP invalide"});
 			}
 
 			if ((Date.now() - new Date(result.rows[0].otp_generated_at).getTime()) >= 5 * 60 * 1000){
