@@ -24,14 +24,21 @@ export class FriendsService {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${BACKEND_URL}${endpoint}`;
-    
+    // Build headers conditionally: only set Content-Type when a body exists
+    const headers: Record<string, string> = {
+      ...((options && options.headers) as Record<string, string>),
+    };
+
+    // If a body is provided and it's not a FormData, ensure JSON content-type
+    if (options && (options as any).body !== undefined && !(options as any).body instanceof FormData) {
+      headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+    }
+
+    // Spread options first so our computed headers take precedence
     const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      credentials: 'include', // Pour inclure les cookies d'auth
       ...options,
+      headers,
+      credentials: 'include', // Pour inclure les cookies d'auth
     };
 
     try {
@@ -63,6 +70,7 @@ export class FriendsService {
   static async sendFriendRequest(username: string): Promise<{ message: string }> {
     return this.request('/api/user/friends', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username }),
     });
   }
@@ -71,6 +79,7 @@ export class FriendsService {
   static async acceptFriendRequest(requesterId: string): Promise<{ message: string }> {
     return this.request('/api/user/friends/accept', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ requesterId }),
     });
   }
@@ -79,6 +88,7 @@ export class FriendsService {
   static async rejectFriendRequest(requesterId: string): Promise<{ message: string }> {
     return this.request('/api/user/friends/reject', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ requesterId }),
     });
   }
