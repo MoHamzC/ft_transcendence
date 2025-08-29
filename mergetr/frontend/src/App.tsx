@@ -21,6 +21,7 @@ import Logout from './Logout.tsx'
 import Home from './Home.tsx';
 import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
+import Tournaments from './Tournaments.tsx';
 
 function App()
 {

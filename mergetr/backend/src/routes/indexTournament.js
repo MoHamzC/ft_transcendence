@@ -18,24 +18,26 @@ const tournamentRoutes = async (fastify, options) => {
             summary: 'Créer un nouveau tournoi',
             body: {
                 type: 'object',
-                required: ['name'],
+                required: ['name', 'mode'],
                 properties: {
                     name: { type: 'string', minLength: 3, maxLength: 255 },
                     description: { type: 'string', maxLength: 1000 },
-                    maxPlayers: { type: 'integer', minimum: 2, maximum: 32, default: 8 },
-                    type: { type: 'string', enum: ['elimination', 'round_robin'], default: 'elimination' }
+                    mode: { type: 'string', enum: ['4_players', '8_players'] }
                 }
             }
         }
     }, async (request, reply) => {
         try {
-            const { name, description, maxPlayers, type } = request.body;
+            const { name, description, mode } = request.body;
+            
+            // Déduire max_players du mode
+            const maxPlayers = mode === '4_players' ? 4 : 8;
             
             const tournament = await TournamentService.createTournament(
                 name, 
                 description, 
+                mode,
                 maxPlayers, 
-                type, 
                 request.user?.id
             );
             

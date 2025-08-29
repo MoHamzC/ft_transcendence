@@ -13,13 +13,13 @@ import pool from '../config/db.js';
 export class TournamentService {
     
     // Créer un nouveau tournoi
-    static async createTournament(name, description, maxPlayers = 8, type = 'elimination', createdBy = null) {
+    static async createTournament(name, description, mode, maxPlayers, createdBy = null) {
         const query = `
-            INSERT INTO tournaments (name, description, max_players, type, created_by)
+            INSERT INTO tournaments (name, description, mode, max_players, created_by)
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *
         `;
-        const { rows } = await pool.query(query, [name, description, maxPlayers, type, createdBy]);
+        const { rows } = await pool.query(query, [name, description, mode, maxPlayers, createdBy]);
         return rows[0];
     }
 
@@ -30,7 +30,7 @@ export class TournamentService {
             await client.query('BEGIN');
 
             // Vérifier que le tournoi accepte encore les inscriptions
-            const tournamentQuery = 'SELECT status, max_players FROM tournaments WHERE id = $1';
+            const tournamentQuery = 'SELECT status, max_players, mode FROM tournaments WHERE id = $1';
             const { rows: tournamentRows } = await client.query(tournamentQuery, [tournamentId]);
             
             if (!tournamentRows.length) {
@@ -368,7 +368,7 @@ export class TournamentService {
 
     // Vérifier si un joueur peut rejoindre un tournoi
     static async canJoinTournament(tournamentId, alias) {
-        const tournamentQuery = 'SELECT status, max_players FROM tournaments WHERE id = $1';
+        const tournamentQuery = 'SELECT status, max_players, mode FROM tournaments WHERE id = $1';
         const { rows: tournamentRows } = await pool.query(tournamentQuery, [tournamentId]);
         
         if (!tournamentRows.length) {
