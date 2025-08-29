@@ -194,7 +194,7 @@ async function userSettingsRoutes(fastify, options) {
 					VALUES ($1, false, 'en', true, false) RETURNING *`,
 					[userId]
 				);
-				
+
 				return reply.code(200).send({
 					message: "Paramètres par défaut créés",
 					settings: defaultSettings.rows[0]
@@ -208,6 +208,48 @@ async function userSettingsRoutes(fastify, options) {
 		} catch (err) {
 			console.error('Erreur récupération settings:', err);
 			return reply.code(500).send({ error: "Erreur lors de la récupération des paramètres" });
+		}
+	});
+
+	// Route pour mettre à jour la bio utilisateur
+	fastify.put('/bio', { preHandler: verifyUser }, async (request, reply) => {
+		try {
+			const userId = request.user.id;
+			const { bio } = request.body;
+
+			if (bio === undefined) {
+				return reply.code(400).send({ error: "Le champ bio est requis" });
+			}
+
+			// Vérifier si l'utilisateur a déjà des paramètres
+			const existingSettings = await pool.query(
+				'SELECT user_id FROM user_settings WHERE user_id = $1',
+				[userId]
+			);
+
+			let result;
+			if (existingSettings.rows.length === 0) {
+				// Créer les paramètres avec la bio
+				result = await pool.query(
+					'INSERT INTO user_settings (user_id, bio) VALUES ($1, $2) RETURNING *',
+					[userId, bio]
+				);
+			} else {
+				// Mettre à jour la bio existante
+				result = await pool.query(
+					'UPDATE user_settings SET bio = $1 WHERE user_id = $2 RETURNING *',
+					[bio, userId]
+				);
+			}
+
+			console.log('✅ Bio mise à jour pour utilisateur:', userId);
+			return reply.code(200).send({
+				message: "Bio mise à jour avec succès",
+				bio: result.rows[0].bio
+			});
+		} catch (err) {
+			console.error('Erreur mise à jour bio:', err);
+			return reply.code(500).send({ error: "Erreur lors de la mise à jour de la bio" });
 		}
 	});
 

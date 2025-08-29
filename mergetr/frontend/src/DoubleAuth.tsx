@@ -76,21 +76,21 @@ export default function DoubleAuth() {
     }
 
     return (
-        <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             justifyContent: 'center',
             minHeight: '100vh',
             padding: '2rem',
             gap: '2rem'
         }}>
             <TargetCursor spinDuration={2} hideDefaultCursor={true} />
-            
-            <div style={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center', 
+
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
                 gap: '2rem',
                 maxWidth: '400px',
                 width: '100%'
@@ -109,9 +109,9 @@ export default function DoubleAuth() {
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit} style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
+                <form onSubmit={handleSubmit} style={{
+                    display: 'flex',
+                    flexDirection: 'column',
                     gap: '1.5rem',
                     width: '100%'
                 }}>
@@ -122,7 +122,7 @@ export default function DoubleAuth() {
                         <input
                             id="otp"
                             className="px-4 py-3 rounded text-white cursor-target"
-                            style={{ 
+                            style={{
                                 backgroundColor: 'oklch(38% 0.189 293.745)',
                                 textAlign: 'center',
                                 fontSize: '1.5rem',
@@ -139,8 +139,8 @@ export default function DoubleAuth() {
                     </div>
 
                     {error && (
-                        <div style={{ 
-                            color: '#ff6b6b', 
+                        <div style={{
+                            color: '#ff6b6b',
                             textAlign: 'center',
                             padding: '0.5rem',
                             backgroundColor: 'rgba(255, 107, 107, 0.1)',
@@ -154,7 +154,7 @@ export default function DoubleAuth() {
                     <div style={{ display: 'flex', gap: '1rem', width: '100%' }}>
                         <button
                             className="px-4 py-3 rounded-full text-white hover:cursor-pointer hover:bg-gray-500 active:scale-95 shadow-xl cursor-target"
-                            style={{ 
+                            style={{
                                 backgroundColor: loading ? '#666' : 'oklch(25.7% 0.09 281.288)',
                                 flex: 1
                             }}
@@ -163,10 +163,10 @@ export default function DoubleAuth() {
                         >
                             {loading ? 'Vérification...' : 'Valider'}
                         </button>
-                        
+
                         <button
                             className="px-4 py-3 rounded-full text-white hover:cursor-pointer hover:bg-gray-500 active:scale-95 shadow-xl cursor-target"
-                            style={{ 
+                            style={{
                                 backgroundColor: 'oklch(25.7% 0.09 281.288)',
                                 flex: 1
                             }}
@@ -178,9 +178,9 @@ export default function DoubleAuth() {
                     </div>
                 </form>
 
-                <div style={{ 
-                    textAlign: 'center', 
-                    fontSize: '0.8rem', 
+                <div style={{
+                    textAlign: 'center',
+                    fontSize: '0.8rem',
                     color: '#888',
                     lineHeight: '1.4'
                 }}>
@@ -191,4 +191,3 @@ export default function DoubleAuth() {
         </div>
     );
 }
-  

@@ -7,7 +7,7 @@ export class ApiService {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ export class ApiService {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
@@ -44,10 +44,10 @@ export class ApiService {
     });
   }
 
-  static async register(userData: { 
-    username: string; 
-    email: string; 
-    password: string 
+  static async register(userData: {
+    username: string;
+    email: string;
+    password: string
   }) {
     return this.request('/auth/register', {
       method: 'POST',
@@ -123,7 +123,7 @@ export class ApiService {
   static async uploadAvatar(file: File) {
     const formData = new FormData();
     formData.append('avatar', file);
-    
+
     return this.request('/api/users/avatar', {
       method: 'POST',
       headers: {}, // Don't set Content-Type for FormData

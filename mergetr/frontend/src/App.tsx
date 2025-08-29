@@ -1,21 +1,17 @@
-import React, { useState, Profiler, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import AboutUs from './AboutUs.tsx';
 import BackHome from './BackHome.tsx';
 import SideMenu from './SideMenu.tsx';
-import ProfilePage from './ProfilePage.tsx';
-import SplashCursor from './SplashCursor.tsx';
-import FuzzyText from './FuzzyText';
 import Leaderbord from './Leaderbord.tsx';
 import Friends from './Friends.tsx';
 import Settings from './Settings.tsx';
-import MyProfile from './MyProfile.tsx';
+import Profile from './Profile.tsx';
 import Stats from './Stats.tsx';
 import LoginView from './LoginView.tsx';
 import PongGames from './PongGames.tsx';
-import PongGame from './games/PongGame.jsx';
 
 import Particles from './Particles.tsx';
 import Error from './Error.tsx';
@@ -27,17 +23,17 @@ import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
 import SelectPlayers from './SelectPlayers.tsx';
 
-function onRenderCallback(
-  id: string,
-  phase: 'mount' | 'update',
-  actualDuration: number,
-  baseDuration: number,
-  startTime: number,
-  commitTime: number,
-  interactions: Set<any>
-) {
-  console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
-}
+// function onRenderCallback(
+//   id: string,
+//   phase: 'mount' | 'update',
+//   actualDuration: number,
+//   baseDuration: number,
+//   startTime: number,
+//   commitTime: number,
+//   interactions: Set<any>
+// ) {
+//   console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
+// }
 
 function App()
 {
@@ -82,20 +78,21 @@ function App()
 					moveParticlesOnHover={false}
 					alphaParticles={false}
 					disableRotation={false}
+					className=""
 				/>
 				<Router>
-					<Profiler id="MainRoutes" onRender={onRenderCallback}>
+					{/* <Profiler id="MainRoutes" onRender={onRenderCallback}> */}
 						<div style={{ position: 'absolute', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
 							<Routes>
 								<Route path="/" element={<Home />} />
 								<Route path="/login" element={<LoginView setIsLogged={setIsLogged} />} />
 								<Route path="/pong" element={<PongGames />} />
-								<Route path="/pong/play" element={<PongGame />} />
-								<Route path="/aboutus" element={<ProfilePage />} />
+								<Route path="/pong/play" element={<div>Jeu Pong en cours de développement</div>} />
+								<Route path="/aboutus" element={<AboutUs />} />
 								<Route path="/leaderbord" element={<Leaderbord/>} />
 								<Route path="/friends" element={<Friends />} />
 								<Route path="/settings" element={<Settings />} />
-								<Route path="/profile" element={<MyProfile />} />
+								<Route path="/profile" element={<Profile />} />
 								<Route path="/stats" element={<Stats/>} />
 								<Route path="/register" element={<Register/>} />
 								<Route path="/logout" element={<Logout setIsLogged={setIsLogged} />} />
@@ -105,7 +102,7 @@ function App()
 								<Route path="/selectplayers" element={<SelectPlayers />} />
 							</Routes>
 						</div>
-					</Profiler>
+					{/* </Profiler> */}
 					<SideMenu isLogged={isLogged} setIsLogged={setIsLogged} />
 					<BackHome />
 

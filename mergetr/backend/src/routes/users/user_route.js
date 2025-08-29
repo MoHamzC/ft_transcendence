@@ -84,18 +84,48 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 	async function verifyUser(request, reply) {
 		try {
 			const token = request.cookies.access_token;
-			console.log('Token reçu:', token);
-
 			if (!token) {
-				return reply.code(401).send({ error: "You are not connected"});
+				return reply.code(401).send({ error: "Not authenticated" });
 			}
 
+			// Vérifier la signature du JWT (empêche la falsification du cookie)
 			const decoded = await request.jwt.verify(token);
-			console.log('Token décodé:', decoded);
-			request.user = decoded;
+			// id peut être dans id ou sub selon versions précédentes
+			const tokenUserId = decoded.id || decoded.sub || null;
+			const tokenEmail = decoded.email || null;
+
+			// Toujours recharger l'utilisateur depuis la DB pour s'assurer qu'il existe encore
+			let userRow = null;
+			if (tokenUserId) {
+				const dbRes = await pool.query(
+					'SELECT id, username, email, providers FROM users WHERE id = $1',
+					[tokenUserId]
+				);
+				userRow = dbRes.rows[0] || null;
+			}
+			// Fallback si pas d'id dans l'ancien token mais email présent
+			if (!userRow && tokenEmail) {
+				const dbRes = await pool.query(
+					'SELECT id, username, email, providers FROM users WHERE email = $1',
+					[tokenEmail]
+				);
+				userRow = dbRes.rows[0] || null;
+			}
+
+			if (!userRow) {
+				return reply.code(401).send({ error: 'Utilisateur invalide ou supprimé' });
+			}
+
+			// Attacher un objet utilisateur normalisé à la requête
+			request.user = {
+				id: userRow.id,
+				username: userRow.username,
+				email: userRow.email,
+				providers: userRow.providers || []
+			};
 		} catch (err) {
 			console.log('Erreur dans verifyUser:', err);
-			return reply.code(500).send(err);
+			return reply.code(401).send({ error: 'Authentification invalide' });
 		}
 	}
 
@@ -134,13 +164,13 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 				return otpAuth(request, reply, email);
 			}
 
-			// Create JWT token
-			const payload = {sub: user.rows[0].id, username: user.rows[0].username, email: email}
+			// Create JWT token (inclure à la fois sub et id pour compatibilité)
+			const payload = { sub: user.rows[0].id, id: user.rows[0].id, username: user.rows[0].username, email: email };
 			console.log(payload);
 			const token = request.jwt.sign(payload)
 			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
-			return reply.code(200).send({ 
-				message: "Login successful", 
+			return reply.code(200).send({
+				message: "Login successful",
 				username: user.rows[0].username,
 				token: token,
 				id: user.rows[0].id
@@ -238,20 +268,22 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 	fastify.get('/me', { preHandler: verifyUser }, async (request, reply) => {
 		try {
 			const userId = request.user.id;
+			// Récupérer les informations de base de l'utilisateur
 
-			// Récupérer les informations de base de l'utilisateur (sans avatar_url qui n'existe pas dans users)
+			console.log(request.user);
+
 			const userResult = await pool.query(
-				'SELECT id, username, email, created_at, providers FROM users WHERE id = $1',
+				'SELECT id, username, email, created_at, providers, created_at FROM users WHERE id = $1',
 				[userId]
 			);
 
 			if (userResult.rows.length === 0) {
-				return reply.code(404).send({ error: "Utilisateur non trouvé" });
+				return reply.code(404).send({ error: 'Utilisateur non trouvé' });
 			}
 
 			const user = userResult.rows[0];
 
-			// Récupérer les paramètres utilisateur s'ils existent
+			// Paramètres utilisateur
 			let settings = null;
 			try {
 				const settingsResult = await pool.query(
@@ -260,34 +292,28 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 				);
 				settings = settingsResult.rows[0] || null;
 			} catch (settingsError) {
-				console.warn('Settings not found for user:', userId);
+				console.warn('Settings not found for user:', userId, settingsError.message);
 			}
 
 			// Déterminer l'URL de l'avatar (priorité: settings > default)
-			let avatarUrl = '/uploads/avatars/default_avatar.svg';
-			if (settings?.avatar_url) {
-				avatarUrl = settings.avatar_url;
-			}
+			let avatarUrl = '/uploads/avatars/default_avatar.jpg';
+			if (settings?.avatar_url) avatarUrl = settings.avatar_url;
 
-			// Construire la réponse avec toutes les données disponibles
 			const userData = {
 				id: user.id,
 				username: user.username,
 				email: user.email,
 				joinDate: user.created_at,
 				providers: user.providers || [],
-				avatarUrl: avatarUrl,
-				settings: settings
+				avatarUrl,
+				bio: settings?.bio || null,
+				settings
 			};
 
-			console.log('✅ Photo de profil récupérée:', avatarUrl);
-			return reply.code(200).send({
-				message: "Informations utilisateur récupérées",
-				user: userData
-			});
+			return reply.code(200).send({ message: 'Informations utilisateur récupérées', user: userData });
 		} catch (err) {
-			console.error('Erreur récupération utilisateur:', err);
-			return reply.code(500).send({ error: "Erreur serveur" });
+			console.error('Erreur récupération utilisateur /me:', err);
+			return reply.code(500).send({ error: 'Erreur serveur' });
 		}
 	});
 
@@ -329,8 +355,8 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 				[email]
 			)
 
-			// Create JWT token
-			const payload = {sub: result.rows[0].id, username: result.rows[0].username, email: email}
+			// Create JWT token (inclure id)
+			const payload = { sub: result.rows[0].id, id: result.rows[0].id, username: result.rows[0].username, email: email };
 			const token = request.jwt.sign(payload)
 			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
 			return reply.code(200).send({ message: "OTP verification successful", username: result.rows[0].username });

@@ -55,13 +55,13 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       if (avatarFile) {
         const formData = new FormData();
         formData.append('avatar', avatarFile);
-        
-        const avatarResponse = await fetch('/api/users/avatar', {
+
+        const avatarResponse = await fetch('/avatar', {
           method: 'POST',
           credentials: 'include',
           body: formData,
         });
-        
+
         if (avatarResponse.ok) {
           const avatarData = await avatarResponse.json();
           avatarUrl = avatarData.avatar_url;

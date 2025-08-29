@@ -84,7 +84,7 @@ export const useUserProfile = () => {
       setProfile(profileData);
     } catch (err) {
       console.error('Error in fetchUserData:', err);
-      
+
       // Even if there's an error, create a basic profile from user data
       if (user) {
         const fallbackProfile: UserProfileData = {
@@ -104,7 +104,7 @@ export const useUserProfile = () => {
         };
         setProfile(fallbackProfile);
       }
-      
+
       setError('Some profile data could not be loaded');
     } finally {
       setLoading(false);

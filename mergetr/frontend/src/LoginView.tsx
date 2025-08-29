@@ -78,7 +78,7 @@ export default function LoginView({ setIsLogged }: any)
 
             if (response.ok) {
                 const result = await response.json();
-                
+
                 // Si la réponse contient step: "otp", rediriger vers la page 2FA
                 if (result.step === 'otp') {
                     navigate('/doubleauth', { state: { email } });
@@ -114,7 +114,7 @@ hideDefaultCursor={true}
 />
                 <h1 className='transcendence cursor-target'><FuzzyText>Login</FuzzyText></h1>
 
-               
+
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <input
                         className="px-4 py-3 rounded text-white cursor-target"
