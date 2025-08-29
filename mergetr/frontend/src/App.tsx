@@ -25,6 +25,7 @@ import Logout from './Logout.tsx'
 import Home from './Home.tsx';
 import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
+import Tournaments from './Tournaments.tsx';
 
 function onRenderCallback(
   id: string,
@@ -90,6 +91,7 @@ function App()
 								<Route path="/login" element={<LoginView setIsLogged={setIsLogged} />} />
 								<Route path="/pong" element={<PongGames />} />
 								<Route path="/pong/play" element={<PongGame />} />
+								<Route path="/tournaments" element={<Tournaments />} />
 								<Route path="/aboutus" element={<ProfilePage />} />
 								<Route path="/leaderbord" element={<Leaderbord/>} />
 								<Route path="/friends" element={<Friends />} />
