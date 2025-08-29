@@ -1,6 +1,10 @@
 -- Schema SQL pour ft_transcendence
 -- Basé sur l'analyse du code backend
 
+-- Enable pgcrypto extension for gen_random_uuid()
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+
 -- Table principale des utilisateurs (merge de users et usertest)
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
