@@ -28,7 +28,6 @@ func send_match_result(winner: String, score_p1: int, score_p2: int) -> void:
 
 	#header il est important pour indiquer que cest en json
 	var headers := ["Content-Type: application/json"]
-
 	#envoi du post
 	var err = http_request.request(url, headers, HTTPClient.METHOD_POST, json_data)
 	if err != OK:

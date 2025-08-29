@@ -306,7 +306,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 		}
 	});
 
-	fastify.post('/login', login)
+	fastify.post('/login', login);
 
 	fastify.post('/verify-otp', async (request, reply) => {
 		try {
