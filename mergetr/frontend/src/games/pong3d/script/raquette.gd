@@ -4,6 +4,7 @@ extends CharacterBody3D
 @export var update_interval: float = 1
 @export var z_min: float = -3.70 
 @export var z_max: float = 18.40
+@export var prediction_tolerance: float = 0.5
 
 var fixed_x: float
 var fixed_y: float
@@ -15,6 +16,21 @@ func _ready():
 	fixed_x = global_position.x
 	fixed_y = global_position.y
 	ball = get_node("/root/World/ball")
+
+	var mesh = $CollisionShape3D/MeshInstance3D
+	if mesh == null:
+		push_error("⚠️ Aucun Mesh trouvé pour la raquette droite")
+		return
+
+	var material = mesh.get_surface_override_material(0)
+	if material == null:
+		material = StandardMaterial3D.new()
+	else:
+		material = material.duplicate()
+	mesh.set_surface_override_material(0, material)
+
+	# applique couleur ou texture
+	_apply_skin(material, Global.skin_PR)
 
 func ia_calcule():
 	var pos = ball.global_position
@@ -28,10 +44,8 @@ func ia_calcule():
 	var time_ball_to_raquette_x = distance_ball_x / vel.x
 	var future_z = pos.z
 	var velz = vel.z
-
 	var time_wall_z: float = 0.0
 	
-	# rebon contre le mure en haut et en bas laaa et vraiment
 	while time_ball_to_raquette_x > 0:
 		if velz > 0:
 			time_wall_z = (z_max - future_z) / velz
@@ -45,15 +59,20 @@ func ia_calcule():
 			break
 		else:
 			future_z += velz * time_wall_z
-			velz = -velz  # rebond
+			velz = -velz
 			time_ball_to_raquette_x -= time_wall_z
 
 	traj_z = future_z
 
 func ia_control():
 	var direction = Vector3.ZERO
-	if abs(global_position.z - traj_z) > 0.1:
-		direction.z = 1 if global_position.z < traj_z else -1
+	
+	if global_position.z < traj_z - prediction_tolerance:
+		direction.z = 1
+	elif global_position.z > traj_z + prediction_tolerance:
+		direction.z = -1
+	else:
+		direction.z = 0
 
 	velocity = direction.normalized() * speed
 	move_and_slide()
@@ -68,16 +87,27 @@ func _physics_process(delta):
 		ia_control()
 	else:
 		var direction = Vector3.ZERO
-		if Input.is_action_just_pressed("up"):
+		if Input.is_action_pressed("up"):
 			direction.z -= 1
-		if Input.is_action_just_pressed("down"):
-			direction.z += 1
-		if Input.is_action_pressed("left"):
-			direction.z -= 1
-		if Input.is_action_pressed("right"):
+		if Input.is_action_pressed("down"):
 			direction.z += 1
 		velocity = direction.normalized() * speed
 		move_and_slide()
 
 	global_position.x = fixed_x
 	global_position.y = fixed_y
+
+func _apply_skin(material: StandardMaterial3D, skin: String):
+	if skin.ends_with(".png") or skin.ends_with(".jpg"):
+		var path = "res://asset/" + skin
+		if ResourceLoader.exists(path):
+			material.albedo_texture = load(path)
+		else:
+			material.albedo_color = Color.WHITE
+	else:
+		match skin:
+			"red": material.albedo_color = Color.RED
+			"blue": material.albedo_color = Color.BLUE
+			"green": material.albedo_color = Color.GREEN
+			_:
+				material.albedo_color = Color.WHITE

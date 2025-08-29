@@ -1,14 +1,10 @@
 // PongGames.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import TargetCursor from './TargetCursor.tsx'; 
+import TargetCursor from './TargetCursor.tsx'; // Ajout de l'import
 import FuzzyText from './FuzzyText.tsx';
-import logo from './assets/logo.png'; 
-import ElasticSlider from './ElasticSlider'
-import MyToggle from './MyToggle';
-
+import logo from './assets/logo.png'; // Assurez-vous que le chemin est correct
 const PongGames: React.FC = () => {
-  const [AIopponent, setAIopponent] = useState(false);
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <TargetCursor spinDuration={2} hideDefaultCursor={true} />
@@ -24,77 +20,52 @@ const PongGames: React.FC = () => {
         </h1>
         
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Pong */}
-          <div
-            className="group relative cursor-target active:scale-95 overflow-hidden"
-            style={{ background: 'oklch(25.7% 0.09 281.288)', borderRadius: '1rem' }}
-          >
-            <div className="absolute -inset-1 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
-            <div className="relative backdrop-blur-sm rounded-2xl p-8 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
-              <h3 className="mb-6 text-blue-300 group-hover:text-blue-200 transition-colors duration-300">
-                Pong
-              </h3>
-              <p className="text-gray-400 mb-6 group-hover:text-gray-300 transition-colors duration-300">
-                A classic game of pong.
-              </p>
-              <div className="flex flex-col gap-4">
-                <div className="relative w-full">
-                    <Link
-                    to="/pong/play"
-                    className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
-                    style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
-                    >
-                    Play now
-                    </Link>
-                    <div className="mt-2">
-                    <Link
-                      to="/pong/play"
-                      className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
-                      style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
-                    >
-                      Play in tournament
-                    </Link>
-                    </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           
           <div
-            className="group relative cursor-target active:scale-95 overflow-hidden"
+            className="group relative cursor-target active:scale-95"
             style={{ background: 'oklch(25.7% 0.09 281.288)', borderRadius: '1rem' }}
           >
             <div className="absolute -inset-1 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
-            <div className="relative backdrop-blur-sm rounded-2xl p-8 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
-              <h3 className="mb-6 text-purple-300 group-hover:text-purple-200 transition-colors duration-300">
-                Pong 3D
+            <div className="relative backdrop-blur-sm rounded-2xl p-8 border border-gray-700 group-hover:border-gray-500 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
+              <h3 className="mb-6 text-blue-300 group-hover:text-blue-200 transition-colors duration-300">
+                 Pong
               </h3>
               <p className="text-gray-400 mb-6 group-hover:text-gray-300 transition-colors duration-300">
-                Pong, but with a whole new dimension!
+                A classic game of pong. 
               </p>
-              <div className="flex flex-col gap-4">
-                <div className="relative w-full">
-                  <button
-                    // onClick={() => window.location.href = `/export_pong3D/index.html?ia=${AIopponent}`}
-                    onClick={() => window.location.href = `/export_pong3D/index.html?ia=true`}
-                    className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
-                    style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
-                  >
-                    Play NOW
-                  </button>
-                </div>
-                <div className="flex items-center justify-center gap-2 mt-2">
-                  <span className="text-sm text-gray-400">Play against an IA</span>
-                  <MyToggle
-                    onChange={(checked: boolean) => setAIopponent(checked)}
-                    defaultChecked={false}
-                  />
-                </div>
-              </div>
+              <Link 
+                to="/pong/play"
+                className="block w-full text-center px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-target"
+                style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
+              >
+                Play now
+              </Link>
             </div>
           </div>
-        </div>
+            {/* Pong 3D */}
+            <div
+            className="group relative cursor-target active:scale-95"
+            style={{ background: 'oklch(25.7% 0.09 281.288)', borderRadius: '1rem' }}
+            >
+            <div className="absolute -inset-1 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
+            <div className="relative backdrop-blur-sm rounded-2xl p-8 border border-gray-700 group-hover:border-gray-500 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
+              <h3 className="mb-6 text-purple-300 group-hover:text-purple-200 transition-colors duration-300">
+               Pong 3D
+              </h3>
+              <p className="text-gray-400 mb-6 group-hover:text-gray-300 transition-colors duration-300">
+              Pong, but with a whole new dimension!
+              </p>
+              <a href="/export_pong3D/index.html?ia=true">
+				<button 
+				  className="block w-full text-center px-6 py-3 rounded-xl cursor-target"
+				  style={{ background: 'oklch(38% 0.189 293.745)', color: 'white', opacity: 1 }}
+				>
+				  Play NOW
+				</button>
+              </a>
+            </div>
+            </div>
+          </div>
 
         <div className="mt-12 grid md:grid-cols-2 gap-8 text-gray-400">
           
@@ -118,12 +89,10 @@ const PongGames: React.FC = () => {
           <div className="col-span-2 flex justify-center mt-4">
             <p className="text-sm">5 points = win</p>
           </div>
-          
         </div>
 
-        
+      
         <div className="mt-8 text-center hover:scale-105 active:scale-95">
-        
           <Link 
             to="/"
           >

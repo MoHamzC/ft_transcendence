@@ -2,7 +2,7 @@ extends RigidBody3D
 
 @export var initial_speed: float = 5.0
 @export var acceleration: float = 0.05
-@export var max_speed: float = 100.0
+@export var max_speed: float = 50.0
 
 func _ready():
 	contact_monitor = true
@@ -10,7 +10,7 @@ func _ready():
 	connect("body_entered", Callable(self, "_on_Ball_body_entered"))
 	
 
-func _integrate_forces(state):
+func _integrate_forces(_state):
 	if Global.game_start == false:
 		linear_velocity = Vector3.ZERO
 		return

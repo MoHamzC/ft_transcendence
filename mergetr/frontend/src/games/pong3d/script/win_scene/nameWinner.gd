@@ -6,7 +6,7 @@ func _ready():
 func update_scores():
 	var winner = ""
 	if Global.score_left >= Global.max_score:
-		winner = "Player Left"
+		winner = "Player Left\n WIN"
 	elif Global.score_right >= Global.max_score:
-		winner = "Player Right"
+		winner = "Player Right\n WIN"
 	text = winner

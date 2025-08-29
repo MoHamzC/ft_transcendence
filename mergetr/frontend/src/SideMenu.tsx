@@ -11,7 +11,8 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
 
   function handleNav(href: string) {
     navigate(href);
- 
+    setIsOpen(false);
+    setIsLogged(true);
   }
 
   return (
@@ -24,10 +25,10 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
             items={[{
               label: 'Login',
               href: '/login',
-              onClick: (e: any) => {
+              onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
                 e.preventDefault();
+                setIsLogged(true);
                 navigate('/login');
-                
               }
             }]}
             activeHref={window.location.pathname}
