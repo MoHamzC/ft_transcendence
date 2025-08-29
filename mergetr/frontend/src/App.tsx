@@ -82,7 +82,16 @@ function App()
 				/>
 				<Router>
 					{/* <Profiler id="MainRoutes" onRender={onRenderCallback}> */}
-						<div style={{ position: 'absolute', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+						<div style={{ 
+							position: 'absolute', 
+							zIndex: 10, 
+							display: 'flex', 
+							flexDirection: 'column', 
+							alignItems: 'center', 
+							justifyContent: 'center', // Remis à 'center' pour toutes les pages
+							width: '100%', 
+							height: '100%' // Remis à height fixe
+						}}>
 							<Routes>
 								<Route path="/" element={<Home />} />
 								<Route path="/login" element={<LoginView setIsLogged={setIsLogged} />} />

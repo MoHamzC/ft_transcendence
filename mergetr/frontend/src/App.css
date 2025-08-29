@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 #root {
-  max-width: 1280px;
+  width: 100%;
+  min-height: 100vh;
   text-align: center;
+  overflow-x: hidden; /* Empêche le défilement horizontal */
 }
 
 .logo {
@@ -45,9 +47,4 @@
   font-family: "Stalinist One", sans-serif;
   font-weight: 400;
   font-style: normal;
-}
-
-
-.transcendence {
-
 }
