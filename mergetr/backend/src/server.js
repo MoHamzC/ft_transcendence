@@ -29,15 +29,15 @@ fastify.decorate("authenticate", async function(request, reply) {
   try {
     // Chercher le token dans les cookies d'abord, puis dans les headers
     const token = request.cookies.access_token || request.headers.authorization?.replace('Bearer ', '');
-    
+
     if (!token) {
       return reply.code(401).send({ error: 'No token provided' });
     }
-    
+
     // Vérifier le token manuellement
     const decoded = await fastify.jwt.verify(token);
     request.user = decoded;
-    
+
     // Transform the user object to map sub to id
     if (request.user && request.user.sub) {
       request.user.id = request.user.sub;

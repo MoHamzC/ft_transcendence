@@ -4,7 +4,7 @@ var score_left: int = 0
 var score_right: int = 0
 var max_score: int = 5
 var game_start: bool = false
-var right_ia: bool = false
+var right_ia: bool = true
 
 func _ready():
 	if Engine.has_singleton("JavaScriptBridge"):

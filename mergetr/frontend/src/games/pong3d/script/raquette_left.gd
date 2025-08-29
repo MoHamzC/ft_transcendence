@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-@export var speed: float = 10.0
+@export var speed: float = 20.0
 
 var previous_position: Vector3
 var fixed_x: float

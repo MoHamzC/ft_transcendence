@@ -31,6 +31,7 @@ shape = SubResource("BoxShape3D_2ydt4")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
 visible = false
+layers = 3
 mesh = SubResource("BoxMesh_ln26s")
 surface_material_override/0 = SubResource("StandardMaterial3D_3rifw")
 

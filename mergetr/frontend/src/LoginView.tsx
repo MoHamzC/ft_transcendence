@@ -6,8 +6,9 @@ export default function LoginView({ setIsLogged }: any)
 {
     const navigate = useNavigate();
     const BACKEND_URL = 'http://localhost:5001';
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+       const [email, setEmail] = useState("");
+
+        const [password, setPassword] = useState("");
 
     useEffect(() => {
 
@@ -47,11 +48,17 @@ export default function LoginView({ setIsLogged }: any)
 
     function authentificationGithub()
     {
+
         window.location.href = `${BACKEND_URL}/auth/github`;
+    }
+
+    function goHome() {
+        navigate('/');
     }
 
     function authentificationGoogle()
     {
+
         window.location.href = `${BACKEND_URL}/auth/google`;
     }
 
@@ -60,14 +67,20 @@ export default function LoginView({ setIsLogged }: any)
          navigate('/register');
     }
 
+    function gotodoubleauth()
+    {
+        navigate('/doubleauth');
+    }
+
     async function handleLogin() {
+
         if (!email || !password) {
             alert('Please fill in all fields');
             return;
         }
 
         try {
-            const response = await fetch(`${BACKEND_URL}/api/users/login`, {
+            const response = await fetch(`${BACKEND_URL}/api/users/connect`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -77,17 +90,10 @@ export default function LoginView({ setIsLogged }: any)
             });
 
             if (response.ok) {
-                const result = await response.json();
-
-                // Si la réponse contient step: "otp", rediriger vers la page 2FA
-                if (result.step === 'otp') {
-                    navigate('/doubleauth', { state: { email } });
-                } else {
-                    // Login réussi sans 2FA
-                    alert(result.message || 'Login successful');
-                    setIsLogged(true);
-                    navigate('/');
-                }
+                const result = await response.text();
+                alert(result);
+                setIsLogged(true);
+                navigate('/');
             } else {
                 const error = await response.json();
                 alert(error.error || error.message || 'Login failed');
@@ -104,10 +110,15 @@ export default function LoginView({ setIsLogged }: any)
         void handleLogin();
     }
 
+    function goDoubleAuth() {
+        navigate('/doubleauth');
+    }
+
     return (
         <>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <TargetCursor
+
 spinDuration={2}
 hideDefaultCursor={true}
 
@@ -173,6 +184,10 @@ hideDefaultCursor={true}
                     <img src="/assets/google.svg" alt="Google" className="w-6 h-6 cursor-target" />
                     Google
                 </button>
+                <button
+                    onClick={goDoubleAuth}
+                    className="px-6 py-3 bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 rounded-lg flex items-center gap-3 transition-all duration-200 hover:scale-105 shadow-lg cursor-target"
+                ></button>
             </div>
         </>
     );

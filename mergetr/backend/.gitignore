@@ -1,5 +1,7 @@
 # Dépendances
-node_modules/
+mergetr/node_modules/
+./backend/REST client tests
+mergetr/frontend/node_modules
 
 # Secrets
 .env

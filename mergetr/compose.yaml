@@ -1,4 +1,22 @@
 services:
+  vault:
+    image: hashicorp/vault:1.15
+    restart: always
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: myroot
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_ADDR: http://vault:8200
+    ports:
+      - "8200:8200"
+    command: vault server -dev -dev-root-token-id=myroot
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   db:
     image: postgres:${POSTGRES_VERSION}
     restart: always
@@ -12,7 +30,12 @@ services:
   adminer:
     image: adminer
     restart: always
+
+  adminer:
+    image: adminer
+    restart: always
     ports:
+      - 8080:8080
       - 8080:8080
 
   node:
@@ -37,7 +60,14 @@ services:
       - ./:/home/node/app
     ports:
       - 5173:5173
+      - NODE_ENV=development
+    volumes:
+      - ./:/home/node/app
+    ports:
+      - 5173:5173
     depends_on:
+      - node
+    command: bash -c "npm install && npm run dev -- --host 0.0.0.0"
       - node
     command: bash -c "npm install && npm run dev -- --host 0.0.0.0"
 
