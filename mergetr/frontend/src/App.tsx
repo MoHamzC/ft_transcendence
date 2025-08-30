@@ -21,7 +21,19 @@ import Logout from './Logout.tsx'
 import Home from './Home.tsx';
 import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
-import Tournaments from './Tournaments.tsx';
+import SelectPlayers from './SelectPlayers.tsx';
+import Tournament from './Tournament.tsx';
+function onRenderCallback(
+  id: string,
+  phase: 'mount' | 'update',
+  actualDuration: number,
+  baseDuration: number,
+  startTime: number,
+  commitTime: number,
+  interactions: Set<any>
+) {
+  console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
+}
 
 function App()
 {
@@ -96,6 +108,8 @@ function App()
 								<Route path="/error" element={<Error/>} />
 								<Route path="/doubleauth" element={<DoubleAuth />} />
 								<Route path="/ResetPassword" element={<ResetPassword />} />
+								<Route path="/selectplayers" element={<SelectPlayers />} />
+								<Route path="/tournament" element={<Tournament />} />
 							</Routes>
 						</div>
 					{/* </Profiler> */}
