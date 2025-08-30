@@ -1,24 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PongCustomizationModal from './PongCustomizationModal';
-import ScrollablePage from './ScrollablePage';
 
 interface UserData {
   id: string;
   username: string;
   email: string;
   created_at: string;
-  joinDate?: string;
   providers?: string[];
   bio?: string;
   settings?: {
     two_factor_enabled: boolean;
     language: string;
     profile_private: boolean;
-    add_friend?: boolean;
     avatar_url?: string;
-    pong_color?: string;
-    pong_skin_type?: 'color' | 'avatar';
   };
 }
 
@@ -27,10 +21,6 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [showPongCustomization, setShowPongCustomization] = useState(false);
-  const [pongColor, setPongColor] = useState('#FFFFFF');
-  const [pongSkinType, setPongSkinType] = useState<'color' | 'avatar'>('color');
-  const [savingPongSettings, setSavingPongSettings] = useState(false);
   const navigate = useNavigate();
   const BACKEND_URL = 'http://localhost:5001';
 
@@ -68,12 +58,6 @@ const Profile: React.FC = () => {
         }
 console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar uploadé avec succès:', data);
         setUser(data.user);
-
-        // Initialiser les paramètres Pong
-        if (data.user.settings) {
-          setPongColor(data.user.settings.pong_color || '#FFFFFF');
-          setPongSkinType(data.user.settings.pong_skin_type || 'color');
-        }
 
       } catch (err) {
         console.error('Erreur lors du chargement:', err);
@@ -143,7 +127,6 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
             two_factor_enabled: user.settings?.two_factor_enabled || false,
             language: user.settings?.language || 'en',
             profile_private: user.settings?.profile_private || false,
-            add_friend: user.settings?.add_friend !== false,
             avatar_url: data.avatar_url
           }
         });
@@ -157,53 +140,6 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
       setError(err instanceof Error ? err.message : 'Erreur lors de l\'upload de l\'avatar');
     } finally {
       setUploadingAvatar(false);
-    }
-  };
-
-  const savePongSettings = async () => {
-    try {
-      setSavingPongSettings(true);
-      setError(null);
-
-      const response = await fetch(`${BACKEND_URL}/api/users/settings`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          pong_color: pongColor,
-          pong_skin_type: pongSkinType,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erreur lors de la sauvegarde');
-      }
-
-      const data = await response.json();
-      console.log('✅ Paramètres Pong sauvegardés:', data);
-
-      // Mettre à jour les settings dans l'état local
-      if (user && user.settings) {
-        setUser({
-          ...user,
-          settings: {
-            ...user.settings,
-            pong_color: pongColor,
-            pong_skin_type: pongSkinType,
-          }
-        });
-      }
-
-      setShowPongCustomization(false);
-
-    } catch (err) {
-      console.error('❌ Erreur sauvegarde paramètres Pong:', err);
-      setError(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde des paramètres Pong');
-    } finally {
-      setSavingPongSettings(false);
     }
   };
 
@@ -305,18 +241,13 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
   }
 
   return (
-    <ScrollablePage>
-      <div style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-        padding: '20px',
-        color: 'white',
-        minHeight: '100%',
-        paddingBottom: '80px',
-        paddingTop: '20px',
-        width: '100%',
-        boxSizing: 'border-box'
-      }}>
+    <div style={{
+      maxWidth: '800px',
+      margin: '0 auto',
+      padding: '20px',
+      color: 'white',
+      minHeight: '100vh'
+    }}>
       {/* Header */}
       <div style={{
         textAlign: 'center',
@@ -468,7 +399,7 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
             color: 'rgba(255,255,255,0.7)',
             fontSize: '1rem'
           }}>
-            📅 Membre depuis le {formatDate(user.joinDate || user.created_at)}
+            📅 Membre depuis le {formatDate(user.joinDate)}
           </p>
         </div>
       </div>
@@ -558,40 +489,9 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{
-                  color: (user.settings.add_friend !== false) ? '#2ed573' : '#ff4757',
-                  fontSize: '1.1rem'
-                }}>
-                  {(user.settings.add_friend !== false) ? '✅' : '❌'}
-                </span>
-                <span style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  Accepte les demandes d'amis
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ color: '#ff6b9d', fontSize: '1.1rem' }}>🌍</span>
                 <span style={{ color: 'rgba(255,255,255,0.9)' }}>
                   Langue: {user.settings.language || 'Non définie'}
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ color: '#ffa502', fontSize: '1.1rem' }}>🏓</span>
-                <span style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  Pong: {user.settings.pong_skin_type === 'avatar' ? 'Avatar' : 'Couleur'}
-                  {user.settings.pong_skin_type === 'color' && user.settings.pong_color && (
-                    <span style={{
-                      display: 'inline-block',
-                      width: '16px',
-                      height: '16px',
-                      backgroundColor: user.settings.pong_color,
-                      borderRadius: '3px',
-                      marginLeft: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
-                      verticalAlign: 'middle'
-                    }}></span>
-                  )}
                 </span>
               </div>
             </div>
@@ -724,44 +624,7 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
         >
           📊 Statistiques
         </button>
-
-        <button
-          onClick={() => setShowPongCustomization(true)}
-          style={{
-            background: 'linear-gradient(135deg, #ffa502, #ff6b9d)',
-            color: 'white',
-            border: 'none',
-            padding: '12px 24px',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            transition: 'transform 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
-        >
-          🏓 Personnaliser Pong
-        </button>
       </div>
-
-      {/* Modal de personnalisation Pong */}
-      <PongCustomizationModal
-        isOpen={showPongCustomization}
-        onClose={() => setShowPongCustomization(false)}
-        pongColor={pongColor}
-        setPongColor={setPongColor}
-        pongSkinType={pongSkinType}
-        setPongSkinType={setPongSkinType}
-        onSave={savePongSettings}
-        saving={savingPongSettings}
-        userAvatarUrl={user?.settings?.avatar_url}
-        backendUrl={BACKEND_URL}
-      />
 
       {/* Animation CSS pour le spinner */}
       <style>{`
@@ -770,8 +633,7 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
           100% { transform: rotate(360deg); }
         }
       `}</style>
-      </div>
-    </ScrollablePage>
+    </div>
   );
 };
 
