@@ -22,5 +22,9 @@ export async function registerRoutes(fastify) {
     const tournamentRoutes = (await import('./tournaments/index.js')).default
     await fastify.register(tournamentRoutes, { prefix: '/api' })
 
+    // Routes des amis en ligne
+    const friendsOnlineRoutes = (await import('./friendsOnlineRoutes.js')).default
+    await fastify.register(friendsOnlineRoutes, { prefix: '/api' })
+
     fastify.log.info('✅ All routes registered')
 }
