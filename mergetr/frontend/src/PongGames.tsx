@@ -10,17 +10,17 @@ const PongGames: React.FC = () => {
       <TargetCursor spinDuration={2} hideDefaultCursor={true} />
       <div className="max-w-4xl w-full mx-4 p-8">
         <h1 className="text-center mb-12 text-white cursor-target flex justify-center items-center">
-         
+
           <FuzzyText
             fontSize="clamp(2rem, 4.5vw, 4.5rem)"
             style={{ display: "block", margin: "0 auto" }}
           >
-            Pongz  
+            Pongz
           </FuzzyText>
         </h1>
-        
+
         <div className="grid md:grid-cols-2 gap-8">
-          
+
           <div
             className="group relative cursor-target active:scale-95"
             style={{ background: 'oklch(25.7% 0.09 281.288)', borderRadius: '1rem' }}
@@ -31,9 +31,9 @@ const PongGames: React.FC = () => {
                  Pong
               </h3>
               <p className="text-gray-400 mb-6 group-hover:text-gray-300 transition-colors duration-300">
-                A classic game of pong. 
+                A classic game of pong.
               </p>
-              <Link 
+              <Link
                 to="/pong/play"
                 className="block w-full text-center px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-target"
                 style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
@@ -55,20 +55,30 @@ const PongGames: React.FC = () => {
               <p className="text-gray-400 mb-6 group-hover:text-gray-300 transition-colors duration-300">
               Pong, but with a whole new dimension!
               </p>
-              <a href="/export_pong3D/index.html?ia=true">
-				<button 
-				  className="block w-full text-center px-6 py-3 rounded-xl cursor-target"
-				  style={{ background: 'oklch(38% 0.189 293.745)', color: 'white', opacity: 1 }}
-				>
-				  Play NOW
-				</button>
-              </a>
-            </div>
+              <div className="flex flex-col gap-4">
+                <div className="relative w-full">
+                  <button
+                    onClick={() => window.location.href = `/export_pong3D/index.html?ia=${AIopponent}`}
+                    // onClick={() => window.location.href = `/export_pong3D/index.html?ia=true`}
+                    className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
+                    style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
+                  >
+                    Play NOW
+                  </button>
+                </div>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <span className="text-sm text-gray-400">Play against an IA</span>
+                  <MyToggle
+                    onChange={(checked: boolean) => setAIopponent(checked)}
+                    defaultChecked={false}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
         <div className="mt-12 grid md:grid-cols-2 gap-8 text-gray-400">
-          
+
           <div className="flex flex-col items-center">
             <h4 className="mb-4 text-green-300">Player 1</h4>
             <div className="flex gap-2 mb-2">
@@ -78,7 +88,7 @@ const PongGames: React.FC = () => {
               <span>down</span>
             </div>
           </div>
-          
+
           <div className="flex flex-col items-center">
             <h4 className="mb-4 text-green-300">Player 2</h4>
             <div className="flex gap-2 mb-2">
@@ -91,9 +101,9 @@ const PongGames: React.FC = () => {
           </div>
         </div>
 
-      
+
         <div className="mt-8 text-center hover:scale-105 active:scale-95">
-          <Link 
+          <Link
             to="/"
           >
             ← Back Home

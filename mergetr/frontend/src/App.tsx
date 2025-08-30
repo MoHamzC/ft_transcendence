@@ -25,7 +25,17 @@ import Home from './Home.tsx';
 import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
 import SelectPlayers from './SelectPlayers.tsx';
-import TournamentTemp from './TournamentTemp.tsx';
+function onRenderCallback(
+  id: string,
+  phase: 'mount' | 'update',
+  actualDuration: number,
+  baseDuration: number,
+  startTime: number,
+  commitTime: number,
+  interactions: Set<any>
+) {
+  console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
+}
 
 // function onRenderCallback(
 //   id: string,
