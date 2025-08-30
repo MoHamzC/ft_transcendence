@@ -4,10 +4,8 @@ import fp from 'fastify-plugin';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import cors from '@fastify/cors';
-import createDOMPurify from 'isomorphic-dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 import validator from 'validator';
-
-const DOMPurify = createDOMPurify();
 
 /**
  * Plugin de sécurité complet pour ft_transcendence

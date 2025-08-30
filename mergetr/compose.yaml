@@ -10,6 +10,8 @@ services:
       VAULT_ADDR: http://vault:8200
     ports:
       - "8200:8200"
+    volumes:
+      - ./scripts/init-vault.sh:/init-vault.sh
     command: vault server -dev -dev-root-token-id=myroot
     healthcheck:
       test: ["CMD", "vault", "status"]
@@ -18,38 +20,48 @@ services:
       retries: 5
 
   db:
-    image: postgres:${POSTGRES_VERSION}
+    image: postgres:${POSTGRES_VERSION:-14}
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
+      POSTGRES_DB: ${POSTGRES_DB:-db_transcendence}
+    ports:
+      - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  adminer:
-    image: adminer
-    restart: always
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-      - 8080:8080
+  vault-init:
+    image: hashicorp/vault:1.15
+    depends_on:
+      vault:
+        condition: service_healthy
+    environment:
+      VAULT_ADDR: http://172.18.0.2:8200
+      VAULT_TOKEN: myroot
+    volumes:
+      - ./scripts/init-vault.sh:/init-vault.sh
+    command: ["/bin/sh", "/init-vault.sh"]
+    profiles:
+      - init
 
   node:
     image: node:24
     working_dir: /home/sgoinfre
     environment:
       - NODE_ENV=dev
+      - HTTPS_PORT=5001
     volumes:
       - ./:/home/sgoinfre
+      - ./ssl:/home/sgoinfre/ssl:ro  # Monter les certificats SSL
     ports:
-      - 5001:5001
+      - "5001:5001"
     env_file:
       - .env
-    command: bash -c "npm install fastify@5 && npm install pg && npm install dotenv && npm install bcrypt && npm install nodemon && npm install @fastify/jwt && npm install @fastify/cookie && npm install @fastify/cors && npm install nodemailer && npm install @fastify/multipart && npm install @fastify/static && npx nodemon ./backend/src/server.js"
+    command: bash -c "npm install fastify@5 && npm install pg && npm install dotenv && npm install bcrypt && npm install nodemon && npm install @fastify/jwt && npm install @fastify/cookie && npm install @fastify/cors && npm install nodemailer && npm install @fastify/multipart && npm install @fastify/static && npx nodemon ./backend/src/server-https.js"
+    depends_on:
+      - db
+      - vault
 
   frontend:
     image: node:24
@@ -58,16 +70,10 @@ services:
       - NODE_ENV=development
     volumes:
       - ./:/home/node/app
+      - ./ssl:/home/node/app/ssl:ro  # Monter les certificats SSL
     ports:
-      - 5173:5173
-      - NODE_ENV=development
-    volumes:
-      - ./:/home/node/app
-    ports:
-      - 5173:5173
+      - "5173:5173"
     depends_on:
-      - node
-    command: bash -c "npm install && npm run dev -- --host 0.0.0.0"
       - node
     command: bash -c "npm install && npm run dev -- --host 0.0.0.0"
 

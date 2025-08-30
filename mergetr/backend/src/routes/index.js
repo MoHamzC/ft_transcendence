@@ -11,8 +11,12 @@ export async function registerRoutes(fastify) {
     await fastify.register(indexRoutes)
 
     // Routes d'authentification
-    const authRoutes =  (await import('./auth/oauth.js')).default
-    await fastify.register(authRoutes, { prefix: '/auth' })
+    const authRoutes = (await import('./auth.route.js')).default
+    await fastify.register(authRoutes, { prefix: '/api/auth' })
+
+    // Routes OAuth (existantes)
+    const oauthRoutes = (await import('./auth/oauth/oauth.js')).default
+    await fastify.register(oauthRoutes, { prefix: '/auth' })
 
     // Routes utilisateurs
     const userRoutes = (await import('./users/user_route.js')).default
@@ -23,8 +27,16 @@ export async function registerRoutes(fastify) {
     await fastify.register(userSettingsRoutes, { prefix: '/api/users' })
 
     // Routes des tournois
-    const tournamentRoutes = (await import('./tournaments/index.js')).default
+    const tournamentRoutes = (await import('./indexTournament.js')).default
     await fastify.register(tournamentRoutes, { prefix: '/api' })
+
+    // Routes GDPR
+    const gdprRoutes = (await import('./gdpr.route.js')).default
+    await fastify.register(gdprRoutes, { prefix: '/api/gdpr' })
+
+    // Routes Vault
+    const vaultRoutes = (await import('./vault.route.js')).default
+    await fastify.register(vaultRoutes, { prefix: '/api/vault' })
 
     fastify.log.info('✅ All routes registered')
 }

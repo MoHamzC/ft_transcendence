@@ -4,6 +4,21 @@ import pool from '../config/db.js';
 
 export default async function gdprRoutes(app) {
     
+    // 🔧 ROUTE DE TEST TEMPORAIRE (sans authentification)
+    app.get('/test', async (request, reply) => {
+        return {
+            message: 'GDPR Routes are working!',
+            available_routes: [
+                'GET /api/gdpr/export (requires JWT auth)',
+                'POST /api/gdpr/anonymize (requires JWT auth)',
+                'DELETE /api/gdpr/account (requires JWT auth)',
+                'GET /api/gdpr/test (this test route)'
+            ],
+            gdpr_compliance: 'Articles 15 & 17',
+            timestamp: new Date().toISOString()
+        };
+    });
+    
     // Route pour exporter ses données personnelles (GDPR Art. 15)
     app.get('/export', {
         preHandler: [app.authenticate],
@@ -23,7 +38,7 @@ export default async function gdprRoutes(app) {
         }
     }, async (request, reply) => {
         try {
-            const userId = request.user.sub || request.user.id;
+            const userId = request.user.userId || request.user.sub || request.user.id;
             const exportData = await GDPRService.exportUserData(userId);
             
             // Log de l'export pour audit
@@ -63,7 +78,7 @@ export default async function gdprRoutes(app) {
     }, async (request, reply) => {
         try {
             const { confirmation } = request.body;
-            const userId = request.user.sub || request.user.id;
+            const userId = request.user.userId || request.user.sub || request.user.id;
             
             if (confirmation !== 'I_UNDERSTAND_THIS_IS_IRREVERSIBLE') {
                 return reply.code(400).send({ 
@@ -112,7 +127,7 @@ export default async function gdprRoutes(app) {
     }, async (request, reply) => {
         try {
             const { confirmation, reason } = request.body;
-            const userId = request.user.sub || request.user.id;
+            const userId = request.user.userId || request.user.sub || request.user.id;
             
             if (confirmation !== 'DELETE_MY_ACCOUNT_PERMANENTLY') {
                 return reply.code(400).send({ 
@@ -146,7 +161,7 @@ export default async function gdprRoutes(app) {
         }
     }, async (request, reply) => {
         try {
-            const userId = request.user.sub || request.user.id;
+            const userId = request.user.userId || request.user.sub || request.user.id;
             const consentInfo = await GDPRService.checkConsent(userId);
             
             return {
@@ -182,7 +197,7 @@ export default async function gdprRoutes(app) {
     }, async (request, reply) => {
         try {
             const { gdpr_consent, privacy_policy_version } = request.body;
-            const userId = request.user.sub || request.user.id;
+            const userId = request.user.userId || request.user.sub || request.user.id;
             
             await pool.query(`
                 UPDATE users 

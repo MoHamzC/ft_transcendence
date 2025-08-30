@@ -19,39 +19,22 @@ export class GDPRService {
                 UPDATE users 
                 SET 
                     email = 'anonymized_' || id || '@deleted.local',
-                    username = 'anonymized_user_' || id,
-                    first_name = NULL,
-                    last_name = NULL,
-                    phone = NULL,
-                    birth_date = NULL,
-                    profile_picture = NULL,
-                    bio = NULL,
-                    last_login = NULL,
-                    ip_address = NULL,
-                    user_agent = NULL,
-                    anonymized_at = NOW(),
-                    gdpr_status = 'anonymized'
+                    password_hash = 'anonymized'
                 WHERE id = $1
             `, [userId]);
             
-            // 2. Anonymiser les messages/posts
+            // 2. Anonymiser les statistiques de jeu
             await client.query(`
-                UPDATE messages 
-                SET content = '[Message anonymisé - GDPR]', 
-                    anonymized_at = NOW()
+                UPDATE stats 
+                SET games_played = 0, games_won = 0, games_lost = 0
                 WHERE user_id = $1
             `, [userId]);
             
-            // 3. Anonymiser les scores de jeu (garder les stats anonymes)
+            // 3. Supprimer les amitiés
             await client.query(`
-                UPDATE game_scores 
-                SET player_name = 'Joueur Anonyme',
-                    anonymized_at = NOW()
-                WHERE user_id = $1
+                DELETE FROM friendships 
+                WHERE requester_id = $1 OR addressee_id = $1
             `, [userId]);
-            
-            // 4. Conserver uniquement les données nécessaires pour l'intégrité
-            // (scores globaux, statistiques anonymes, etc.)
             
             await client.query('COMMIT');
             
@@ -77,24 +60,13 @@ export class GDPRService {
         try {
             await client.query('BEGIN');
             
-            // 1. Supprimer les données sensibles
-            await client.query('DELETE FROM user_sessions WHERE user_id = $1', [userId]);
-            await client.query('DELETE FROM user_preferences WHERE user_id = $1', [userId]);
-            await client.query('DELETE FROM friend_requests WHERE requester_id = $1 OR addressee_id = $1', [userId]);
-            await client.query('DELETE FROM friends WHERE user1_id = $1 OR user2_id = $1', [userId]);
+            // 1. Supprimer les données liées
+            await client.query('DELETE FROM friendships WHERE requester_id = $1 OR addressee_id = $1', [userId]);
+            await client.query('DELETE FROM matches WHERE player1_id = $1 OR player2_id = $1', [userId]);
+            await client.query('DELETE FROM stats WHERE user_id = $1', [userId]);
             
-            // 2. Anonymiser au lieu de supprimer (pour préserver l'intégrité des jeux)
-            await this.anonymizeUser(userId);
-            
-            // 3. Marquer comme supprimé
-            await client.query(`
-                UPDATE users 
-                SET 
-                    deleted_at = NOW(),
-                    gdpr_status = 'deleted',
-                    deletion_reason = 'User request - GDPR Art. 17'
-                WHERE id = $1
-            `, [userId]);
+            // 2. Supprimer l'utilisateur
+            await client.query('DELETE FROM users WHERE id = $1', [userId]);
             
             await client.query('COMMIT');
             
@@ -118,39 +90,41 @@ export class GDPRService {
         try {
             // 1. Données utilisateur
             const userResult = await pool.query(`
-                SELECT id, email, username, first_name, last_name, 
-                       created_at, last_login, profile_picture, bio
-                FROM users WHERE id = $1 AND deleted_at IS NULL
+                SELECT id, email
+                FROM users WHERE id = $1
             `, [userId]);
-            
+
             if (userResult.rows.length === 0) {
-                throw new Error('User not found or deleted');
+                throw new Error('User not found');
             }
-            
+
             const userData = userResult.rows[0];
-            
-            // 2. Historique des jeux
+
+            // 2. Statistiques de jeu
+            const statsResult = await pool.query(`
+                SELECT games_played, games_won, games_lost
+                FROM stats WHERE user_id = $1
+            `, [userId]);
+
+            // 3. Parties de jeu
             const gamesResult = await pool.query(`
-                SELECT game_type, score, opponent, played_at, duration
-                FROM game_history WHERE user_id = $1
+                SELECT score_player1, score_player2, played_at
+                FROM matches WHERE player1_id = $1 OR player2_id = $1
                 ORDER BY played_at DESC
+                LIMIT 50
             `, [userId]);
-            
-            // 3. Messages
-            const messagesResult = await pool.query(`
-                SELECT content, sent_at, receiver_id
-                FROM messages WHERE user_id = $1
-                ORDER BY sent_at DESC
-            `, [userId]);
-            
-            // 4. Amis
+
+            // 4. Amis (utiliser friendships)
             const friendsResult = await pool.query(`
-                SELECT u.username, f.created_at as friends_since
-                FROM friends f
-                JOIN users u ON (u.id = f.user1_id OR u.id = f.user2_id)
-                WHERE (f.user1_id = $1 OR f.user2_id = $1) AND u.id != $1
+                SELECT u.email as friend_email, f.status, f.created_at as friends_since
+                FROM friendships f
+                JOIN users u ON (
+                    (u.id = f.requester_id AND f.addressee_id = $1) OR
+                    (u.id = f.addressee_id AND f.requester_id = $1)
+                )
+                WHERE f.status = 'accepted'
             `, [userId]);
-            
+
             // 5. Créer l'export GDPR
             const gdprExport = {
                 export_info: {
@@ -161,8 +135,8 @@ export class GDPRService {
                 },
                 personal_data: {
                     profile: userData,
+                    game_stats: statsResult.rows[0] || null,
                     game_history: gamesResult.rows,
-                    messages: messagesResult.rows,
                     friends: friendsResult.rows
                 },
                 gdpr_rights: {
@@ -221,7 +195,7 @@ export class GDPRService {
      */
     static async checkConsent(userId) {
         const result = await pool.query(`
-            SELECT gdpr_consent, gdpr_consent_date, privacy_policy_version
+            SELECT id, email
             FROM users WHERE id = $1
         `, [userId]);
         
@@ -229,14 +203,14 @@ export class GDPRService {
             throw new Error('User not found');
         }
         
-        const user = result.rows[0];
+        // Valeurs par défaut pour les colonnes GDPR qui n'existent pas encore
         const currentPolicyVersion = process.env.PRIVACY_POLICY_VERSION || '1.0';
         
         return {
-            has_consent: user.gdpr_consent,
-            consent_date: user.gdpr_consent_date,
-            policy_version: user.privacy_policy_version,
-            needs_update: user.privacy_policy_version !== currentPolicyVersion
+            has_consent: false, // Par défaut, pas de consentement explicite
+            consent_date: null,
+            policy_version: currentPolicyVersion,
+            needs_update: false // Pas de version précédente à comparer
         };
     }
 }

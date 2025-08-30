@@ -217,8 +217,8 @@ test-https-simple: ## Test HTTPS connection (simple check)
 
 enable-https: ## Enable HTTPS server (project requirement)
 	@echo "$(GREEN)🔒 Starting HTTPS server (project requirement)...$(NC)"
-	@chmod +x config/enable-https.sh
-	@./config/enable-https.sh
+	@chmod +x enable-https.sh
+	@./enable-https.sh
 
 security-audit: ## Run security audit
 	@echo "$(GREEN)🔍 Running security audit...$(NC)"
