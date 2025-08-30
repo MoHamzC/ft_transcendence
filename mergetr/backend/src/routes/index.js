@@ -37,6 +37,9 @@ export async function registerRoutes(fastify) {
     // Routes Vault
     const vaultRoutes = (await import('./vault.route.js')).default
     await fastify.register(vaultRoutes, { prefix: '/api/vault' })
+    // Routes des amis en ligne
+    const friendsOnlineRoutes = (await import('./friendsOnlineRoutes.js')).default
+    await fastify.register(friendsOnlineRoutes, { prefix: '/api' })
 
     fastify.log.info('✅ All routes registered')
 }
