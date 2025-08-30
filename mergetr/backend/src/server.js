@@ -23,7 +23,7 @@ const fastify = Fastify({
 await registerCors(fastify);
 
 //jwt
-fastify.register(fastifyJwt, { secret: process.env.SUPER_SECRET_CODE });
+fastify.register(fastifyJwt, { secret: process.env.JWT_SECRET });
 
 // Ajout du décorateur authenticate pour les routes protégées
 fastify.decorate("authenticate", async function(request, reply) {
@@ -71,7 +71,7 @@ fastify.addHook('preHandler', async (request, reply) => {
 // 	return reply.code(200).send();
 // });
 
-fastify.register(fastifyCookie, { secret: process.env.SUPER_SECRET_CODE, hook: 'preHandler'})
+fastify.register(fastifyCookie, { secret: process.env.JWT_SECRET, hook: 'preHandler'})
 
 await fastify.register(fastifyStatic, {
 	root: path.join(path.dirname(import.meta.url).replace('file://', ''), '..', 'uploads'),

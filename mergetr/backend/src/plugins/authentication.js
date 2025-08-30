@@ -10,7 +10,7 @@ import fastifyCookie from '@fastify/cookie'
 export async function registerAuthentication(fastify) {
     // JWT
     await fastify.register(fastifyJwt, {
-        secret: process.env.SUPER_SECRET_CODE,
+        secret: process.env.JWT_SECRET,
         transformUser: (payload) => {
             return {
                 id: payload.sub,
@@ -21,7 +21,7 @@ export async function registerAuthentication(fastify) {
 
     // Cookies
     await fastify.register(fastifyCookie, {
-        secret: process.env.SUPER_SECRET_CODE
+        secret: process.env.JWT_SECRET
     })
 
     // Hook pour attacher JWT aux requêtes

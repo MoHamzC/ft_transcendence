@@ -20,12 +20,12 @@ export class VaultService {
             // Vérifier la connexion
             await this.client.status();
             console.log('✅ Vault connected successfully');
-            
+
             // Initialiser les secrets par défaut en mode dev
             if (process.env.NODE_ENV !== 'production') {
                 await this.initializeDevSecrets();
             }
-            
+
             this.isInitialized = true;
         } catch (error) {
             console.error('❌ Vault connection failed:', error.message);
@@ -40,7 +40,7 @@ export class VaultService {
         try {
             // Vérifier d'abord si les secrets existent déjà
             const existingSecrets = await this.checkExistingSecrets();
-            
+
             // Secrets de base de données
             if (!existingSecrets.database) {
                 await this.writeSecret('secret/database', {
@@ -64,7 +64,7 @@ export class VaultService {
                 await this.writeSecret('secret/oauth/42', {
                     client_id: process.env.CLIENT_ID_42 || 'your_42_client_id',
                     client_secret: process.env.CLIENT_SECRET_42 || 'your_42_client_secret',
-                    redirect_uri: process.env.REDIRECT_URI || 'http://localhost:3000/auth/42/callback'
+                    redirect_uri: process.env.REDIRECT_URI || 'http://localhost:5001/auth/42/callback'
                 });
             }
 
@@ -73,7 +73,7 @@ export class VaultService {
                 await this.writeSecret('secret/oauth/github', {
                     client_id: process.env.GITHUB_CLIENT_ID || 'your_github_client_id',
                     client_secret: process.env.GITHUB_CLIENT_SECRET || 'your_github_client_secret',
-                    redirect_uri: process.env.GITHUB_REDIRECT_URI || 'http://localhost:3000/auth/github/callback'
+                    redirect_uri: process.env.GITHUB_REDIRECT_URI || 'http://localhost:5001/auth/github/callback'
                 });
             }
 
@@ -82,7 +82,7 @@ export class VaultService {
                 await this.writeSecret('secret/oauth/google', {
                     client_id: process.env.GOOGLE_CLIENT_ID || 'your_google_client_id',
                     client_secret: process.env.GOOGLE_CLIENT_SECRET || 'your_google_client_secret',
-                    redirect_uri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/auth/google/callback'
+                    redirect_uri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5001/auth/google/callback'
                 });
             }
 

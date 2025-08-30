@@ -51,12 +51,12 @@ export default fp(async (app) => {
             // En développement, autoriser localhost
             if (process.env.NODE_ENV === 'development') {
                 const allowedOrigins = [
-                    'http://localhost:3000',
+                    'http://localhost:5001',
                     'http://localhost:5173', // Vite dev server
-                    'https://localhost:3000',
+                    'https://localhost:5001',
                     'https://localhost:5173'
                 ];
-                
+
                 if (!origin || allowedOrigins.includes(origin)) {
                     callback(null, true);
                 } else {
@@ -65,7 +65,7 @@ export default fp(async (app) => {
             } else {
                 // En production, être plus strict
                 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['https://localhost'];
-                
+
                 if (!origin || allowedOrigins.includes(origin)) {
                     callback(null, true);
                 } else {
@@ -97,7 +97,7 @@ export default fp(async (app) => {
         if (request.body && typeof request.body === 'object') {
             sanitizeObject(request.body);
         }
-        
+
         if (request.query && typeof request.query === 'object') {
             sanitizeObject(request.query);
         }
@@ -108,25 +108,25 @@ export default fp(async (app) => {
         if (!email || typeof email !== 'string') {
             return false;
         }
-        
+
         // Validation basique
         if (!validator.isEmail(email)) {
             return false;
         }
-        
+
         // Vérifications supplémentaires
         if (email.length > 254) { // RFC 5321
             return false;
         }
-        
+
         // Bloquer certains domaines suspects
         const suspiciousDomains = ['tempmail.org', '10minutemail.com', 'guerrillamail.com'];
         const domain = email.split('@')[1]?.toLowerCase();
-        
+
         if (suspiciousDomains.includes(domain)) {
             return false;
         }
-        
+
         return true;
     });
 
@@ -135,38 +135,38 @@ export default fp(async (app) => {
         if (!password || typeof password !== 'string') {
             return { valid: false, message: 'Password is required' };
         }
-        
+
         if (password.length < 12) {
             return { valid: false, message: 'Password must be at least 12 characters long' };
         }
-        
+
         if (password.length > 128) {
             return { valid: false, message: 'Password must be less than 128 characters' };
         }
-        
+
         // Vérifier la complexité
         const hasLower = /[a-z]/.test(password);
         const hasUpper = /[A-Z]/.test(password);
         const hasDigit = /\d/.test(password);
         const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-        
+
         if (!hasLower || !hasUpper || !hasDigit || !hasSpecial) {
             return {
                 valid: false,
                 message: 'Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character'
             };
         }
-        
+
         // Vérifier contre les mots de passe communs
         const commonPasswords = [
             'password123', 'admin123', 'qwerty123', '123456789',
             'password1234', 'admin1234', 'letmein123'
         ];
-        
+
         if (commonPasswords.includes(password.toLowerCase())) {
             return { valid: false, message: 'Password is too common' };
         }
-        
+
         return { valid: true };
     });
 
@@ -179,10 +179,10 @@ export default fp(async (app) => {
             /javascript:/i,   // JavaScript injection
             /%3C%73%63%72%69%70%74/i // Encoded script tag
         ];
-        
+
         const url = request.url;
         const userAgent = request.headers['user-agent'] || '';
-        
+
         for (const pattern of suspiciousPatterns) {
             if (pattern.test(url) || pattern.test(userAgent)) {
                 app.log.warn({
@@ -213,10 +213,10 @@ function sanitizeObject(obj) {
                     ALLOWED_TAGS: [], // Pas de tags HTML autorisés
                     ALLOWED_ATTR: []  // Pas d'attributs autorisés
                 });
-                
+
                 // Nettoyer les caractères de contrôle
                 obj[key] = obj[key].replace(/[\x00-\x1f\x7f-\x9f]/g, '');
-                
+
                 // Limiter la longueur
                 if (obj[key].length > 10000) {
                     obj[key] = obj[key].substring(0, 10000);
