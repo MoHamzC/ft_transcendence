@@ -5,6 +5,9 @@ var score_right: int = 0
 var max_score: int = 5
 var game_start: bool = false
 var right_ia: bool = true
+var skin_PL: String = "red"
+var skin_PR: String = "blue"
+
 
 func _ready():
 	if Engine.has_singleton("JavaScriptBridge"):
@@ -13,4 +16,17 @@ func _ready():
 			var search = str(js.location.search)  # "?ia=true" ou "?ia=false"
 			if search.find("ia=true") != -1:
 				right_ia = true
+			if search.find("PL=") != -1:
+				var parts = search.split("PL=")
+				if parts.size() > 1:
+					var value = parts[1].split("&")[0]
+					Global.skin_PL = value
+			if search.find("PR=") != -1:
+				var parts = search.split("PR=")
+				if parts.size() > 1:
+					var value = parts[1].split("&")[0]
+					Global.skin_PR = value
 	print("Right IA activé :", right_ia)
+	
+	#"?ia=true&PL=blue&PR=green"
+	#?ia=true&PL=custom&PR=white" ca cest pour les skins

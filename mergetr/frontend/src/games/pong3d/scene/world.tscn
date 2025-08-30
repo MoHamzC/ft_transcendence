@@ -8,7 +8,6 @@
 [ext_resource type="Script" uid="uid://csejiboej5dty" path="res://script/raquette_left.gd" id="5_036b0"]
 [ext_resource type="PackedScene" uid="uid://cfuqttpb4mjqt" path="res://scene/Score3D.tscn" id="6_dwbse"]
 [ext_resource type="Script" uid="uid://dwepweuqw2qci" path="res://script/directional_light_3d.gd" id="6_na5tu"]
-[ext_resource type="Script" uid="uid://dxsygf75i08fl" path="res://script/camera_3_d.gd" id="7_tmyho"]
 [ext_resource type="Shader" uid="uid://bki8bep7dewi7" path="res://script/grain.gdshader" id="8_yur6x"]
 [ext_resource type="Script" uid="uid://ducyyx6ig708e" path="res://script/color_rect.gd" id="9_yur6x"]
 [ext_resource type="PackedScene" uid="uid://deyqdm12aoin2" path="res://scene/Background.tscn" id="10_7ghph"]
@@ -18,6 +17,7 @@
 [ext_resource type="Script" uid="uid://bcv37aykddyg5" path="res://script/meteorite.gd" id="14_bqa5m"]
 [ext_resource type="PackedScene" uid="uid://dg7cf4i8r6g0w" path="res://scene/alert_texte.tscn" id="15_a0bac"]
 [ext_resource type="PackedScene" uid="uid://bo2ac27uy3mdn" path="res://scene/quitButton.tscn" id="18_e4vd1"]
+[ext_resource type="Script" uid="uid://bci0i0eqjqnyh" path="res://script/camera3D_cinamatique.gd" id="19_1402k"]
 
 [sub_resource type="Gradient" id="Gradient_hcb8y"]
 offsets = PackedFloat32Array(0, 0.5, 1)
@@ -108,13 +108,13 @@ fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_hcb8y")
 draw_pass_1 = SubResource("QuadMesh_y3jn2")
 
-[node name="Camera3Dtele" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.21644, 0.976296, 0, -0.976296, 0.21644, 0.996336, 17.4382, 14.8912)
-fov = 100.0
-script = ExtResource("7_tmyho")
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.21644, 0.976296, 0, -0.976296, 0.21644, -120, 17.438, 14.891)
+fov = 100.4
+script = ExtResource("19_1402k")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.958893, 0.283682, -0.00705247, 0.0125227, -0.0174741, 0.999769, 0.283493, -0.958759, -0.0203081, -335.546, -21.3302, 11.9614)
+transform = Transform3D(0.958893, 0.283681, -0.0070532, -0.130992, 0.464552, 0.875804, 0.251726, -0.838878, 0.482615, -335.546, -21.3302, 11.9614)
 script = ExtResource("6_na5tu")
 
 [node name="CRT TV2" parent="." instance=ExtResource("10_na5tu")]
