@@ -31,7 +31,7 @@ const Profile: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        
+
         const authResponse = await fetch(`${BACKEND_URL}/api/users/protected`, {
           method: 'GET',
           credentials: 'include',
@@ -42,7 +42,7 @@ const Profile: React.FC = () => {
           return;
         }
 
-        
+
         const userResponse = await fetch(`${BACKEND_URL}/api/users/me`, {
           method: 'GET',
           credentials: 'include',
@@ -87,7 +87,7 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
     const file = event.target.files?.[0];
     if (!file) return;
 
-   
+
     if (!file.type.startsWith('image/')) {
       setError('Please select a valid image file (JPG, PNG, GIF, etc.)');
       return;
@@ -131,7 +131,7 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
         });
       }
 
-  
+
       event.target.value = '';
 
     } catch (err) {
@@ -256,8 +256,8 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
       }}>
 
           <FuzzyText fontSize="clamp(2rem, 4.5vw, 4.5rem)">Profile</FuzzyText>
-        
-        
+
+
       </div>
 
       {/* Avatar et infos principales */}
