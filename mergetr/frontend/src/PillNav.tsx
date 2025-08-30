@@ -10,7 +10,7 @@ interface PillNavItem {
 }
 
 interface PillNavProps {
-  logo: string;
+  logo?: string;
   logoAlt?: string;
   items: PillNavItem[];
   activeHref: string;
@@ -267,51 +267,53 @@ const PillNav = ({
         aria-label="Primary"
         style={cssVars}
       >
-        {isRouterLink(items?.[0]?.href) ? (
-          <Link
-            to={items[0].href}
-            aria-label="Home"
-            onMouseEnter={handleLogoEnter}
-            role="menuitem"
-            ref={(el) => {
-              logoRef.current = el;
-            }}
-            className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden"
-            style={{
-              width: "var(--nav-h)",
-              height: "var(--nav-h)",
-              background: "var(--base, #000)",
-            }}
-          >
-            <img
-              src={logo}
-              alt={logoAlt}
-              ref={logoImgRef}
-              className="w-full h-full object-cover block"
-            />
-          </Link>
-        ) : (
-          <a
-            href={items?.[0]?.href || "#"}
-            aria-label="Home"
-            onMouseEnter={handleLogoEnter}
-            ref={(el) => {
-              logoRef.current = el;
-            }}
-            className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden"
-            style={{
-              width: "var(--nav-h)",
-              height: "var(--nav-h)",
-              background: "var(--base, #000)",
-            }}
-          >
-            <img
-              src={logo}
-              alt={logoAlt}
-              ref={logoImgRef}
-              className="w-full h-full object-cover block"
-            />
-          </a>
+        {logo && (
+          isRouterLink(items?.[0]?.href) ? (
+            <Link
+              to={items[0].href}
+              aria-label="Home"
+              onMouseEnter={handleLogoEnter}
+              role="menuitem"
+              ref={(el) => {
+                logoRef.current = el;
+              }}
+              className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden"
+              style={{
+                width: "var(--nav-h)",
+                height: "var(--nav-h)",
+                background: "var(--base, #000)",
+              }}
+            >
+              <img
+                src={logo}
+                alt={logoAlt}
+                ref={logoImgRef}
+                className="w-full h-full object-cover block"
+              />
+            </Link>
+          ) : (
+            <a
+              href={items?.[0]?.href || "#"}
+              aria-label="Home"
+              onMouseEnter={handleLogoEnter}
+              ref={(el) => {
+                logoRef.current = el;
+              }}
+              className="rounded-full p-2 inline-flex items-center justify-center overflow-hidden"
+              style={{
+                width: "var(--nav-h)",
+                height: "var(--nav-h)",
+                background: "var(--base, #000)",
+              }}
+            >
+              <img
+                src={logo}
+                alt={logoAlt}
+                ref={logoImgRef}
+                className="w-full h-full object-cover block"
+              />
+            </a>
+          )
         )}
 
         <div

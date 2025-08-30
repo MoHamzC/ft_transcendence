@@ -19,8 +19,6 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
       {!isLogged && (
         <div className="side-menu">
           <PillNav
-            logo={logo}
-            logoAlt="Company Logo"
             items={[{
               label: 'Login',
               href: '/login',
@@ -43,8 +41,6 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
       {isLogged && (
         <div className="side-menu">
           <PillNav
-            logo={logo}
-            logoAlt="Company Logo"
             items={[
               { label: 'Home', href: '/' },
               { label: 'Profile', href: '/profile' },

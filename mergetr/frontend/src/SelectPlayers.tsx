@@ -1,11 +1,12 @@
 import FuzzyText from "./FuzzyText";
 import React from 'react';
 import TargetCursor from './TargetCursor';
-
+import {useNavigate} from "react-router-dom";
 export default function SelectPlayers() {
+  const navigate = useNavigate();
   const handleChoose = (n: number) => {
     console.log('Chosen players:', n);
-  
+    navigate(`/tournament`);
   };
 
   const buttonStyle: React.CSSProperties = {
