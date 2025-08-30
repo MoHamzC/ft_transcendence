@@ -16,12 +16,12 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'https://node:5001',
+        target: 'http://node:5001',
         changeOrigin: true,
         secure: false
       },
       '/auth': {
-        target: 'https://node:5001',
+        target: 'http://node:5001',
         changeOrigin: true,
         secure: false
       }

@@ -5,6 +5,7 @@ import FriendsService, { type Friend, type FriendRequest } from './services/frie
 import AddFriendModal from './components/AddFriendModal';
 import FriendCard from './components/FriendCard';
 import './Friends.css';
+import FuzzyText from './FuzzyText.tsx';
 
 export default function Friends() {
   const [friends, setFriends] = useState<Friend[]>([]);
