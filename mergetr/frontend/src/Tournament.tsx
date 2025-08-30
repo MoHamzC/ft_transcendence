@@ -22,9 +22,12 @@ export default function Tournament()
     return(
         <div> 
                   <TargetCursor spinDuration={2} hideDefaultCursor={true} />
-        <FuzzyText>Tournament</FuzzyText>
+        <div className="flex justify-center items-center w-full mt-8 mb-8">
+          <FuzzyText>Tournament</FuzzyText>
+        </div>
         <div>
             <button>Player List</button>
+            <div></div>
         </div>
         <div className="flex flex-row gap-8 mt-8">
           <div>
@@ -34,10 +37,10 @@ export default function Tournament()
                 <span className="text-base mb-2">Match #1</span>
                 <div className="flex gap-2 mb-2">
                   <button className="bg-[#7eeaff] text-[#23243a] font-bold px-3 py-1 rounded shadow hover:scale-105 cursor-target">chat2</button>
-                  <span className="text-white font-bold">0</span>
+                  {/* <span className="text-white font-bold">0</span> */}
                   <span className="text-[#b3b3b3]">VS</span>
                   <button className="bg-[#ffd1dc] text-[#23243a] font-bold px-3 py-1 rounded shadow hover:scale-105 cursor-target">chat3</button>
-                  <span className="text-white font-bold">5</span>
+                  {/* <span className="text-white font-bold">5</span> */}
                 <span className="text-[#ffe066] text-sm">Insert winer</span>
                 </div>
               </div>
@@ -47,10 +50,10 @@ export default function Tournament()
                 <span className="text-base mb-2">Match #2</span>
                 <div className="flex gap-2 mb-2">
                   <button className="bg-[#7eeaff] text-[#23243a] font-bold px-3 py-1 rounded shadow hover:scale-105 cursor-target">chat2</button>
-                  <span className="text-white font-bold">5</span>
+                  {/* <span className="text-white font-bold">5</span> */}
                   <span className="text-[#b3b3b3]">VS</span>
                   <button className="bg-[#ffd1dc] text-[#23243a] font-bold px-3 py-1 rounded shadow hover:scale-105 cursor-target">chat1</button>
-                  <span className="text-white font-bold">0</span>
+                  {/* <span className="text-white font-bold">0</span> */}
                 </div>
                 <span className="text-[#ffe066] text-sm">Insert winner </span>
               </div>

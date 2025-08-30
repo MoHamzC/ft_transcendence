@@ -4,6 +4,7 @@ import FuzzyText from "./FuzzyText";
 import TargetCursor from './TargetCursor';
 import { use2FA } from './hooks/use2FA';
 
+
 export default function DoubleAuth() {
     const navigate = useNavigate();
     const location = useLocation();

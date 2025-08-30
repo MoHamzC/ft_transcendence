@@ -69,7 +69,7 @@ const PongGames: React.FC = () => {
                 <div className="flex items-center justify-center gap-2 mt-2">
                   <span className="text-sm text-gray-400">Play against an IA</span>
                   <MyToggle
-                    onChange={(checked: boolean) => setAIopponent(checked)}
+                    onChange={(checked: boolean) => setAIopponent(true)}
                     defaultChecked={false}
                   />
                 </div>
