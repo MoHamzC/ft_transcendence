@@ -91,7 +91,7 @@ async function handleFtLogin(request, reply, ftUserData){
 		return reply.code(500).send("Internal server error");
 	}
 
-	return jwtTokenOauth(request, reply, result.rows[0]);
+	return jwtTokenOauth(request, reply, result);
 }
 
 async function oauth42Routes(fastify, options){

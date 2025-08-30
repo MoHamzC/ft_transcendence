@@ -1,9 +1,12 @@
 // PongGames.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import TargetCursor from './TargetCursor.tsx'; // Ajout de l'import
+import TargetCursor from './TargetCursor.tsx';
 import FuzzyText from './FuzzyText.tsx';
-import logo from './assets/logo.png'; // Assurez-vous que le chemin est correct
+import logo from './assets/logo.png';
+import ElasticSlider from './ElasticSlider'
+import MyToggle from './MyToggle';
+
 const PongGames: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -33,18 +36,32 @@ const PongGames: React.FC = () => {
               <p className="text-gray-400 mb-6 group-hover:text-gray-300 transition-colors duration-300">
                 A classic game of pong.
               </p>
-              <Link
-                to="/pong/play"
-                className="block w-full text-center px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg cursor-target"
-                style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
-              >
-                Play now
-              </Link>
+              <div className="flex flex-col gap-4">
+                <div className="relative w-full">
+                    <Link
+                    to="/pong/play"
+                    className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
+                    style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
+                    >
+                    Play now
+                    </Link>
+                    <div className="mt-2">
+                    <Link
+                      to="/selectplayers"
+                      className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
+                      style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
+                    >
+                      Play in tournament
+                    </Link>
+                    </div>
+                </div>
+              </div>
             </div>
           </div>
-            {/* Pong 3D */}
-            <div
-            className="group relative cursor-target active:scale-95"
+
+
+          <div
+            className="group relative cursor-target active:scale-95 overflow-hidden"
             style={{ background: 'oklch(25.7% 0.09 281.288)', borderRadius: '1rem' }}
             >
             <div className="absolute -inset-1 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
@@ -103,6 +120,7 @@ const PongGames: React.FC = () => {
 
 
         <div className="mt-8 text-center hover:scale-105 active:scale-95">
+
           <Link
             to="/"
           >
