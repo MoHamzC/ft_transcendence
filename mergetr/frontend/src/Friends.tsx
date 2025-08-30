@@ -101,25 +101,29 @@ export default function Friends() {
   }
 
   return (
-    <div className="friends-container">
-      {/* Header */}
-      <div className="friends-header">
-        <div className="friends-header-content">
-          <h1 className="friends-title">AMIS</h1>
-          <div className="friends-actions">
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="btn-primary"
-            >
-              + Ajouter un ami
-            </button>
-            <button
-              onClick={() => setShowInfiniteMenu(true)}
-              className="btn-secondary"
-            >
-              Vue carrousel
-            </button>
-          </div>
+    <div>
+      {/* <div style={{ height: '100vh', width: '100vw', position: 'relative' }}>
+        <InfiniteMenu items={items} />
+      </div> */}
+      <div>
+        <div className="flex justify-center items-center w-full mt-8 mb-8">
+          <FuzzyText>Friends</FuzzyText>
+        </div>
+  <div className="flex justify-center items-center w-full mb-8 gap-4">
+          <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#ffd1dc] text-[#23243a] font-bold shadow hover:scale-105 transition-all cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+            </svg>
+            Add Friend
+          </button>
+          <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#ffd1dc] text-[#23243a] font-bold shadow hover:scale-105 transition-all cursor-pointer">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+</svg>
+
+            Remove Friend
+          </button>
         </div>
       </div>
 
