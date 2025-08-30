@@ -70,7 +70,6 @@ function App()
 
 			<div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
 				<Particles
-					className=""
 					particleColors={['#ffffff', '#ffffff']}
 					particleCount={75}
 					particleSpread={10}
@@ -79,19 +78,11 @@ function App()
 					moveParticlesOnHover={false}
 					alphaParticles={false}
 					disableRotation={false}
+					className=""
 				/>
 				<Router>
 					{/* <Profiler id="MainRoutes" onRender={onRenderCallback}> */}
-						<div style={{
-							position: 'absolute',
-							zIndex: 10,
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-							justifyContent: 'center', // Remis à 'center' pour toutes les pages
-							width: '100%',
-							height: '100%' // Remis à height fixe
-						}}>
+						<div style={{ position: 'absolute', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
 							<Routes>
 								<Route path="/" element={<Home />} />
 								<Route path="/login" element={<LoginView setIsLogged={setIsLogged} />} />

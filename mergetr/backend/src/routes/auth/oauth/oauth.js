@@ -1,9 +1,6 @@
 async function	jwtTokenOauth(request, reply, user) {
 	try {
-		const payload = {
-			email: user.email,
-			name: user.name
-		}
+		const payload = { sub: user.rows[0].id, id: user.rows[0].id, username: user.rows[0].username, email: user.rows[0].email };
 		const token = request.jwt.sign(payload);
 
 		reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:true });

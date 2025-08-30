@@ -57,6 +57,22 @@ const schemas =
                 description: 'UUID de l’émetteur de la demande'
             }
         }
+    },
+
+	friendsRemoveBody:
+    {
+        type: 'object',
+        required: ['friendId'],
+        additionalProperties: false,
+        properties:
+        {
+            friendId:
+            {
+                type: 'string',
+                pattern: UUID_PATTERN,
+                description: 'UUID de l\'ami à supprimer'
+            }
+        }
     }
 };
 
@@ -207,7 +223,7 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
         }
         catch (err)
         {
-            if (err.message.includes('already friends') || 
+            if (err.message.includes('already friends') ||
                 err.message.includes('already exists') ||
                 err.message.includes('previously rejected'))
             {
@@ -247,6 +263,8 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
     async (request, reply) =>
     {
         const uid = request.user.id;
+        console.log("Voici les demandes d'amis en attente pour l'utilisateur:", uid);
+		console.log("Voici id", request.user);
         const pending = await FriendService.listPendingRequests(uid);
         return { pending };
     });
@@ -410,66 +428,40 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
     });
 
     //
-    // DELETE /api/user/friends/:friendId - Supprimer un ami
-    //
-    app.delete('/friends/:friendId',
-    {
-        schema:
-        {
-            summary: 'Supprimer un ami',
-            params:
-            {
-                type: 'object',
-                properties:
-                {
-                    friendId:
-                    {
-                        type: 'string',
-                        pattern: UUID_PATTERN,
-                        description: 'UUID de l\'ami à supprimer'
-                    }
-                },
-                required: ['friendId']
-            },
-            response:
-            {
-                200:
-                {
-                    type: 'object',
-                    properties:
-                    {
-                        message: { type: 'string' }
-                    }
-                },
-                404:
-                {
-                    type: 'object',
-                    properties:
-                    {
-                        message: { type: 'string' }
-                    }
-                }
-            }
-        }
-    },
-    async (request, reply) =>
-    {
-        const { friendId } = request.params;
-        try
-        {
-            const result = await FriendService.removeFriend(request.user.id, friendId);
-            reply.code(200).send(result);
-        }
-        catch (err)
-        {
-            if (err.message.includes('not found'))
-            {
-                reply.code(404).send({ message: err.message });
-            }
-            else
-            {
-                throw err;
-            }
-        }
-    });
-}
+	// POST /api/user/friends/:friendId - Supprimer un ami
+	//
+	app.post('/friends/remove',
+	{
+		schema: {
+			summary: 'Supprimer un ami',
+			body: schemas.friendsRemoveBody,
+			response: {
+				200: {
+					type: 'object',
+					properties: {
+						message: { type: 'string' }
+					}
+				},
+				404: {
+					type: 'object',
+					properties: {
+						message: { type: 'string' }
+					}
+				}
+			}
+		}
+	},
+	async (request, reply) => {
+		const { friendId } = request.body;
+		try {
+			const result = await FriendService.removeFriend(request.user.id, friendId);
+			reply.code(200).send(result);
+		} catch (err) {
+			if (err.message.includes('not found')) {
+				reply.code(404).send({ message: err.message });
+			} else {
+				throw err;
+			}
+		}
+	});
+	}

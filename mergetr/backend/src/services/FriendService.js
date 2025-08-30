@@ -12,20 +12,20 @@ export class FriendService
         const { rows } = await pool.query(
         {
             text:
-                `SELECT 
-                    u.id, 
-                    u.email, 
+                `SELECT
+                    u.id,
+                    u.email,
                     u.username,
                     f.status,
                     f.created_at as friendship_date
                  FROM friendships f
                  JOIN users u ON (
-                    CASE 
+                    CASE
                         WHEN f.requester_id = $1 THEN u.id = f.addressee_id
                         WHEN f.addressee_id = $1 THEN u.id = f.requester_id
                     END
                  )
-                 WHERE (f.requester_id = $1 OR f.addressee_id = $1) 
+                 WHERE (f.requester_id = $1 OR f.addressee_id = $1)
                    AND f.status = 'accepted'
                  ORDER BY f.created_at DESC`,
             values: [ userId ]
@@ -37,12 +37,14 @@ export class FriendService
     // Lister les demandes d'amis en attente reçues
     static async listPendingRequests(userId)
     {
+        console.log('🔍 [FriendService] Fetching pending requests for user:', userId);
+
         const { rows } = await pool.query(
         {
             text:
-                `SELECT 
-                    u.id, 
-                    u.email, 
+                `SELECT
+                    u.id,
+                    u.email,
                     u.username,
                     f.status,
                     f.created_at as request_date
@@ -53,6 +55,7 @@ export class FriendService
             values: [ userId ]
         });
 
+        console.log('📥 [FriendService] Found pending requests:', rows.length, rows);
         return rows;
     }
 
@@ -62,9 +65,9 @@ export class FriendService
         const { rows } = await pool.query(
         {
             text:
-                `SELECT 
-                    u.id, 
-                    u.email, 
+                `SELECT
+                    u.id,
+                    u.email,
                     u.username,
                     f.status,
                     f.created_at as request_date
@@ -81,6 +84,8 @@ export class FriendService
     // Envoyer une demande d'ami par nom d'utilisateur
     static async sendRequestByUsername(requesterId, addresseeUsername)
     {
+        console.log('🚀 [FriendService] Sending friend request from:', requesterId, 'to:', addresseeUsername);
+
         // Vérifier que l'addressee existe et récupérer son ID
         const { rows: userCheck } = await pool.query(
             'SELECT id, username FROM users WHERE username = $1',
@@ -93,6 +98,7 @@ export class FriendService
         }
 
         const addresseeId = userCheck[0].id;
+        console.log('👤 [FriendService] Found target user ID:', addresseeId);
 
         // Vérifier que l'utilisateur ne s'ajoute pas lui-même
         if (requesterId === addresseeId)
@@ -113,6 +119,7 @@ export class FriendService
         if (existingFriendship.length > 0)
         {
             const status = existingFriendship[0].status;
+            console.log('⚠️ [FriendService] Existing friendship found with status:', status);
             if (status === 'accepted')
             {
                 throw new Error('Users are already friends');
@@ -128,14 +135,15 @@ export class FriendService
         }
 
         // Créer la demande d'ami
-        await pool.query(
+        const insertResult = await pool.query(
         {
             text:
                 `INSERT INTO friendships (requester_id, addressee_id, status)
-                 VALUES ($1, $2, 'pending')`,
+                 VALUES ($1, $2, 'pending') RETURNING id`,
             values: [ requesterId, addresseeId ]
         });
 
+        console.log('✅ [FriendService] Friend request created with ID:', insertResult.rows[0].id);
         return { message: `Friend request sent successfully to ${addresseeUsername}` };
     }
 
