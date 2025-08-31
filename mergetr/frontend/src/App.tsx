@@ -41,7 +41,7 @@ function onRenderCallback(
 
 function AppContent()
 {
-	const [isLogged, setIsLogged] = useState(true);
+	const [isLogged, setIsLogged] = useState<boolean | null>(null);
 	const location = useLocation();
 	const BACKEND_URL = 'http://localhost:5001';
 

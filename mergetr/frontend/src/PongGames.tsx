@@ -120,7 +120,6 @@ const PongGames: React.FC = () => {
 
 
         <div className="mt-8 text-center hover:scale-105 active:scale-95">
-
           <Link
             to="/"
           >
