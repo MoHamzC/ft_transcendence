@@ -106,8 +106,16 @@ func _apply_skin(material: StandardMaterial3D, skin: String):
 			material.albedo_color = Color.WHITE
 	else:
 		match skin:
-			"red": material.albedo_color = Color.RED
 			"blue": material.albedo_color = Color.BLUE
+			"rouge": material.albedo_color = Color.RED
 			"green": material.albedo_color = Color.GREEN
+			"yellow": material.albedo_color = Color.YELLOW
+			"brown": material.albedo_color = Color.BROWN
+			"black": material.albedo_color = Color.BLACK
+			"white": material.albedo_color = Color.WHITE
+			"pink": material.albedo_color = Color.PINK
+			"orange": material.albedo_color = Color.ORANGE
+			"purple": material.albedo_color = Color.PURPLE
+			"gray": material.albedo_color = Color.DIM_GRAY
 			_:
 				material.albedo_color = Color.WHITE
