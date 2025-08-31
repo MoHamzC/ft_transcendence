@@ -64,7 +64,6 @@ GITHUB_CLIENT_SECRET=your_github_client_secret
 MAIL_HOST=smtp.gmail.com
 MAIL_USER=your_email@gmail.com
 MAIL_PASS=your_app_password
-
 EOF
 fi
 sleep 1
@@ -79,14 +78,14 @@ services:
     cap_add:
       - IPC_LOCK
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN:-CHANGE_THIS_VAULT_TOKEN}
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN}
       VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
       VAULT_ADDR: http://localhost:8200
     ports:
       - "8200:8200"
     volumes:
       - ./scripts/init-vault.sh:/init-vault.sh
-    command: vault server -dev -dev-root-token-id=${VAULT_TOKEN:-CHANGE_THIS_VAULT_TOKEN}
+    command: vault server -dev -dev-root-token-id=${VAULT_TOKEN}
     healthcheck:
       test: ["CMD", "vault", "status"]
       interval: 10s
@@ -94,12 +93,12 @@ services:
       retries: 5
 
   db:
-    image: postgres:${POSTGRES_VERSION:-14}
+    image: postgres:${POSTGRES_VERSION}
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_DB_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-db_transcendence}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5434:5432"
     volumes:
@@ -113,23 +112,23 @@ services:
         condition: service_healthy
     environment:
       VAULT_ADDR: http://vault:8200
-      VAULT_TOKEN: ${VAULT_TOKEN:-CHANGE_THIS_VAULT_TOKEN}
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_HOST: ${POSTGRES_HOST:-db}
-      POSTGRES_DB: ${POSTGRES_DB:-db_transcendence}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_DB_PASSWORD}
-      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
-      JWT_SECRET: ${JWT_SECRET:-CHANGE_THIS_JWT_SECRET}
-      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
-      SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_USER: ${SMTP_USER:-your_email@gmail.com}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-your_app_password}
-      CLIENT_ID_42: ${CLIENT_ID_42:-your_42_client_id}
-      CLIENT_SECRET_42: ${CLIENT_SECRET_42:-}
-      CLIENT_ID_GITHUB: ${CLIENT_ID_GITHUB:-your_github_client_id}
-      CLIENT_SECRET_GITHUB: ${CLIENT_SECRET_GITHUB:-}
-      CLIENT_ID_GOOGLE: ${CLIENT_ID_GOOGLE:-your_google_client_id}
-      CLIENT_SECRET_GOOGLE: ${CLIENT_SECRET_GOOGLE:-}
+      VAULT_TOKEN: ${VAULT_TOKEN}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      CLIENT_ID_42: ${CLIENT_ID_42}
+      CLIENT_SECRET_42: ${CLIENT_SECRET_42}
+      CLIENT_ID_GITHUB: ${CLIENT_ID_GITHUB}
+      CLIENT_SECRET_GITHUB: ${CLIENT_SECRET_GITHUB}
+      CLIENT_ID_GOOGLE: ${CLIENT_ID_GOOGLE}
+      CLIENT_SECRET_GOOGLE: ${CLIENT_SECRET_GOOGLE}
     volumes:
       - ./scripts/init-vault-auto.sh:/init-vault-auto.sh
     command: ["/bin/sh", "/init-vault-auto.sh"]
@@ -184,14 +183,14 @@ services:
 
   # Service d'initialisation automatique de la base de données
   db-init:
-    image: postgres:${POSTGRES_VERSION:-14}
+    image: postgres:${POSTGRES_VERSION}
     depends_on:
       db:
         condition: service_started
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_DB_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-db_transcendence}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - ./scripts/init-database.sh:/init-database.sh
       - ./backend/database/schema.sql:/app/database/schema.sql
@@ -201,6 +200,7 @@ services:
 
 volumes:
   pgdata:
+
 EOF
     echo "✅ Fichier compose.yaml créé"
 fi
@@ -220,16 +220,16 @@ services:
     container_name: ft_transcendence_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password_change_me}
-      POSTGRES_DB: ${POSTGRES_DB:-db_transcendence}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/src/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - app_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-db_transcendence}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -241,7 +241,7 @@ services:
     container_name: ft_transcendence_vault
     restart: unless-stopped
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN:-myroot}
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN}
       VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
       VAULT_LOG_LEVEL: info
     volumes:
@@ -267,7 +267,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-secure_password_change_me}@db:5432/${POSTGRES_DB:-db_transcendence}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       VAULT_ADDR: http://localhost:8200
       VAULT_TOKEN: ${VAULT_TOKEN}
       JWT_SECRET: ${JWT_SECRET}
@@ -277,7 +277,7 @@ services:
       CLIENT_SECRET_42: ${CLIENT_SECRET_42}
       REDIRECT_URI: https://localhost/auth/42/callback
       
-      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
       GITHUB_REDIRECT_URI: https://localhost/auth/github/callback
       
@@ -329,6 +329,7 @@ volumes:
     driver: local
   vault_data:
     driver: local
+
 
 EOF
     echo "✅ Fichier docker-compose.secure.yml créé"

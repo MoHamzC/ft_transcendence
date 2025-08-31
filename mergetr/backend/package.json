@@ -28,6 +28,7 @@
     "nodemailer": "^7.0.5",
     "pg": "^8.16.3",
     "validator": "^13.15.15",
-    "@fastify/multipart": "^9.0.1"
+    "@fastify/multipart": "^9.0.1",
+    "@fastify/static": "^8.0.1"
   }
 }
