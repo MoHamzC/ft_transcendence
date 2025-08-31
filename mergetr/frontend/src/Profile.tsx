@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FuzzyText from './FuzzyText';
-import BackHome from './BackHome'; // ajout pour utiliser le même BackHome que dans Pong
+import TargetCursor from './TargetCursor';
 interface UserData {
   id: string;
   username: string;
@@ -24,7 +24,6 @@ const Profile: React.FC = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const navigate = useNavigate();
   const BACKEND_URL = 'http://localhost:5001';
-
   useEffect(() => {
     const loadUserData = async () => {
       try {
@@ -57,7 +56,6 @@ const Profile: React.FC = () => {
         if (!data.user) {
           throw new Error('Données utilisateur manquantes dans la réponse');
         }
-console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar uploadé avec succès:', data);
         setUser(data.user);
 
       } catch (err) {
@@ -247,30 +245,31 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
       color: 'white',
       minHeight: '100vh'
     }}>
-      {/* BackHome retiré comme demandé */}
+      <TargetCursor spinDuration={2} hideDefaultCursor={true} />
+      
       <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         textAlign: 'center',
         marginBottom: '40px',
         borderRadius: '20px',
-        padding: '30px'
+        padding: '60px'
       }}>
-
-          <FuzzyText fontSize="clamp(2rem, 4.5vw, 4.5rem)">Profile</FuzzyText>
-        
-        
+        <FuzzyText fontSize="clamp(2rem, 4.5vw, 4.5rem)">Profile</FuzzyText>
       </div>
 
       {/* Avatar et infos principales */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'auto 1fr',
-        gap: '30px',
+        gap: '10px',
         alignItems: 'center',
         background: 'rgba(255, 255, 255, 0.05)',
         backdropFilter: 'blur(20px)',
         border: '1px solid rgba(255, 255, 255, 0.1)',
         borderRadius: '20px',
-        padding: '30px',
+        padding: '10px',
         marginBottom: '30px'
       }}>
         {/* Avatar */}
@@ -336,28 +335,10 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
             />
             <label
               htmlFor="avatar-upload"
-              style={{
-                background: uploadingAvatar
-                  ? 'linear-gradient(135deg, #666, #888)'
-                  : 'linear-gradient(135deg, #ff6b9d, #c942ff)',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                cursor: uploadingAvatar ? 'not-allowed' : 'pointer',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                display: 'inline-block',
-                transition: 'all 0.2s ease',
-                textAlign: 'center'
-              }}
-              onMouseEnter={(e) => {
-                if (!uploadingAvatar) e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
+              className={`cursor-target px-6 py-3 rounded-xl font-semibold text-white shadow-md border border-purple-500/20 bg-[oklch(25.7%_0.09_281.288)] hover:scale-105 active:scale-105 transition flex items-center gap-2 text-sm ${uploadingAvatar ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
             >
               {uploadingAvatar ? '📤 Upload...' : (
-                <span style={{ display:'inline-flex', alignItems:'center', gap:'6px' }}>
+                <span className="inline-flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg"
                        viewBox="0 0 24 24"
                        fill="currentColor"
@@ -367,7 +348,7 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
                     <path d="M12 9a3.75 3.75 0 1 0 0 7.5A3.75 3.75 0 0 0 12 9Z" />
                     <path fillRule="evenodd" d="M9.344 3.071a49.52 49.52 0 0 1 5.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 0 1-3 3h-15a3 3 0 0 1-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 0 0 1.11-.71l.822-1.315a2.942 2.942 0 0 1 2.332-1.39ZM6.75 12.75a5.25 5.25 0 1 1 10.5 0 5.25 5.25 0 0 1-10.5 0Zm12-1.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
                   </svg>
-                  Changer photo
+                  Change profile picture
                 </span>
               )}
             </label>
@@ -386,15 +367,28 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
           <p style={{
             color: 'rgba(255,255,255,0.9)',
             fontSize: '1.1rem',
-            marginBottom: '10px'
+            marginBottom: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            📧 {user.email}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
+              <path d="M19.5 22.5a3 3 0 0 0 3-3v-8.174l-6.879 4.022 3.485 1.876a.75.75 0 1 1-.712 1.321l-5.683-3.06a1.5 1.5 0 0 0-1.422 0l-5.683 3.06a.75.75 0 0 1-.712-1.32l3.485-1.877L1.5 11.326V19.5a3 3 0 0 0 3 3h15Z" />
+              <path d="M1.5 9.589v-.745a3 3 0 0 1 1.578-2.642l7.5-4.038a3 3 0 0 1 2.844 0l7.5 4.038A3 3 0 0 1 22.5 8.844v.745l-8.426 4.926-.652-.351a3 3 0 0 0-2.844 0l-.652.351L1.5 9.589Z" />
+            </svg>
+            {user.email}
           </p>
           <p style={{
             color: 'rgba(255,255,255,0.7)',
-            fontSize: '1rem'
+            fontSize: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            📅 Membre depuis le {formatDate(user.joinDate)}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
+              <path fillRule="evenodd" d="M6.75 2.25A.75.75 0 0 1 7.5 3v1.5h9V3A.75.75 0 0 1 18 3v1.5h.75a3 3 0 0 1 3 3v11.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3H6V3a.75.75 0 0 1 .75-.75Zm13.5 9a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5Z" clipRule="evenodd" />
+            </svg>
+            Membre depuis le {formatDate(user.created_at)}
           </p>
         </div>
       </div>
@@ -407,18 +401,12 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
         marginBottom: '30px'
       }}>
         {/* Informations générales */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '15px',
-          padding: '25px'
-        }}>
-          <h3 style={{
-            color: '#4c9aff',
-            marginBottom: '20px',
-            fontSize: '1.3rem'
-          }}>
+       <div className="cursor-target bg-[oklch(25.7%_0.09_281.288/.35)] backdrop-blur-xl border border-white/10 rounded-[15px] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_4px_18px_-4px_rgba(201,66,255,0.35)] transition hover:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_6px_22px_-4px_rgba(201,66,255,0.5)]">
+            <h3 style={{
+              color: '#4c9aff',
+              marginBottom: '20px',
+              fontSize: '1.3rem'
+            }}>
             📋 Informations générales
           </h3>
 
@@ -442,14 +430,8 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
         </div>
 
         {/* Paramètres */}
-        {user.settings && (
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.05)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '15px',
-            padding: '25px'
-          }}>
+        {(user.settings) ? (
+          <div className="cursor-target bg-[oklch(25.7%_0.09_281.288/.35)] backdrop-blur-xl border border-white/10 rounded-[15px] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_4px_18px_-4px_rgba(201,66,255,0.35)] transition hover:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_6px_22px_-4px_rgba(201,66,255,0.5)]">
             <h3 style={{
               color: '#4c9aff',
               marginBottom: '20px',
@@ -491,6 +473,8 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
               </div>
             </div>
           </div>
+        ) : (
+          <div className="bg-white/5 border border-white/10 rounded-[15px] p-6 text-sm text-white/70 italic">Paramètres indisponibles</div>
         )}
       </div>
 
@@ -554,7 +538,7 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
         {/* Bouton Accueil supprimé – BackHome gère le retour */}
         <button
           onClick={() => navigate('/settings')}
-          className="bg-[oklch(25.7%_0.09_281.288)] text-white border-none px-6 py-3 rounded-[14px] active:scale-85cursor-pointer text-[16px] font-bold transition-transform duration-200 shadow-[0_6px_18px_-4px_rgba(201,66,255,0.45)] hover:scale-105 flex items-center gap-2"
+          className="cursor-target bg-[oklch(25.7%_0.09_281.288)] text-white border-none px-6 py-3 rounded-[14px] active:scale-95 cursor-pointer text-[16px] font-bold transition-transform duration-200 shadow-[0_6px_18px_-4px_rgba(201,66,255,0.45)] hover:scale-105 flex items-center gap-2"
         >
           <span style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
             <svg xmlns="http://www.w3.org/2000/svg"
@@ -571,7 +555,7 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
 
         <button
           onClick={() => navigate('/stats')}
-          className="bg-[oklch(25.7%_0.09_281.288)] text-white border-none hover:scale-105 active:scale-95 px-6 py-3 rounded-[14px] cursor-pointer text-[16px] font-bold transition-transform duration-200 shadow-[0_6px_18px_-4px_rgba(201,66,255,0.45)] hover:scale-105 flex items-center gap-2"
+          className="cursor-target bg-[oklch(25.7%_0.09_281.288)] text-white border-none hover:scale-105 active:scale-95 px-6 py-3 rounded-[14px] cursor-pointer text-[16px] font-bold transition-transform duration-200 shadow-[0_6px_18px_-4px_rgba(201,66,255,0.45)] hover:scale-105 flex items-center gap-2"
         >
           <span style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
             <svg xmlns="http://www.w3.org/2000/svg"
