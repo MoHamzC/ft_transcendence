@@ -206,7 +206,7 @@ test_gdpr() {
         user_id=$(docker compose exec -T db psql -U admin -d db_transcendence -c "SELECT id FROM users WHERE email = 'test@example.com';" -t -A 2>/dev/null || echo "")
         
         if [ ! -z "$user_id" ]; then
-            docker compose exec -T db psql -U admin -d db_transcendence -c "INSERT INTO user_settings (user_id) VALUES ($user_id);" 2>/dev/null || true
+            docker compose exec -T db psql -U admin -d db_transcendence -c "INSERT INTO user_settings (user_id) VALUES ('$user_id');" 2>/dev/null || true
             print_success "Utilisateur test créé (fallback DB)"
         else
             print_error "Impossible de créer l'utilisateur test"
@@ -266,7 +266,7 @@ test_database() {
     docker-compose exec -T db psql -U admin -d db_transcendence -c "\dt" | sed 's/^/  /'
 
     print_subheader "Comptage des enregistrements"
-    tables=("users" "stats" "matches" "friendships")
+    tables=("users" "stats" "games" "friendships")
     for table in "${tables[@]}"; do
         count=$(docker-compose exec -T db psql -U admin -d db_transcendence -c "SELECT COUNT(*) FROM $table;" 2>/dev/null | grep -o '[0-9]*' | head -1)
         if [ -n "$count" ]; then

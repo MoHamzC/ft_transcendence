@@ -12,7 +12,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS deletion_reason TEXT;
 -- Table des logs GDPR pour audit
 CREATE TABLE IF NOT EXISTS gdpr_audit_log (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
+    user_id UUID REFERENCES users(id),
     action VARCHAR(50) NOT NULL, -- 'export', 'anonymize', 'delete', 'consent_update'
     details JSONB,
     ip_address INET,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS gdpr_audit_log (
 -- Table des exports GDPR
 CREATE TABLE IF NOT EXISTS gdpr_exports (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
+    user_id UUID REFERENCES users(id),
     export_data JSONB,
     file_path TEXT,
     created_at TIMESTAMP DEFAULT NOW(),

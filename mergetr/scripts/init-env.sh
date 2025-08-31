@@ -84,6 +84,8 @@ services:
       - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/src/db/gdpr-schema.sql:/docker-entrypoint-initdb.d/02-gdpr-schema.sql
 
   # Service d'initialisation automatique de Vault
   vault-init:
@@ -181,6 +183,7 @@ services:
 
 volumes:
   pgdata:
+
 
 EOF
     echo "✅ Fichier compose.yaml créé"
