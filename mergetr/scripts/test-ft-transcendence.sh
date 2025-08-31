@@ -188,7 +188,7 @@ test_gdpr() {
     # Créer l'utilisateur via l'API d'inscription
     register_response=$(curl -k -X POST $BACKEND_URL/api/auth/register \
         -H "Content-Type: application/json" \
-        -d '{"email":"test2@example.com","username":"testuser","password":"TestPassword123"}' 2>/dev/null)
+        -d '{"email":"test3@example.com","username":"testuser","password":"TestPassword123"}' 2>/dev/null)
     
     if echo "$register_response" | grep -q "id"; then
         print_success "Utilisateur test créé"
@@ -197,7 +197,7 @@ test_gdpr() {
         
         # Fallback: créer directement en DB
         docker compose exec -T db psql -U admin -d db_transcendence -c "INSERT INTO users (email, username, password_hash) VALUES ('test2@example.com', 'testuser', '\$2b\$10\$v1CQWXFYnMAZ7PvXxmCb4OyWIzT9bSjxjgqjpINdidrZ3Rc8q/Gvq');" 2>/dev/null || true
-        user_id=$(docker compose exec -T db psql -U admin -d db_transcendence -c "SELECT id FROM users WHERE email = 'test2@example.com';" -t -A 2>/dev/null || echo "")
+        user_id=$(docker compose exec -T db psql -U admin -d db_transcendence -c "SELECT id FROM users WHERE email = 'test3@example.com';" -t -A 2>/dev/null || echo "")
         
         if [ ! -z "$user_id" ]; then
             docker compose exec -T db psql -U admin -d db_transcendence -c "INSERT INTO user_settings (user_id) VALUES ($user_id);" 2>/dev/null || true
@@ -233,8 +233,8 @@ test_gdpr() {
         # Test de suppression de compte
         run_test "GDPR Account Deletion" "curl -k -X DELETE $BACKEND_URL/api/gdpr/account -H 'Authorization: Bearer $token' -H 'Content-Type: application/json' -d '{\"confirmation\":\"DELETE_MY_ACCOUNT_PERMANENTLY\",\"reason\":\"privacy_concerns\"}'"
         # Supprimer l'utilisateur existant s'il existe
-        docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM user_settings WHERE user_id IN (SELECT id FROM users WHERE email = 'test2@example.com');" 2>/dev/null || true
-        docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM users WHERE email = 'test2@example.com';" 2>/dev/null || true
+        docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM user_settings WHERE user_id IN (SELECT id FROM users WHERE email = 'test3@example.com');" 2>/dev/null || true
+        docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM users WHERE email = 'test3@example.com';" 2>/dev/null || true
 
     else
         print_error "Authentification : ÉCHEC"

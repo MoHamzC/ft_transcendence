@@ -3,22 +3,33 @@
 
 set -e
 
+# Load environment variables from .env
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+    echo "Loaded .env"
+else
+    echo ".env not found"
+fi
+
 echo "🔐 Initialisation automatique de Vault..."
 
 # Configuration Vault
-VAULT_ADDR="${VAULT_ADDR:-http://localhost:8200}"
+VAULT_ADDR="http://localhost:8200"
 VAULT_TOKEN="${VAULT_TOKEN:-myroot}"
+
+echo "VAULT_ADDR: $VAULT_ADDR"
+echo "VAULT_TOKEN: $VAULT_TOKEN"
 
 export VAULT_ADDR
 export VAULT_TOKEN
 
 # Attendre que Vault soit prêt
 echo "⏳ Attente de Vault..."
-max_attempts=30
+max_attempts=5
 attempt=1
 
 while [ $attempt -le $max_attempts ]; do
-    if curl -s "localhost:8200/v1/sys/health" >/dev/null 2>&1; then
+    if curl -s "$VAULT_ADDR/v1/sys/health" >/dev/null 2>&1; then
         echo "✅ Vault est prêt !"
         break
     fi

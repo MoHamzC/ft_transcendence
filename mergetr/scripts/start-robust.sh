@@ -41,6 +41,8 @@ POSTGRES_VERSION=14
 POSTGRES_USER=admin
 POSTGRES_PASSWORD=test
 POSTGRES_DB=db_transcendence
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
 
 # Vault
 VAULT_ADDR=http://vault:8200
@@ -59,11 +61,23 @@ CLIENT_SECRET_42=your_42_client_secret
 # OAuth GitHub
 GITHUB_CLIENT_ID=your_github_client_id
 GITHUB_CLIENT_SECRET=your_github_client_secret
+CLIENT_ID_GITHUB=your_github_client_id
+CLIENT_SECRET_GITHUB=your_github_client_secret
+
+# OAuth Google
+CLIENT_ID_GOOGLE=your_google_client_id
+CLIENT_SECRET_GOOGLE=your_google_client_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 
 # Email
 MAIL_HOST=smtp.gmail.com
 MAIL_USER=your_email@gmail.com
 MAIL_PASS=your_app_password
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
 EOF
 fi
 sleep 1
@@ -381,8 +395,8 @@ done
 
 # Configurer les secrets Vault
 vault secrets enable -version=2 -path=secret kv 2>/dev/null || echo "ℹ️  Moteur déjà activé"
-vault kv put secret/database user="${POSTGRES_USER:-admin}" host="${POSTGRES_HOST:-db}" database="${POSTGRES_DB:-db_transcendence}" password="${POSTGRES_PASSWORD:-CHANGE_THIS_DB_PASSWORD}" port="${POSTGRES_PORT:-5432}" 2>/dev/null || echo "ℹ️  Secret database existe"
-vault kv put secret/jwt secret="${JWT_SECRET:-CHANGE_THIS_JWT_SECRET}" 2>/dev/null || echo "ℹ️  Secret JWT existe"
+vault kv put secret/database user="${POSTGRES_USER}" host="${POSTGRES_HOST}" database="${POSTGRES_DB}" password="${POSTGRES_PASSWORD}" port="${POSTGRES_PORT}" 2>/dev/null || echo "ℹ️  Secret database existe"
+vault kv put secret/jwt secret="${JWT_SECRET}" 2>/dev/null || echo "ℹ️  Secret JWT existe"
 echo "✅ Secrets Vault configurés"
 
 echo "🐳 Démarrage des services restants..."
