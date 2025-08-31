@@ -41,16 +41,14 @@ export class VaultService {
             // Vérifier d'abord si les secrets existent déjà
             const existingSecrets = await this.checkExistingSecrets();
 
-            // Secrets de base de données
-            if (!existingSecrets.database) {
-                await this.writeSecret('secret/database', {
-                    host: process.env.DB_HOST || 'db',
-                    port: process.env.DB_PORT || 5432,
-                    user: process.env.POSTGRES_USER || 'admin',
-                    password: process.env.POSTGRES_PASSWORD || 'test',
-                    database: process.env.POSTGRES_DB || 'db_transcendence'
-                });
-            }
+            // Secrets de base de données - toujours mettre à jour en dev
+            await this.writeSecret('secret/database', {
+                host: process.env.POSTGRES_HOST || 'db',
+                port: parseInt(process.env.POSTGRES_PORT) || 5432,
+                user: process.env.POSTGRES_USER || 'admin',
+                password: process.env.POSTGRES_PASSWORD || 'test',
+                database: process.env.POSTGRES_DB || 'db_transcendence'
+            });
 
             // Secret JWT
             if (!existingSecrets.jwt) {
@@ -203,6 +201,26 @@ export class VaultService {
                 console.error(`❌ Failed to read secret from ${path} (tried both KV v2 and direct):`, fallbackError.message);
                 throw fallbackError;
             }
+        }
+    }
+
+    /**
+     * Supprime un secret de Vault
+     * @param {string} path - Chemin du secret
+     */
+    async deleteSecret(path) {
+        if (!this.isInitialized) {
+            throw new Error('Vault not initialized. Call initialize() first.');
+        }
+
+        try {
+            // Pour KV v2, on supprime depuis "secret/data/path"
+            const kvPath = path.startsWith('secret/data/') ? path : `secret/data/${path.replace('secret/', '')}`;
+            await this.client.delete(kvPath);
+            console.log(`🗑️ Secret deleted from: ${path}`);
+        } catch (error) {
+            console.error(`❌ Failed to delete secret from ${path}:`, error.message);
+            throw error;
         }
     }
 
