@@ -25,8 +25,7 @@ import Home from './Home.tsx';
 import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
 import SelectPlayers from './SelectPlayers.tsx';
-import Tournament from './Tournament.tsx';
-import PongGame from './games/PongGame.jsx';
+
 function onRenderCallback(
   id: string,
   phase: 'mount' | 'update',
@@ -110,9 +109,6 @@ function AppContent()
 							<Route path="/doubleauth" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><DoubleAuth /></div>} />
 							<Route path="/ResetPassword" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><ResetPassword /></div>} />
 							<Route path="/selectplayers" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><SelectPlayers /></div>} />
-							<Route path="/tournament" element={<TournamentTemp />} />
-							<Route path="/jointournament/:tournamentId" element={<JoinTournamentPage />} />
-							<Route path="/createtournament" element={<CreateTournamentPage />} />
 						</Routes>
 					</div>
 				{/* </Profiler> */}

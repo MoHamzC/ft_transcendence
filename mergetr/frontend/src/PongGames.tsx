@@ -1,5 +1,5 @@
 // PongGames.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TargetCursor from './TargetCursor.tsx';
 import FuzzyText from './FuzzyText.tsx';
@@ -8,6 +8,8 @@ import ElasticSlider from './ElasticSlider'
 import MyToggle from './MyToggle';
 
 const PongGames: React.FC = () => {
+  const [AIopponent, setAIopponent] = useState(false);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <TargetCursor spinDuration={2} hideDefaultCursor={true} />
@@ -63,7 +65,7 @@ const PongGames: React.FC = () => {
           <div
             className="group relative cursor-target active:scale-95 overflow-hidden"
             style={{ background: 'oklch(25.7% 0.09 281.288)', borderRadius: '1rem' }}
-            >
+          >
             <div className="absolute -inset-1 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
             <div className="relative backdrop-blur-sm rounded-2xl p-8 border border-gray-700 group-hover:border-gray-500 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
               <h3 className="mb-6 text-purple-300 group-hover:text-purple-200 transition-colors duration-300">
@@ -76,7 +78,6 @@ const PongGames: React.FC = () => {
                 <div className="relative w-full">
                   <button
                     onClick={() => window.location.href = `/export_pong3D/index.html?ia=${AIopponent}`}
-                    // onClick={() => window.location.href = `/export_pong3D/index.html?ia=true`}
                     className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
                     style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
                   >
@@ -86,13 +87,14 @@ const PongGames: React.FC = () => {
                 <div className="flex items-center justify-center gap-2 mt-2">
                   <span className="text-sm text-gray-400">Play against an IA</span>
                   <MyToggle
-                    onChange={(checked: boolean) => setAIopponent(true)}
+                    onChange={(checked: boolean) => setAIopponent(checked)}
                     defaultChecked={false}
                   />
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
         <div className="mt-12 grid md:grid-cols-2 gap-8 text-gray-400">
 
