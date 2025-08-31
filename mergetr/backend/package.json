@@ -27,6 +27,7 @@
     "node-vault": "^0.10.5",
     "nodemailer": "^7.0.5",
     "pg": "^8.16.3",
-    "validator": "^13.15.15"
+    "validator": "^13.15.15",
+    "@fastify/multipart": "^9.0.1"
   }
 }
