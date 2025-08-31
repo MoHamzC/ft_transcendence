@@ -13,7 +13,7 @@ config_version=5
 config/name="Pong3D"
 run/main_scene="uid://c2bec77ybm64d"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="uid://d1cka7sooik6k"
 
 [autoload]
 
