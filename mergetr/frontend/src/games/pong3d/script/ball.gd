@@ -8,6 +8,7 @@ extends RigidBody3D
 @onready var point_sound = $PointSound
 
 var pitch_value := 1.0
+var can_score := true
 
 func _ready():
 	contact_monitor = true
@@ -29,6 +30,8 @@ func reset_ball():
 	custom_integrator = true
 	linear_velocity = Vector3.ZERO
 
+	can_score = false
+
 	var new_transform = global_transform
 	new_transform.origin = Vector3(0, 0, 8.5)
 	global_transform = new_transform
@@ -47,10 +50,16 @@ func reset_ball():
 	var direction = Vector3(dir_x, 0, dir_z).normalized()
 
 	linear_velocity = direction * initial_speed
+
+	var timer = get_tree().create_timer(0.2)
+	await timer.timeout
+	can_score = true
+
 	custom_integrator = false
 
 func _on_Ball_body_entered(body):
 	if body.is_in_group("raquette"):
-		hit_sound.pitch_scale = pitch_value
-		hit_sound.play()
-		pitch_value += 0.05
+		if can_score:
+			hit_sound.pitch_scale = pitch_value
+			hit_sound.play()
+			pitch_value += 0.05
