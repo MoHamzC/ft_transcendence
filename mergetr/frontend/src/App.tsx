@@ -25,6 +25,8 @@ import Home from './Home.tsx';
 import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
 import SelectPlayers from './SelectPlayers.tsx';
+import Tournament from './Tournament.tsx';
+import PongGame from './games/PongGame.jsx';
 function onRenderCallback(
   id: string,
   phase: 'mount' | 'update',
