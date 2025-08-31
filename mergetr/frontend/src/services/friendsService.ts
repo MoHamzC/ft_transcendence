@@ -24,26 +24,19 @@ export class FriendsService {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${BACKEND_URL}${endpoint}`;
-    // Build headers conditionally: only set Content-Type when a body exists
-    const headers: Record<string, string> = {
-      ...((options && options.headers) as Record<string, string>),
-    };
 
-    // If a body is provided and it's not a FormData, ensure JSON content-type
-    if (options && (options as any).body !== undefined && !(options as any).body instanceof FormData) {
-      headers['Content-Type'] = headers['Content-Type'] || 'application/json';
-    }
-
-    // Spread options first so our computed headers take precedence
     const config: RequestInit = {
-      ...options,
-      headers,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
       credentials: 'include', // Pour inclure les cookies d'auth
+      ...options,
     };
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
@@ -63,23 +56,27 @@ export class FriendsService {
 
   // Récupérer les demandes d'amis en attente
   static async getPendingRequests(): Promise<{ pending: FriendRequest[] }> {
-    return this.request('/api/user/friends/pending');
+    console.log('🔍 Fetching pending requests...');
+    const result = await this.request<{ pending: FriendRequest[] }>('/api/user/friends/pending');
+    console.log('📥 Pending requests response:', result);
+    return result;
   }
 
   // Envoyer une demande d'ami par nom d'utilisateur
   static async sendFriendRequest(username: string): Promise<{ message: string }> {
-    return this.request('/api/user/friends', {
+    console.log('🚀 Sending friend request to:', username);
+    const result = await this.request<{ message: string }>('/api/user/friends', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username }),
     });
+    console.log('✅ Friend request sent, result:', result);
+    return result;
   }
 
   // Accepter une demande d'ami
   static async acceptFriendRequest(requesterId: string): Promise<{ message: string }> {
     return this.request('/api/user/friends/accept', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ requesterId }),
     });
   }
@@ -88,7 +85,6 @@ export class FriendsService {
   static async rejectFriendRequest(requesterId: string): Promise<{ message: string }> {
     return this.request('/api/user/friends/reject', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ requesterId }),
     });
   }
@@ -98,10 +94,11 @@ export class FriendsService {
     return this.request(`/api/users/search?q=${encodeURIComponent(query)}`);
   }
 
-  // Supprimer un ami (non implémenté dans le backend actuel)
+  // Supprimer un ami - envoie l'ID dans le body
   static async removeFriend(friendId: string): Promise<{ message: string }> {
-    return this.request(`/api/user/friends/${friendId}`, {
-      method: 'DELETE',
+    return this.request('/api/user/friends/remove', {
+      method: 'POST',
+      body: JSON.stringify({ friendId }),
     });
   }
 }

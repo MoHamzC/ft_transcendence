@@ -7,7 +7,7 @@ export class ApiService {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ export class ApiService {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
@@ -44,10 +44,10 @@ export class ApiService {
     });
   }
 
-  static async register(userData: { 
-    username: string; 
-    email: string; 
-    password: string 
+  static async register(userData: {
+    username: string;
+    email: string;
+    password: string
   }) {
     return this.request('/auth/register', {
       method: 'POST',
@@ -93,6 +93,41 @@ export class ApiService {
     return this.request('/api/friends', {
       method: 'POST',
       body: JSON.stringify({ username }),
+    });
+  }
+
+  // Profile endpoints
+  static async getUserProfile(userId?: string) {
+    const endpoint = userId ? `/api/users/${userId}/profile` : '/api/users/profile';
+    return this.request(endpoint);
+  }
+
+  static async updateUserProfile(profileData: any) {
+    return this.request('/api/users/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+  }
+
+  static async getUserSettings() {
+    return this.request('/api/users/user-settings');
+  }
+
+  static async updateUserSettings(settings: any) {
+    return this.request('/api/users/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    });
+  }
+
+  static async uploadAvatar(file: File) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    return this.request('/api/users/avatar', {
+      method: 'POST',
+      headers: {}, // Don't set Content-Type for FormData
+      body: formData,
     });
   }
 }

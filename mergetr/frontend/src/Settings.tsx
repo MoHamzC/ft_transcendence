@@ -29,13 +29,13 @@ export default function Settings () {
 				if (response.ok) {
 					const result = await response.json();
 					const settings = result.settings;
-					
+
 					// Initialiser les états avec les valeurs de la DB
 					setDoubleAuth(settings.two_factor_enabled || false);
 					setPrivateProfile(settings.profile_private || false);
 					setFriendsRequest(settings.add_friend || false);
 					setLanguage(settings.language || 'en');
-					
+
 					console.log('Settings loaded:', settings);
 				} else {
 					console.error('Failed to load settings');
@@ -83,7 +83,7 @@ export default function Settings () {
 			});
 
 			console.log('Response status:', response.status);
-			
+
 			if (response.ok) {
 				const result = await response.json();
 				setMessage('Paramètres sauvegardés avec succès !');
@@ -112,19 +112,19 @@ export default function Settings () {
 		) : (
 		<div className="setting-item flex flex-direction-column gap-4">
 		<h2> Double Auth</h2>
-		 <MyToggle 
+		 <MyToggle
             onChange={(checked) => setDoubleAuth(checked)}
             defaultChecked={doubleAuth}
 			key={`double-auth-${doubleAuth}`}
         />
 		<h2> Private Profile</h2>
-		<MyToggle 
+		<MyToggle
             onChange={(checked) => setPrivateProfile(checked)}
             defaultChecked={privateProfile}
 			key={`private-profile-${privateProfile}`}
         />
 		<h2> Friends request</h2>
-		<MyToggle 
+		<MyToggle
             onChange={(checked) => setFriendsRequest(checked)}
             defaultChecked={friendsRequest}
 			key={`friends-request-${friendsRequest}`}
@@ -133,8 +133,8 @@ export default function Settings () {
 						<Select value={language} onChange={(v) => setLanguage(v)} />
 
 		{message && (
-			<div style={{ 
-				padding: '10px', 
+			<div style={{
+				padding: '10px',
 				borderRadius: '5px',
 				backgroundColor: message.includes('Erreur') ? '#fee' : '#efe',
 				color: message.includes('Erreur') ? '#c33' : '#363',
@@ -147,7 +147,7 @@ export default function Settings () {
 		<div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
 			<button
 				className="px-4 py-2 rounded-full text-white mx-2 hover:cursor-pointer hover:bg-gray-500 active:scale-95 shadow-xl cursor-target"
-				style={{ 
+				style={{
 					backgroundColor: loading ? '#666' : 'oklch(25.7% 0.09 281.288)',
 					opacity: loading ? 0.7 : 1
 				}}
@@ -167,7 +167,7 @@ export default function Settings () {
 				Reset Password
 			</button>
 		</div>
-		
+
 				</div>
 		)}
 	  </div>

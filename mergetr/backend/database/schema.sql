@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS user_settings (
     id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     avatar_url TEXT,
+    bio TEXT,
     two_factor_enabled BOOLEAN DEFAULT FALSE,
     language VARCHAR(10) DEFAULT 'FR',
     add_friend BOOLEAN DEFAULT TRUE,

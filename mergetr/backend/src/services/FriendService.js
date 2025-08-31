@@ -12,20 +12,34 @@ export class FriendService
         const { rows } = await pool.query(
         {
             text:
+<<<<<<< HEAD
                 `SELECT 
                     u.id, 
                     u.email, 
+=======
+                `SELECT
+                    u.id,
+                    u.email,
+>>>>>>> origin/mergeBackend
                     u.username,
                     f.status,
                     f.created_at as friendship_date
                  FROM friendships f
                  JOIN users u ON (
+<<<<<<< HEAD
                     CASE 
+=======
+                    CASE
+>>>>>>> origin/mergeBackend
                         WHEN f.requester_id = $1 THEN u.id = f.addressee_id
                         WHEN f.addressee_id = $1 THEN u.id = f.requester_id
                     END
                  )
+<<<<<<< HEAD
                  WHERE (f.requester_id = $1 OR f.addressee_id = $1) 
+=======
+                 WHERE (f.requester_id = $1 OR f.addressee_id = $1)
+>>>>>>> origin/mergeBackend
                    AND f.status = 'accepted'
                  ORDER BY f.created_at DESC`,
             values: [ userId ]
@@ -36,6 +50,7 @@ export class FriendService
 
     // Lister les demandes d'amis en attente reçues
     static async listPendingRequests(userId)
+<<<<<<< HEAD
     {
         const { rows } = await pool.query(
         {
@@ -85,6 +100,61 @@ export class FriendService
         const { rows: userCheck } = await pool.query(
             'SELECT id, username FROM users WHERE username = $1',
             [addresseeUsername]
+=======
+    {
+        console.log('🔍 [FriendService] Fetching pending requests for user:', userId);
+
+        const { rows } = await pool.query(
+        {
+            text:
+                `SELECT
+                    u.id,
+                    u.email,
+                    u.username,
+                    f.status,
+                    f.created_at as request_date
+                 FROM friendships f
+                 JOIN users u ON u.id = f.requester_id
+                 WHERE f.addressee_id = $1 AND f.status = 'pending'
+                 ORDER BY f.created_at DESC`,
+            values: [ userId ]
+        });
+
+        console.log('📥 [FriendService] Found pending requests:', rows.length, rows);
+        return rows;
+    }
+
+    // Lister les demandes d'amis envoyées
+    static async listSentRequests(userId)
+    {
+        const { rows } = await pool.query(
+        {
+            text:
+                `SELECT
+                    u.id,
+                    u.email,
+                    u.username,
+                    f.status,
+                    f.created_at as request_date
+                 FROM friendships f
+                 JOIN users u ON u.id = f.addressee_id
+                 WHERE f.requester_id = $1 AND f.status = 'pending'
+                 ORDER BY f.created_at DESC`,
+            values: [ userId ]
+        });
+
+        return rows;
+    }
+
+    // Envoyer une demande d'ami par nom d'utilisateur
+    static async sendRequestByUsername(requesterId, addresseeUsername)
+    {
+        console.log('🚀 [FriendService] Sending friend request from:', requesterId, 'to:', addresseeUsername);
+
+        // Vérifier que l'addressee existe et récupérer son ID
+        const { rows: userCheck } = await pool.query(
+            'SELECT id, username FROM users WHERE username = $1',
+            [addresseeUsername]
         );
 
         if (userCheck.length === 0)
@@ -93,6 +163,7 @@ export class FriendService
         }
 
         const addresseeId = userCheck[0].id;
+        console.log('👤 [FriendService] Found target user ID:', addresseeId);
 
         // Vérifier que l'utilisateur ne s'ajoute pas lui-même
         if (requesterId === addresseeId)
@@ -100,6 +171,79 @@ export class FriendService
             throw new Error('Cannot send friend request to yourself');
         }
 
+        // Vérifier qu'il n'y a pas déjà une relation existante dans les deux sens
+        const { rows: existingFriendship } = await pool.query(
+        {
+            text:
+                `SELECT id, status FROM friendships
+                 WHERE (requester_id = $1 AND addressee_id = $2)
+                    OR (requester_id = $2 AND addressee_id = $1)`,
+            values: [ requesterId, addresseeId ]
+        });
+
+        if (existingFriendship.length > 0)
+        {
+            const status = existingFriendship[0].status;
+            console.log('⚠️ [FriendService] Existing friendship found with status:', status);
+            if (status === 'accepted')
+            {
+                throw new Error('Users are already friends');
+            }
+            else if (status === 'pending')
+            {
+                throw new Error('Friend request already exists');
+            }
+            else if (status === 'rejected')
+            {
+                throw new Error('Friend request was previously rejected');
+            }
+        }
+
+        // Créer la demande d'ami
+        const insertResult = await pool.query(
+        {
+            text:
+                `INSERT INTO friendships (requester_id, addressee_id, status)
+                 VALUES ($1, $2, 'pending') RETURNING id`,
+            values: [ requesterId, addresseeId ]
+        });
+
+        console.log('✅ [FriendService] Friend request created with ID:', insertResult.rows[0].id);
+        return { message: `Friend request sent successfully to ${addresseeUsername}` };
+    }
+
+    // Envoyer une demande d'ami (méthode originale par ID - conservée pour compatibilité)
+    static async sendRequest(requesterId, addresseeId)
+    {
+        // Vérifier que l'utilisateur ne s'ajoute pas lui-même
+        if (requesterId === addresseeId)
+        {
+            throw new Error('Cannot send friend request to yourself');
+        }
+
+        // Vérifier que l'addressee existe
+        const { rows: userCheck } = await pool.query(
+            'SELECT id FROM users WHERE id = $1',
+            [addresseeId]
+>>>>>>> origin/mergeBackend
+        );
+
+        if (userCheck.length === 0)
+        {
+            throw new Error('User not found');
+        }
+
+<<<<<<< HEAD
+        const addresseeId = userCheck[0].id;
+
+        // Vérifier que l'utilisateur ne s'ajoute pas lui-même
+        if (requesterId === addresseeId)
+        {
+            throw new Error('Cannot send friend request to yourself');
+        }
+
+=======
+>>>>>>> origin/mergeBackend
         // Vérifier qu'il n'y a pas déjà une relation existante dans les deux sens
         const { rows: existingFriendship } = await pool.query(
         {
@@ -136,6 +280,7 @@ export class FriendService
             values: [ requesterId, addresseeId ]
         });
 
+<<<<<<< HEAD
         return { message: `Friend request sent successfully to ${addresseeUsername}` };
     }
 
@@ -212,6 +357,25 @@ export class FriendService
             values: [ requesterId, currentUserId ]
         });
 
+=======
+        return { message: 'Friend request sent successfully' };
+    }
+
+    // Accepter une demande d'ami
+    static async acceptRequest(currentUserId, requesterId)
+    {
+        const result = await pool.query(
+        {
+            text:
+                `UPDATE friendships
+                 SET status = 'accepted', updated_at = CURRENT_TIMESTAMP
+                 WHERE requester_id = $1
+                   AND addressee_id = $2
+                   AND status = 'pending'`,
+            values: [ requesterId, currentUserId ]
+        });
+
+>>>>>>> origin/mergeBackend
         if (result.rowCount === 0)
         {
             throw new Error('Friend request not found or already processed');

@@ -1,14 +1,17 @@
-[gd_scene load_steps=5 format=3 uid="uid://q3ff73qgsqbc"]
+[gd_scene load_steps=6 format=3 uid="uid://q3ff73qgsqbc"]
 
 [ext_resource type="Script" uid="uid://cq557j3hkm6uf" path="res://script/raquette.gd" id="1_it7ot"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_5a2qr"]
-size = Vector3(0.3, 1, 5)
+size = Vector3(0.3, 1, 2.5)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ujcp4"]
 size = Vector3(0.3, 1, 5)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_it7ot"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_alpwj"]
+size = Vector3(0.3, 1, 1)
 
 [node name="raquette" type="CharacterBody3D"]
 script = ExtResource("1_it7ot")
@@ -21,5 +24,17 @@ mesh = SubResource("BoxMesh_ujcp4")
 skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("StandardMaterial3D_it7ot")
 
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="."]
+transform = Transform3D(1.27331, 0, 0, 0, 1, 0, 0, 0, 1.26979, -0.15, 0, 0.007)
+shape = SubResource("BoxShape3D_5a2qr")
+
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 light_energy = 0.2
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.978148, 0, 0.207912, 0, 1, 0, -0.207912, 0, 0.978148, -0.1, 0, 2)
+shape = SubResource("BoxShape3D_alpwj")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.978148, 0, -0.207912, 0, 1, 0, 0.207912, 0, 0.978148, -0.1, 0, -2)
+shape = SubResource("BoxShape3D_alpwj")

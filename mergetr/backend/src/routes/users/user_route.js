@@ -1,18 +1,26 @@
 import bcrypt from 'bcrypt'
 import nodeMailer from 'nodemailer';
-import pool from '../../config/db.js'
+import getPool from '../../config/db.js'
+
+// Obtenir le pool de connexions
+let pool = null
+async function getDbPool() {
+  if (!pool) {
+    pool = await getPool()
+  }
+  return pool
+}
 import { createUserSchema, createUserResponseSchema } from './user_schema.js'
-import { generateUniqueUsername, validateUsername } from '../../utils/usernameGenerator.js'
 
 	async function otpAuth(request, reply, email){
 		// Generate a 6-digit code
-			const code_Otp = Math.floor(100000 + Math.random() * 900000).toString();
-			if (!code_Otp){
-				console.log("Error code_Otp creation");
-				return reply.send({Error: "Internal Servor Error"});
-			}
-			else
-				console.log(code_Otp);
+		const code_Otp = Math.floor(100000 + Math.random() * 900000).toString();
+		if (!code_Otp){
+			console.log("Error code_Otp creation");
+			return reply.code(500).send({Error: "Internal Server Error"});
+		}
+		else
+			console.log(code_Otp);
 
 			//Create transporter
 			const transporter = nodeMailer.createTransport({
@@ -25,12 +33,10 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 				},
 			});
 
-			if (!transporter){
-				console.log("Error transporter");
-				return reply.send({Error: "transporter creation failed"});
-			};
-
-			console.log("transporter variable successfuly created");
+		if (!transporter){
+			console.log("Error transporter");
+			return reply.code(500).send({Error: "Transporter creation failed"});
+		};			console.log("transporter variable successfuly created");
 
 			const otpHtml = (code_Otp) => `
 				<div style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 32px;">
@@ -66,16 +72,16 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 			const otp_Creation_Time = new Date().toISOString();
 			console.log(otp_Creation_Time);
 
-			const place_Otp_Db = await pool.query(
+			const place_Otp_Db = await (await getPool()).query(
 				'UPDATE users SET otp_code = $1, otp_generated_at = $2 WHERE email = $3',
 				[code_Otp, otp_Creation_Time, email]
 			);
 			if (!place_Otp_Db){
 				console.log("Error d'insert dans DB");
-				return reply.code(400).send({Error: "DB"});
+				return reply.code(500).send({Error: "Database error"});
 			}
 			console.log("Information about OTP correctly placed in DB!");
-			return reply.send({ "step": "otp", "message": "Un code OTP a été envoyé à votre email." });
+			return reply.code(200).send({ "step": "otp", "message": "Un code OTP a été envoyé à votre email." });
 	}
 
 	async function logout(request, reply) {
@@ -86,23 +92,54 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 	async function verifyUser(request, reply) {
 		try {
 			const token = request.cookies.access_token;
-			console.log('Token reçu:', token);
-
 			if (!token) {
-				return reply.code(401).send({ error: "You are not connected"});
+				return reply.code(401).send({ error: "Not authenticated" });
 			}
 
+			// Vérifier la signature du JWT (empêche la falsification du cookie)
 			const decoded = await request.jwt.verify(token);
-			console.log('Token décodé:', decoded);
-			request.user = decoded;
+			// id peut être dans id ou sub selon versions précédentes
+			const tokenUserId = decoded.id || decoded.sub || null;
+			const tokenEmail = decoded.email || null;
+
+			// Toujours recharger l'utilisateur depuis la DB pour s'assurer qu'il existe encore
+			let userRow = null;
+			if (tokenUserId) {
+				const dbRes = await pool.query(
+					'SELECT id, username, email, providers FROM users WHERE id = $1',
+					[tokenUserId]
+				);
+				userRow = dbRes.rows[0] || null;
+			}
+			// Fallback si pas d'id dans l'ancien token mais email présent
+			if (!userRow && tokenEmail) {
+				const dbRes = await pool.query(
+					'SELECT id, username, email, providers FROM users WHERE email = $1',
+					[tokenEmail]
+				);
+				userRow = dbRes.rows[0] || null;
+			}
+
+			if (!userRow) {
+				return reply.code(401).send({ error: 'Utilisateur invalide ou supprimé' });
+			}
+
+			// Attacher un objet utilisateur normalisé à la requête
+			request.user = {
+				id: userRow.id,
+				username: userRow.username,
+				email: userRow.email,
+				providers: userRow.providers || []
+			};
 		} catch (err) {
 			console.log('Erreur dans verifyUser:', err);
-			return reply.code(500).send(err);
+			return reply.code(401).send({ error: 'Authentification invalide' });
 		}
 	}
 
 	async function login (request, reply){
 		const { email, password } = request.body
+		const pool = await getDbPool()
 
 		const user = await pool.query(
 			'Select id, email, username, password_hash FROM users WHERE email = $1',
@@ -136,13 +173,23 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 				return otpAuth(request, reply, email);
 			}
 
+<<<<<<< HEAD
 			// Create JWT token
 			const payload = {sub: user.rows[0].id, username: user.rows[0].username, email: email}
+=======
+			// Create JWT token (inclure à la fois sub et id pour compatibilité)
+			const payload = { sub: user.rows[0].id, id: user.rows[0].id, username: user.rows[0].username, email: email };
+>>>>>>> origin/mergeBackend
 			console.log(payload);
-			const token = request.jwt.sign(payload)
+			const token = request.server.jwt.sign(payload)
 			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
+<<<<<<< HEAD
 			return reply.code(200).send({ 
 				message: "Login successful", 
+=======
+			return reply.code(200).send({
+				message: "Login successful",
+>>>>>>> origin/mergeBackend
 				username: user.rows[0].username,
 				token: token,
 				id: user.rows[0].id
@@ -158,14 +205,8 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 		if (!email || !username || !password){
 				return reply.code(400).send({error: "Tous les champs sont requis pour créer l'utilisateur" })
 		}
-
-		// Valider le username
-		const validation = validateUsername(username);
-		if (!validation.isValid) {
-			return reply.code(400).send({ error: validation.error });
-		}
-
 		const hashedPassword = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS));
+		const pool = await getDbPool()
 		try {
 
 			//Check in DB if the email already exists
@@ -180,22 +221,19 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 				return reply.code(409).send({message: 'Email already registered'});
 			}
 
-			// Générer un username unique
-			const uniqueUsername = await generateUniqueUsername(username);
+			//Insert the user into the DB
+			const result = await pool.query(
+				'INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING *',
+				[email, username, hashedPassword]
+			)
+			console.log("User created!");
 
-		//Insert the user into the DB
-		const result = await pool.query(
-			'INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING *',
-			[email, uniqueUsername, hashedPassword]
-		)
-		console.log("User created!");
+			await pool.query(
+				'INSERT INTO user_settings (user_id) VALUES ($1)',
+				[result.rows[0].id]
+			)
 
-		// Créer les paramètres utilisateur avec l'avatar par défaut
-		await pool.query(
-			'INSERT INTO user_settings (user_id, avatar_url) VALUES ($1, $2)',
-			[result.rows[0].id, '/uploads/avatars/default_avatar.jpg']
-		)
-		console.log("✅ Avatar par défaut assigné lors de l'inscription");			//create a Response corresponding to the ResponseSchema
+			//create a Response corresponding to the ResponseSchema
 			const userResponse = {
 				id: result.rows[0].id,
 				email: result.rows[0].email,
@@ -236,7 +274,60 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 		return reply.code(200).send({showLogin: true});
 	});
 
-	fastify.post('/login', login)
+	// Route pour récupérer les informations de l'utilisateur connecté
+	fastify.get('/me', { preHandler: verifyUser }, async (request, reply) => {
+		try {
+			const userId = request.user.id;
+			// Récupérer les informations de base de l'utilisateur
+
+			console.log(request.user);
+
+			const userResult = await pool.query(
+				'SELECT id, username, email, created_at, providers, created_at FROM users WHERE id = $1',
+				[userId]
+			);
+
+			if (userResult.rows.length === 0) {
+				return reply.code(404).send({ error: 'Utilisateur non trouvé' });
+			}
+
+			const user = userResult.rows[0];
+
+			// Paramètres utilisateur
+			let settings = null;
+			try {
+				const settingsResult = await pool.query(
+					'SELECT * FROM user_settings WHERE user_id = $1',
+					[userId]
+				);
+				settings = settingsResult.rows[0] || null;
+			} catch (settingsError) {
+				console.warn('Settings not found for user:', userId, settingsError.message);
+			}
+
+			// Déterminer l'URL de l'avatar (priorité: settings > default)
+			let avatarUrl = '/uploads/avatars/default_avatar.jpg';
+			if (settings?.avatar_url) avatarUrl = settings.avatar_url;
+
+			const userData = {
+				id: user.id,
+				username: user.username,
+				email: user.email,
+				joinDate: user.created_at,
+				providers: user.providers || [],
+				avatarUrl,
+				bio: settings?.bio || null,
+				settings
+			};
+
+			return reply.code(200).send({ message: 'Informations utilisateur récupérées', user: userData });
+		} catch (err) {
+			console.error('Erreur récupération utilisateur /me:', err);
+			return reply.code(500).send({ error: 'Erreur serveur' });
+		}
+	});
+
+	fastify.post('/login', login);
 
 	fastify.post('/verify-otp', async (request, reply) => {
 		try {
@@ -256,7 +347,7 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 
 			if (otp_Code != result.rows[0].otp_code){
 				console.log("OTP code are not the same");
-				return reply.send("Wrong OTP code!");
+				return reply.code(400).send({Error: "Code OTP invalide"});
 			}
 
 			if ((Date.now() - new Date(result.rows[0].otp_generated_at).getTime()) >= 5 * 60 * 1000){
@@ -274,8 +365,13 @@ import { generateUniqueUsername, validateUsername } from '../../utils/usernameGe
 				[email]
 			)
 
+<<<<<<< HEAD
 			// Create JWT token
 			const payload = {sub: result.rows[0].id, username: result.rows[0].username, email: email}
+=======
+			// Create JWT token (inclure id)
+			const payload = { sub: result.rows[0].id, id: result.rows[0].id, username: result.rows[0].username, email: email };
+>>>>>>> origin/mergeBackend
 			const token = request.jwt.sign(payload)
 			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
 			return reply.code(200).send({ message: "OTP verification successful", username: result.rows[0].username });

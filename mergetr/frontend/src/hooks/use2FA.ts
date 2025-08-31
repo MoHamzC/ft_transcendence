@@ -1,35 +1,93 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
-export function use2FA() {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+interface LoginResponse {
+    step?: string;
+    message?: string;
+    username?: string;
+}
 
-  function clearError() {
-    setError(null)
-  }
+interface Use2FAReturn {
+    login: (email: string, password: string) => Promise<LoginResponse>;
+    verifyOTP: (email: string, otpCode: string) => Promise<any>;
+    loading: boolean;
+    error: string | null;
+    clearError: () => void;
+}
 
-  async function verifyOTP(email: string, code: string) {
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001'}/api/auth/verify-otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code })
-      })
+export function use2FA(): Use2FAReturn {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        const msg = data && data.error ? data.error : `Server returned ${res.status}`
-        setError(msg)
-        throw new Error(msg)
-      }
+    const BACKEND_URL = 'http://localhost:5001';
 
-      return await res.json()
-    } finally {
-      setLoading(false)
-    }
-  }
+    const clearError = () => setError(null);
 
-  return { verifyOTP, loading, error, clearError }
+    const login = async (email: string, password: string): Promise<LoginResponse> => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/users/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || errorData.message || 'Login failed');
+            }
+
+            return await response.json();
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Network error occurred';
+            setError(errorMessage);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const verifyOTP = async (email: string, otpCode: string) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/users/verify-otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    email: email,
+                    otp_Code: otpCode
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.Message || errorData.Error || 'Code OTP invalide');
+            }
+
+            return await response.json();
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Network error occurred';
+            setError(errorMessage);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return {
+        login,
+        verifyOTP,
+        loading,
+        error,
+        clearError
+    };
 }

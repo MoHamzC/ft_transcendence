@@ -12,11 +12,14 @@ albedo_color = Color(0.92549, 0.901961, 0.870588, 0)
 [node name="Wall left_right" type="Node3D"]
 
 [node name="Wall" type="StaticBody3D" parent="."]
+collision_layer = 3
+collision_mask = 3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Wall"]
 shape = SubResource("BoxShape3D_oh6kn")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Wall"]
 visible = false
+layers = 3
 mesh = SubResource("BoxMesh_xxgf6")
 surface_material_override/0 = SubResource("StandardMaterial3D_y4f30")

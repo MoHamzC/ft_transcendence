@@ -1,7 +1,7 @@
 extends Label3D
 
 func _ready():
-	start_countdown(3)
+	start_countdown(5)
 
 func start_countdown(seconds: int) -> void:
 	for i in range(seconds, 0, -1):
