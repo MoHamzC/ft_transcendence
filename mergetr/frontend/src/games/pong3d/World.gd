@@ -14,28 +14,28 @@ func on_goal_scored():
 		# Déterminer le gagnant et le perdant
 		var winner_name = ""
 		var winner_id = ""
-		var looser_name = ""
-		var looser_id = ""
+		var loser_name = ""
+		var loser_id = ""
 		var score_winner = 0
-		var score_looser = 0
+		var score_loser = 0
 
 		if Global.score_left > Global.score_right:
 			winner_name = "PlayerLeft"
 			winner_id = Global.skin_PL_id  # à remplacer par le vrai ID
-			looser_name = "PlayerRight"
-			looser_id = Global.skin_PR_id  # à remplacer par le vrai ID
+			loser_name = "PlayerRight"
+			loser_id = Global.skin_PR_id  # à remplacer par le vrai ID
 			score_winner = Global.score_left
-			score_looser = Global.score_right
+			score_loser = Global.score_right
 		else:
 			winner_name = "PlayerRight"
 			winner_id = Global.skin_PR_id # à remplacer par le vrai ID
-			looser_name = "PlayerLeft"
-			looser_id = Global.skin_PL_id  # à remplacer par le vrai ID
+			loser_name = "PlayerLeft"
+			loser_id = Global.skin_PL_id  # à remplacer par le vrai ID
 			score_winner = Global.score_right
-			score_looser = Global.score_left
+			score_loser = Global.score_left
 
 		# Envoyer le résultat au backend
-		send_match_result(winner_name, winner_id, looser_name, looser_id, score_winner, score_looser)
+		send_match_result(winner_name, winner_id, loser_name, loser_id, score_winner, score_loser)
 
 		# Jouer le son et changer de scène
 		await get_tree().create_timer(5.8).timeout
@@ -43,13 +43,13 @@ func on_goal_scored():
 		await get_tree().create_timer(0.3).timeout
 		get_tree().change_scene_to_file("res://scene/victory_scene.tscn")
 
-func send_match_result(winner_name: String, winner_id: String, looser_name: String, looser_id: String, score_winner: int, score_looser: int) -> void:
+func send_match_result(winner_name: String, winner_id: String, loser_name: String, loser_id: String, score_winner: int, score_loser: int) -> void:
 	var url = "http://localhost:5001/api/match"
 	var data := {
 		"playerWinner": winner_id,
-		"playerLooser": looser_id,
+		"playerLoser": loser_id,
 		"playerWinnerScore": score_winner,
-		"playerLooserScore": score_looser,
+		"playerLoserScore": score_loser,
 	}
 	var json_data := JSON.stringify(data)
 	print("JSON envoyé :", json_data)
