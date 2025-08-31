@@ -26,8 +26,8 @@ export async function buildApp(opts = {}) {
     })
 
     // Sanity check des variables d'environnement critiques
-    if (!process.env.JWT_SCRET) {
-        app.log.warn('⚠️  JWT_SCRET is not set — JWT features may fail')
+    if (!process.env.JWT_SECRET) {
+        app.log.warn('⚠️  JWT_SECRET is not set — JWT features may fail')
     }
 
     try {

@@ -33,7 +33,12 @@ fi
 # Créer le .env si nécessaire
 if [ ! -f ".env" ]; then
     echo "📝 Création du fichier .env avec des valeurs sécurisées..."
-    cat > .env << 'EOF'
+    # Générer des mots de passe sécurisés (sans caractères spéciaux)
+    DB_PASSWORD=$(openssl rand -hex 32)
+    JWT_SECRET=$(openssl rand -hex 64)
+    VAULT_TOKEN=$(openssl rand -hex 32)
+
+    cat > .env << EOF
 # Configuration ft_transcendence
 NODE_ENV=dev
 HTTPS_PORT=5001
@@ -41,30 +46,34 @@ HTTPS_PORT=5001
 # Base de données
 POSTGRES_VERSION=14
 POSTGRES_USER=admin
-POSTGRES_PASSWORD=test
+POSTGRES_PASSWORD=${DB_PASSWORD}
 POSTGRES_DB=db_transcendence
 
 # Vault
 VAULT_ADDR=http://vault:8200
-VAULT_TOKEN=myroot
+VAULT_TOKEN=${VAULT_TOKEN}
 
 # JWT
-JWT_SECRET=your_super_secret_jwt_key_here
+JWT_SECRET=${JWT_SECRET}
 
-# OAuth 42
-CLIENT_ID_42=your_42_client_id
-CLIENT_SECRET_42=your_42_client_secret
+# OAuth 42 (optionnel - laissez vide si non utilisé)
+CLIENT_ID_42=
+CLIENT_SECRET_42=
 
-# OAuth GitHub
-GITHUB_CLIENT_ID=your_github_client_id
-GITHUB_CLIENT_SECRET=your_github_client_secret
+# OAuth GitHub (optionnel - laissez vide si non utilisé)
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
 
-# Email
+# Email (optionnel - laissez vide si non utilisé)
 MAIL_HOST=smtp.gmail.com
-MAIL_USER=your_email@gmail.com
-MAIL_PASS=your_app_password
+MAIL_USER=
+MAIL_PASS=
 EOF
-    echo "✅ Fichier .env créé"
+    echo "✅ Fichier .env créé avec des valeurs sécurisées générées automatiquement"
+    echo "⚠️  IMPORTANT: Notez ces valeurs si vous voulez les réutiliser plus tard"
+    echo "   Database Password: ${DB_PASSWORD}"
+    echo "   JWT Secret: ${JWT_SECRET}"
+    echo "   Vault Token: ${VAULT_TOKEN}"
 fi
 
 # Créer le compose.yaml si nécessaire
