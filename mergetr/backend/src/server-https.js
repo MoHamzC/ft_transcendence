@@ -10,6 +10,29 @@ import { vaultService } from './services/VaultService.js';
 import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 
+import { testDatabaseConnection } from './config/db.js';
+
+// Fonction d'initialisation de santé
+async function performHealthChecks() {
+    console.log('🏥 Performing startup health checks...')
+
+    try {
+        // Test de la base de données
+        const dbHealth = await testDatabaseConnection()
+        if (dbHealth.status === 'healthy') {
+            console.log('✅ Database health check passed')
+        } else {
+            console.error('❌ Database health check failed:', dbHealth.error)
+            throw new Error(`Database health check failed: ${dbHealth.error}`)
+        }
+
+        console.log('✅ All startup health checks passed')
+    } catch (error) {
+        console.error('❌ Startup health checks failed:', error.message)
+        throw error
+    }
+}
+
 async function start()
 {
     // Configuration HTTPS avec certificats auto-signés
@@ -32,17 +55,21 @@ async function start()
         console.log('⚠️ Vault initialization failed:', error.message);
     }
 
+    // Effectuer les vérifications de santé avant de continuer
+    try {
+        await performHealthChecks();
+    } catch (error) {
+        console.error('❌ Critical startup health check failed. Server will not start properly.');
+        console.error('💡 Check your database connection and Vault configuration.');
+        // Ne pas arrêter le serveur, mais logger l'erreur
+    }
+
     // 1. Charger d'abord le plugin de sécurité
     await app.register(securityPlugin);
 
     // 1.5. Cookie plugin
     await app.register(fastifyCookie);
     console.log('🍪 Cookie plugin registered');
-
-    app.get('/healthz', async () =>
-    {
-        return { ok: true, ts: Date.now(), protocol: 'https' };
-    });
 
     // 2. Puis JWT
     await app.register(jwtPlugin);

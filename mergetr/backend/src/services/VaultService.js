@@ -38,64 +38,65 @@ export class VaultService {
      */
     async initializeDevSecrets() {
         try {
-            // Vérifier d'abord si les secrets existent déjà
-            const existingSecrets = await this.checkExistingSecrets();
+            console.log('🔐 Initializing development secrets in Vault...')
 
             // Secrets de base de données - toujours mettre à jour en dev
-            await this.writeSecret('secret/database', {
+            const dbConfig = {
                 host: process.env.POSTGRES_HOST || 'db',
                 port: parseInt(process.env.POSTGRES_PORT) || 5432,
                 user: process.env.POSTGRES_USER || 'admin',
                 password: process.env.POSTGRES_PASSWORD || 'test',
                 database: process.env.POSTGRES_DB || 'db_transcendence'
-            });
+            }
+
+            await this.writeSecret('secret/database', dbConfig)
+            console.log('📝 Database secret updated in Vault')
 
             // Secret JWT
-            if (!existingSecrets.jwt) {
-                await this.writeSecret('secret/jwt', {
-                    secret: process.env.JWT_SECRET || `vault_jwt_secret_${Date.now()}`
-                });
-            }
+            const jwtSecret = process.env.JWT_SECRET || `vault_jwt_secret_${Date.now()}`
+            await this.writeSecret('secret/jwt', { secret: jwtSecret })
+            console.log('📝 JWT secret updated in Vault')
 
             // Secrets OAuth 42
-            if (!existingSecrets.oauth42) {
-                await this.writeSecret('secret/oauth/42', {
-                    client_id: process.env.CLIENT_ID_42 || '',
-                    client_secret: process.env.CLIENT_SECRET_42 || '',
-                    redirect_uri: process.env.REDIRECT_URI || 'http://localhost:5001/auth/42/callback'
-                });
+            const oauth42Config = {
+                client_id: process.env.CLIENT_ID_42 || '',
+                client_secret: process.env.CLIENT_SECRET_42 || '',
+                redirect_uri: process.env.REDIRECT_URI || 'http://localhost:5001/auth/42/callback'
             }
+            await this.writeSecret('secret/oauth/42', oauth42Config)
+            console.log('📝 OAuth 42 secrets updated in Vault')
 
             // Secrets OAuth GitHub
-            if (!existingSecrets.github) {
-                await this.writeSecret('secret/oauth/github', {
-                    client_id: process.env.GITHUB_CLIENT_ID || '',
-                    client_secret: process.env.GITHUB_CLIENT_SECRET || '',
-                    redirect_uri: process.env.GITHUB_REDIRECT_URI || 'http://localhost:5001/auth/github/callback'
-                });
+            const githubConfig = {
+                client_id: process.env.GITHUB_CLIENT_ID || '',
+                client_secret: process.env.GITHUB_CLIENT_SECRET || '',
+                redirect_uri: process.env.GITHUB_REDIRECT_URI || 'http://localhost:5001/auth/github/callback'
             }
+            await this.writeSecret('secret/oauth/github', githubConfig)
+            console.log('📝 GitHub OAuth secrets updated in Vault')
 
             // Secrets OAuth Google
-            if (!existingSecrets.google) {
-                await this.writeSecret('secret/oauth/google', {
-                    client_id: process.env.GOOGLE_CLIENT_ID || '',
-                    client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
-                    redirect_uri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5001/auth/google/callback'
-                });
+            const googleConfig = {
+                client_id: process.env.GOOGLE_CLIENT_ID || '',
+                client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
+                redirect_uri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5001/auth/google/callback'
             }
+            await this.writeSecret('secret/oauth/google', googleConfig)
+            console.log('📝 Google OAuth secrets updated in Vault')
 
             // Secrets Email
-            if (!existingSecrets.email) {
-                await this.writeSecret('secret/email', {
-                    host: process.env.MAIL_HOST || 'smtp.gmail.com',
-                    user: process.env.MAIL_USER || '',
-                    password: process.env.MAIL_PASS || ''
-                });
+            const emailConfig = {
+                host: process.env.MAIL_HOST || 'smtp.gmail.com',
+                user: process.env.MAIL_USER || '',
+                password: process.env.MAIL_PASS || ''
             }
+            await this.writeSecret('secret/email', emailConfig)
+            console.log('📝 Email secrets updated in Vault')
 
-            console.log('✅ Dev secrets initialized in Vault');
+            console.log('✅ All development secrets initialized successfully in Vault')
         } catch (error) {
-            console.log('⚠️ Dev secrets initialization skipped:', error.message);
+            console.error('❌ Failed to initialize development secrets:', error.message)
+            throw error
         }
     }
 
