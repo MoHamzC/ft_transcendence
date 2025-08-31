@@ -50,18 +50,24 @@ services:
     working_dir: /home/sgoinfre
     environment:
       - NODE_ENV=dev
-      - HTTP_PORT=5001
+      - HTTPS_PORT=5001
     volumes:
       - ./:/home/sgoinfre
-      - ./ssl:/home/sgoinfre/ssl:ro  # Monter les certificats SSL
+      - ./ssl:/home/sgoinfre/backend/ssl:ro  # Monter les certificats SSL dans le bon répertoire
     ports:
       - "5001:5001"
     env_file:
       - .env
-    command: bash -c "npm install fastify@5 && npm install pg && npm install dotenv && npm install bcrypt && npm install nodemon && npm install @fastify/jwt && npm install @fastify/cookie && npm install @fastify/cors && npm install nodemailer && npm install @fastify/multipart && npm install @fastify/static && npm install @fastify/helmet && npm install @fastify/rate-limit && npm install isomorphic-dompurify && npm install node-vault && npm install validator && npx nodemon ./backend/src/server.js"
+    command: bash -c "cd backend && npm install && npx nodemon ./src/server-https.js"
     depends_on:
       - db
       - vault
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:5001/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   frontend:
     image: node:24
@@ -76,6 +82,14 @@ services:
     depends_on:
       - node
     command: bash -c "npm install && npm run dev -- --host 0.0.0.0"
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
 
 volumes:
   pgdata:

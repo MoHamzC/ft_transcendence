@@ -1,45 +1,39 @@
 #!/bin/bash
-# start-simple.sh - Script de démarrage simple sans initialisation Vault automatique
+# start-simple.sh - Script de démarrage ultra-simple
 
-set -e  # Arrêter le script en cas d'erreur
+set -e
 
-echo "🚀 Démarrage simple de ft_transcendence..."
+echo "🚀 Démarrage de ft_transcendence..."
 echo ""
 
-# Fonction de nettoyage
-cleanup() {
-    echo ""
-    echo "🧹 Nettoyage des conteneurs..."
-    docker-compose down --remove-orphans 2>/dev/null || true
-}
-
-# Fonction d'arrêt propre
-trap cleanup EXIT INT TERM
-
-# Vérifier si Docker est installé
+# Vérifications de base
 if ! command -v docker &> /dev/null; then
-    echo "❌ Docker n'est pas installé ou n'est pas dans le PATH"
+    echo "❌ Docker n'est pas installé"
     exit 1
 fi
 
-# Vérifier si docker-compose est installé
-if ! command -v docker-compose &> /dev/null; then
-    echo "❌ docker-compose n'est pas installé ou n'est pas dans le PATH"
+# Détecter la commande compose
+if docker compose version &> /dev/null; then
+    COMPOSE_CMD="docker compose"
+elif command -v docker-compose &> /dev/null; then
+    COMPOSE_CMD="docker-compose"
+else
+    echo "❌ Docker Compose n'est pas disponible"
     exit 1
 fi
 
-# Vérifier si les certificats SSL existent
+# Créer les certificats SSL si nécessaire
 if [ ! -f "ssl/key.pem" ] || [ ! -f "ssl/cert.pem" ]; then
-    echo "⚠️  Certificats SSL manquants. Génération automatique..."
+    echo "🔐 Génération des certificats SSL..."
     mkdir -p ssl
-    openssl req -x509 -newkey rsa:4096 -keyout ssl/key.pem -out ssl/cert.pem -days 365 -nodes -subj "/C=FR/ST=Paris/L=Paris/O=42/OU=ft_transcendence/CN=localhost"
+    openssl req -x509 -newkey rsa:4096 -keyout ssl/key.pem -out ssl/cert.pem -days 365 -nodes -subj "/C=FR/ST=Paris/L=Paris/O=42/OU=ft_transcendence/CN=localhost" &>/dev/null
     echo "✅ Certificats SSL générés"
 fi
 
-# Créer le fichier .env s'il n'existe pas
+# Créer le .env si nécessaire
 if [ ! -f ".env" ]; then
-    echo "⚠️  Fichier .env manquant. Création avec valeurs par défaut..."
-    cat > .env << EOF
+    echo "📝 Création du fichier .env..."
+    cat > .env << 'EOF'
 # Configuration ft_transcendence
 NODE_ENV=dev
 HTTPS_PORT=5001
@@ -51,7 +45,7 @@ POSTGRES_PASSWORD=test
 POSTGRES_DB=db_transcendence
 
 # Vault
-VAULT_ADDR=http://localhost:8200
+VAULT_ADDR=http://vault:8200
 VAULT_TOKEN=myroot
 
 # JWT
@@ -73,85 +67,47 @@ EOF
     echo "✅ Fichier .env créé"
 fi
 
-echo ""
+# Démarrer les services
 echo "🐳 Démarrage des services..."
-
-# Démarrer tous les services
-docker-compose up -d
+$COMPOSE_CMD up -d
 
 echo ""
-echo "⏳ Attente du démarrage des services..."
+echo "⏳ Attente du démarrage..."
+sleep 10
 
-# Attendre que la base de données soit prête
-echo "🗄️  Attente de PostgreSQL..."
-max_attempts=30
-attempt=1
-while [ $attempt -le $max_attempts ]; do
-    if docker-compose exec -T db pg_isready -U admin -d db_transcendence >/dev/null 2>&1; then
-        echo "✅ PostgreSQL est prêt !"
-        break
-    fi
-    echo "⏳ Tentative $attempt/$max_attempts - PostgreSQL pas encore prêt..."
-    sleep 2
-    attempt=$((attempt + 1))
-done
-
-if [ $attempt -gt $max_attempts ]; then
-    echo "❌ Timeout: PostgreSQL n'est pas prêt après $max_attempts tentatives"
-    exit 1
+# Vérifier que les services sont prêts
+if curl -k -s https://localhost:5001/healthz &>/dev/null; then
+    echo "✅ Backend prêt"
+else
+    echo "⚠️  Backend pas encore prêt (continuer quand même)"
 fi
 
-# Attendre que Vault soit prêt
-echo "🔐 Attente de Vault..."
-attempt=1
-while [ $attempt -le $max_attempts ]; do
-    if curl -s http://localhost:8200/v1/sys/health >/dev/null 2>&1; then
-        echo "✅ Vault est prêt !"
-        break
-    fi
-    echo "⏳ Tentative $attempt/$max_attempts - Vault pas encore prêt..."
+# Ouvrir Adminer automatiquement ?
+if [ "$1" = "--open-adminer" ]; then
     sleep 2
-    attempt=$((attempt + 1))
-done
-
-if [ $attempt -gt $max_attempts ]; then
-    echo "❌ Timeout: Vault n'est pas prêt après $max_attempts tentatives"
-    exit 1
-fi
-
-# Attendre que le backend soit prêt
-echo "🖥️  Attente du backend..."
-attempt=1
-while [ $attempt -le $max_attempts ]; do
-    if curl -k -s https://localhost:5001/healthcheck >/dev/null 2>&1; then
-        echo "✅ Backend est prêt !"
-        break
-    fi
-    echo "⏳ Tentative $attempt/$max_attempts - Backend pas encore prêt..."
-    sleep 2
-    attempt=$((attempt + 1))
-done
-
-if [ $attempt -gt $max_attempts ]; then
-    echo "❌ Timeout: Backend n'est pas prêt après $max_attempts tentatives"
-    exit 1
+    open_adminer
 fi
 
 echo ""
-echo "🎉 Démarrage terminé avec succès !"
+echo "🎉 Démarrage terminé !"
 echo ""
 echo "📊 Services disponibles :"
 echo "  🌐 Frontend  : https://localhost:5173"
 echo "  🖥️  Backend  : https://localhost:5001"
 echo "  🔐 Vault     : http://localhost:8200 (Token: myroot)"
-echo "  🗄️  Adminer  : http://localhost:8080"
 echo "  🗄️  PostgreSQL : localhost:5434"
+echo "  🗃️  Adminer   : http://localhost:8080 (admin/test) - ./open-adminer.sh"
 echo ""
-echo "🔧 Pour configurer les secrets Vault :"
-echo "  ./scripts/setup-vault-secrets.sh"
-echo ""
-echo "🧪 Pour tester l'application :"
-echo "  ./test-ft-transcendence.sh"
-echo ""
-echo "🛑 Pour arrêter :"
-echo "  docker-compose down"
+echo "🛑 Pour arrêter : $COMPOSE_CMD down"
+
+# Fonction pour ouvrir Adminer
+open_adminer() {
+    echo "🗃️ Ouverture d'Adminer..."
+    if command -v xdg-open &> /dev/null; then
+        xdg-open "http://localhost:8080/?pgsql=db&username=admin&db=db_transcendence"
+    elif command -v open &> /dev/null; then
+        open "http://localhost:8080/?pgsql=db&username=admin&db=db_transcendence"
+    else
+        echo "🔗 Lien Adminer: http://localhost:8080/?pgsql=db&username=admin&db=db_transcendence"
+    fi
+}

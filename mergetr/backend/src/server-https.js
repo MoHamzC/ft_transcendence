@@ -6,6 +6,7 @@ import { join } from 'path';
 import securityPlugin from './plugins/security.js';
 import jwtPlugin from './plugins/jwt.js';
 import { registerRoutes } from './routes/index.js';
+import { vaultService } from './services/VaultService.js';
 
 async function start()
 {
@@ -20,6 +21,14 @@ async function start()
         trustProxy: true,
         https: httpsOptions // Configuration HTTPS
     });
+
+    // Initialisation de Vault
+    try {
+        await vaultService.initialize();
+        console.log('✅ Vault initialized successfully');
+    } catch (error) {
+        console.log('⚠️ Vault initialization failed:', error.message);
+    }
 
     // 1. Charger d'abord le plugin de sécurité
     await app.register(securityPlugin);

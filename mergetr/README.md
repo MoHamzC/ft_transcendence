@@ -36,3 +36,6 @@ npm run start:all
 ```
 ## Contributions
 
+
+init vault
+curl -k -X POST https://localhost:5001/api/vault/init-dev-secrets
