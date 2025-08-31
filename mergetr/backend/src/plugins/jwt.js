@@ -30,7 +30,24 @@ export default fp(async (app) => {
   }
 
   console.log('🔐 JWT secret found, registering fastify-jwt...');
-  app.register(fastifyJwt, { secret });
+
+  let jwtOptions = {};
+  if (typeof secret === 'string') {
+    if (secret.startsWith('-----BEGIN')) {
+      jwtOptions = { privateKey: secret, algorithm: 'RS256' };
+    } else {
+      jwtOptions = { secret, algorithm: 'HS256' };
+    }
+  } else if (typeof secret === 'object' && secret.privateKey) {
+    jwtOptions = { privateKey: secret.privateKey, algorithm: 'RS256' };
+    if (secret.publicKey) {
+      jwtOptions.publicKey = secret.publicKey;
+    }
+  } else {
+    jwtOptions = { secret, algorithm: 'HS256' };
+  }
+
+  app.register(fastifyJwt, jwtOptions);
   console.log('🔐 JWT plugin registered successfully');
 
   app.decorate('authenticate', async (request, reply) => {

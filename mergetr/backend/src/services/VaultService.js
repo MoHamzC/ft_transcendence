@@ -219,7 +219,11 @@ export class VaultService {
     async getJWTSecret() {
         const data = await this.readSecret('secret/jwt');
         // Retourner directement la valeur du secret
-        return data.secret || data;
+        let result = data.secret || data;
+        if (!result || result === '' || (typeof result === 'object' && !result.secret)) {
+            result = process.env.JWT_SECRET || `vault_jwt_secret_${Date.now()}`;
+        }
+        return result;
     }
 
     /**
