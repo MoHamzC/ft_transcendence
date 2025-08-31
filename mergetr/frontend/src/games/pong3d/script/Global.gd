@@ -62,5 +62,5 @@ func _ready():
 
 	# Debug
 	print("Right IA activé :", right_ia)
-	print("Player Left :", skin_PL_name, skin_PL_color, skin_PL_id)
-	print("Player Right:", skin_PR_name, skin_PR_color, skin_PR_id)
+	print("Player Left :", skin_PL_name, " ", skin_PL_color, " ", skin_PL_id)
+	print("Player Right :", skin_PR_name, " ", skin_PR_color, " ", skin_PR_id)
