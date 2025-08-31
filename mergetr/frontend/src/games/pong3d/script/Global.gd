@@ -22,7 +22,7 @@ func _ready():
 		var js = JavaScriptBridge.get_interface("window")
 		if js:
 			var search = str(js.location.search)  # "?ia=true&PL_color=blue&PL_id=948929725..."
-			
+
 			# Activer l'IA si paramètre présent
 			if search.find("ia=true") != -1:
 				right_ia = true
