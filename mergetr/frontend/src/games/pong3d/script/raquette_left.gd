@@ -52,7 +52,7 @@ func _apply_skin(material: StandardMaterial3D, skin: String):
 	else:
 		match skin:
 			"blue": material.albedo_color = Color.BLUE
-			"rouge": material.albedo_color = Color.RED
+			"red": material.albedo_color = Color.RED
 			"green": material.albedo_color = Color.GREEN
 			"yellow": material.albedo_color = Color.YELLOW
 			"brown": material.albedo_color = Color.BROWN
