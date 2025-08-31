@@ -1,0 +1,70 @@
+services:
+  # Base de données PostgreSQL pour développement
+  db:
+    image: postgres:14
+    container_name: ft_transcendence_db_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin123}
+      POSTGRES_DB: ${POSTGRES_DB:-db_transcendence}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/src/db/gdpr-schema.sql:/docker-entrypoint-initdb.d/02-gdpr-schema.sql
+    networks:
+      - app_network_dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-db_transcendence}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Adminer pour la gestion de la base de données (optionnel)
+  adminer:
+    image: adminer:4.8.1
+    container_name: ft_transcendence_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - app_network_dev
+    depends_on:
+      - db
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+
+  # HashiCorp Vault pour développement (optionnel)
+  vault:
+    image: hashicorp/vault:1.15
+    container_name: ft_transcendence_vault_dev
+    restart: unless-stopped
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN:-dev-token-12345}
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_LOG_LEVEL: info
+    ports:
+      - "8200:8200"
+    volumes:
+      - vault_data_dev:/vault/data
+    networks:
+      - app_network_dev
+    cap_add:
+      - IPC_LOCK
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app_network_dev:
+    driver: bridge
+
+volumes:
+  postgres_data_dev:
+    driver: local
+  vault_data_dev:
+    driver: local

@@ -14,7 +14,22 @@
     "build": "cd frontend && npm run build",
     "build:all": "npm run build",
     "install:deps": "cd backend && npm install && cd ../frontend && npm install",
-    "setup": "npm install && npm run install:deps && echo 'Setup completed! Use npm run start:dev to start both services'"
+    "setup": "npm install && npm run install:deps && echo 'Setup completed! Use npm run start:dev to start both services'",
+    "env:validate": "node scripts/validate-env.js",
+    "env:check": "npm run env:validate",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:restart": "docker compose restart",
+    "docker:clean": "docker compose down -v && docker system prune -f",
+    "docker:db": "docker compose up -d db",
+    "docker:adminer": "docker compose up -d adminer",
+    "docker:vault": "docker compose up -d vault",
+    "docker:full": "chmod +x scripts/start-full-docker.sh && scripts/start-full-docker.sh",
+    "docker:full:up": "docker-compose -f docker-compose.full.yml up --build -d",
+    "docker:full:down": "docker-compose -f docker-compose.full.yml down",
+    "docker:full:logs": "docker-compose -f docker-compose.full.yml logs -f",
+    "docker:full:restart": "docker-compose -f docker-compose.full.yml restart"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

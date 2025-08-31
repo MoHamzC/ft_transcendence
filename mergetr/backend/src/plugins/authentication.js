@@ -10,11 +10,7 @@ import fastifyCookie from '@fastify/cookie'
 export async function registerAuthentication(fastify) {
     // JWT
     await fastify.register(fastifyJwt, {
-<<<<<<< HEAD
-        secret: process.env.SUPER_SECRET_CODE,
-=======
         secret: process.env.JWT_SECRET,
->>>>>>> origin/mergeBackend
         transformUser: (payload) => {
             return {
                 id: payload.sub,

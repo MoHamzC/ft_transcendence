@@ -57,9 +57,17 @@ CREATE TABLE IF NOT EXISTS leaderboard (
     email VARCHAR(255) NOT NULL,
     wins INTEGER DEFAULT 0,
     games INTEGER DEFAULT 0,
+    tournament_wins INTEGER DEFAULT 0,
+    tournament_participations INTEGER DEFAULT 0,
     win_rate DECIMAL(5,2) GENERATED ALWAYS AS (
         CASE
             WHEN games > 0 THEN ROUND((wins::DECIMAL / games::DECIMAL) * 100, 2)
+            ELSE 0
+        END
+    ) STORED,
+    tournament_win_rate DECIMAL(5,2) GENERATED ALWAYS AS (
+        CASE
+            WHEN tournament_participations > 0 THEN ROUND((tournament_wins::DECIMAL / tournament_participations::DECIMAL) * 100, 2)
             ELSE 0
         END
     ) STORED,

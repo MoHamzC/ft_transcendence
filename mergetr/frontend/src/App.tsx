@@ -12,6 +12,7 @@ import Profile from './Profile.tsx';
 import Stats from './Stats.tsx';
 import LoginView from './LoginView.tsx';
 import PongGames from './PongGames.tsx';
+import PongGame from './games/PongGame.jsx';
 
 import Particles from './Particles.tsx';
 import Error from './Error.tsx';

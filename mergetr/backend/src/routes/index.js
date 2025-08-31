@@ -30,8 +30,6 @@ export async function registerRoutes(fastify) {
     const tournamentRoutes = (await import('./indexTournament.js')).default
     await fastify.register(tournamentRoutes, { prefix: '/api' })
 
-<<<<<<< HEAD
-=======
     // Routes GDPR
     const gdprRoutes = (await import('./gdpr.route.js')).default
     await fastify.register(gdprRoutes, { prefix: '/api/gdpr' })
@@ -39,7 +37,11 @@ export async function registerRoutes(fastify) {
     // Routes Vault
     const vaultRoutes = (await import('./vault.route.js')).default
     await fastify.register(vaultRoutes, { prefix: '/api/vault' })
->>>>>>> origin/mergeBackend
+
+    // Routes des statistiques
+    const statsRoutes = (await import('./stats.route.js')).default
+    await fastify.register(statsRoutes, { prefix: '/api/stats' })
+
     // Routes des amis en ligne
     const friendsOnlineRoutes = (await import('./friendsOnlineRoutes.js')).default
     await fastify.register(friendsOnlineRoutes, { prefix: '/api' })

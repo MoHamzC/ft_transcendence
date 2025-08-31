@@ -173,23 +173,13 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 				return otpAuth(request, reply, email);
 			}
 
-<<<<<<< HEAD
-			// Create JWT token
-			const payload = {sub: user.rows[0].id, username: user.rows[0].username, email: email}
-=======
 			// Create JWT token (inclure à la fois sub et id pour compatibilité)
 			const payload = { sub: user.rows[0].id, id: user.rows[0].id, username: user.rows[0].username, email: email };
->>>>>>> origin/mergeBackend
 			console.log(payload);
 			const token = request.server.jwt.sign(payload)
 			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
-<<<<<<< HEAD
-			return reply.code(200).send({ 
-				message: "Login successful", 
-=======
 			return reply.code(200).send({
 				message: "Login successful",
->>>>>>> origin/mergeBackend
 				username: user.rows[0].username,
 				token: token,
 				id: user.rows[0].id
@@ -365,13 +355,8 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 				[email]
 			)
 
-<<<<<<< HEAD
-			// Create JWT token
-			const payload = {sub: result.rows[0].id, username: result.rows[0].username, email: email}
-=======
 			// Create JWT token (inclure id)
 			const payload = { sub: result.rows[0].id, id: result.rows[0].id, username: result.rows[0].username, email: email };
->>>>>>> origin/mergeBackend
 			const token = request.jwt.sign(payload)
 			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
 			return reply.code(200).send({ message: "OTP verification successful", username: result.rows[0].username });
