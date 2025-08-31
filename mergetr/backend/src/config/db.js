@@ -30,15 +30,23 @@ async function initializePool() {
     console.log('✅ Database config loaded from Vault')
 
   } catch (error) {
-    console.log('⚠️ Failed to load DB config from Vault, using fallback:', error.message)
+    console.log('⚠️ Failed to load DB config from Vault, using environment variables:', error.message)
 
-    // Fallback vers les variables d'environnement
+    // Vérifier que toutes les variables d'environnement requises sont définies
+    const requiredEnvVars = ['POSTGRES_USER', 'POSTGRES_HOST', 'POSTGRES_DB', 'POSTGRES_PASSWORD', 'POSTGRES_PORT']
+    const missingVars = requiredEnvVars.filter(varName => !process.env[varName])
+
+    if (missingVars.length > 0) {
+      throw new Error(`❌ Variables d'environnement manquantes: ${missingVars.join(', ')}. Configurez votre .env ou Vault.`)
+    }
+
+    // Utiliser uniquement les variables d'environnement (pas de valeurs par défaut)
     dbConfig = {
-      user: process.env.POSTGRES_USER || 'admin',
-      host: process.env.POSTGRES_HOST || 'db',
-      database: process.env.POSTGRES_DB || 'db_transcendence',
-      password: process.env.POSTGRES_PASSWORD || 'test',
-      port: process.env.POSTGRES_PORT || 5432,
+      user: process.env.POSTGRES_USER,
+      host: process.env.POSTGRES_HOST,
+      database: process.env.POSTGRES_DB,
+      password: process.env.POSTGRES_PASSWORD,
+      port: parseInt(process.env.POSTGRES_PORT),
     }
   }
 

@@ -62,8 +62,8 @@ export class VaultService {
             // Secrets OAuth 42
             if (!existingSecrets.oauth42) {
                 await this.writeSecret('secret/oauth/42', {
-                    client_id: process.env.CLIENT_ID_42 || 'your_42_client_id',
-                    client_secret: process.env.CLIENT_SECRET_42 || 'your_42_client_secret',
+                    client_id: process.env.CLIENT_ID_42 || '',
+                    client_secret: process.env.CLIENT_SECRET_42 || '',
                     redirect_uri: process.env.REDIRECT_URI || 'http://localhost:5001/auth/42/callback'
                 });
             }
@@ -71,8 +71,8 @@ export class VaultService {
             // Secrets OAuth GitHub
             if (!existingSecrets.github) {
                 await this.writeSecret('secret/oauth/github', {
-                    client_id: process.env.GITHUB_CLIENT_ID || 'your_github_client_id',
-                    client_secret: process.env.GITHUB_CLIENT_SECRET || 'your_github_client_secret',
+                    client_id: process.env.GITHUB_CLIENT_ID || '',
+                    client_secret: process.env.GITHUB_CLIENT_SECRET || '',
                     redirect_uri: process.env.GITHUB_REDIRECT_URI || 'http://localhost:5001/auth/github/callback'
                 });
             }
@@ -80,8 +80,8 @@ export class VaultService {
             // Secrets OAuth Google
             if (!existingSecrets.google) {
                 await this.writeSecret('secret/oauth/google', {
-                    client_id: process.env.GOOGLE_CLIENT_ID || 'your_google_client_id',
-                    client_secret: process.env.GOOGLE_CLIENT_SECRET || 'your_google_client_secret',
+                    client_id: process.env.GOOGLE_CLIENT_ID || '',
+                    client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
                     redirect_uri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5001/auth/google/callback'
                 });
             }
@@ -90,8 +90,8 @@ export class VaultService {
             if (!existingSecrets.email) {
                 await this.writeSecret('secret/email', {
                     host: process.env.MAIL_HOST || 'smtp.gmail.com',
-                    user: process.env.MAIL_USER || 'your_email@gmail.com',
-                    password: process.env.MAIL_PASS || 'your_app_password'
+                    user: process.env.MAIL_USER || '',
+                    password: process.env.MAIL_PASS || ''
                 });
             }
 

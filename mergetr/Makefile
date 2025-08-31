@@ -30,11 +30,11 @@ setup: install ## Complete setup (install + docker + vault)
 
 vault-init: ## Initialize Vault with secrets
 	@echo "$(GREEN)🔐 Initializing Vault secrets...$(NC)"
-	@curl -s -X PUT -H "X-Vault-Token: myroot" \
-		-d '{"data":{"username":"transcendence","password":"password123","host":"localhost","port":"5434","database":"transcendence"}}' \
+	@curl -s -X PUT -H "X-Vault-Token: ${VAULT_TOKEN:-CHANGE_THIS_VAULT_TOKEN}" \
+		-d '{"data":{"username":"transcendence","password":"${POSTGRES_PASSWORD:-CHANGE_THIS_DB_PASSWORD}","host":"localhost","port":"5434","database":"transcendence"}}' \
 		http://localhost:8200/v1/secret/data/database > /dev/null
-	@curl -s -X PUT -H "X-Vault-Token: myroot" \
-		-d '{"data":{"secret":"your-super-secret-jwt-key-for-development-only"}}' \
+	@curl -s -X PUT -H "X-Vault-Token: ${VAULT_TOKEN:-CHANGE_THIS_VAULT_TOKEN}" \
+		-d '{"data":{"secret":"${JWT_SECRET:-CHANGE_THIS_JWT_SECRET}"}}' \
 		http://localhost:8200/v1/secret/data/jwt > /dev/null
 	@echo "$(GREEN)✅ Vault secrets initialized$(NC)"
 

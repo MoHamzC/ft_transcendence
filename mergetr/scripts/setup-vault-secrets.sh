@@ -1,7 +1,10 @@
 #!/bin/sh
 # setup-vault-secrets.sh - Script manuel pour créer les secrets Vault
 
-echo "🔐 Configuration manuelle des secrets Vault pour ft_transcendence..."
+echo "🔐 Configuration m    vault kv put secret/oauth/google \
+        client_id="${GOOGLE_CLIENT_ID:-}" \
+        client_secret="${GOOGLE_CLIENT_SECRET:-}" \
+        redirect_uri="http://localhost:3000/auth/google/callback"lle des secrets Vault pour ft_transcendence..."
 echo ""
 
 # Variables d'environnement Vault
@@ -56,9 +59,9 @@ if ! secret_exists "database"; then
     vault kv put secret/database \
         host="db" \
         port="5432" \
-        user="admin" \
-        password="test" \
-        database="db_transcendence"
+        user="${POSTGRES_USER:-admin}" \
+        password="${POSTGRES_PASSWORD:-CHANGE_THIS_DB_PASSWORD}" \
+        database="${POSTGRES_DB:-db_transcendence}"
     echo "✅ Secret database créé"
 else
     echo "ℹ️  Secret database existe déjà"
@@ -67,7 +70,7 @@ fi
 # Créer le secret JWT
 if ! secret_exists "jwt"; then
     echo "🔑 Création du secret JWT..."
-    jwt_secret="super_secure_jwt_secret_key_change_in_production_$(date +%s)"
+    jwt_secret="${JWT_SECRET:-CHANGE_THIS_JWT_SECRET_$(date +%s)}"
     vault kv put secret/jwt \
         secret="$jwt_secret"
     echo "✅ Secret JWT créé"
@@ -80,8 +83,8 @@ fi
 if ! secret_exists "oauth/42"; then
     echo "🔐 Création du secret OAuth 42..."
     vault kv put secret/oauth/42 \
-        client_id="your_42_client_id" \
-        client_secret="your_42_client_secret" \
+        client_id="${CLIENT_ID_42:-}" \
+        client_secret="${CLIENT_SECRET_42:-}" \
         redirect_uri="http://localhost:3000/auth/42/callback"
     echo "✅ Secret OAuth 42 créé"
 else
@@ -92,8 +95,8 @@ fi
 if ! secret_exists "oauth/github"; then
     echo "🔐 Création du secret OAuth GitHub..."
     vault kv put secret/oauth/github \
-        client_id="your_github_client_id" \
-        client_secret="your_github_client_secret" \
+        client_id="${GITHUB_CLIENT_ID:-}" \
+        client_secret="${GITHUB_CLIENT_SECRET:-}" \
         redirect_uri="http://localhost:3000/auth/github/callback"
     echo "✅ Secret OAuth GitHub créé"
 else
@@ -104,8 +107,8 @@ fi
 if ! secret_exists "oauth/google"; then
     echo "🔐 Création du secret OAuth Google..."
     vault kv put secret/oauth/google \
-        client_id="your_google_client_id" \
-        client_secret="your_google_client_secret" \
+        client_id="${GOOGLE_CLIENT_ID:-YOUR_GOOGLE_CLIENT_ID}" \
+        client_secret="${GOOGLE_CLIENT_SECRET:-YOUR_GOOGLE_CLIENT_SECRET}" \
         redirect_uri="http://localhost:3000/auth/google/callback"
     echo "✅ Secret OAuth Google créé"
 else
