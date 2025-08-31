@@ -4,10 +4,10 @@ import pool from '../config/db.js';
 export default async function matchRoutes(fastify, options) {
 
 	fastify.post('/match', async (request, reply) => {
-	  const { player1_id, player2_id, winner_id } = request.body;
+	  const { playerWinner, playerLoser, playerWinnerScore, playerLoserScore } = request.body;
 
 	  // Valider les données d'entrée
-	  if (!player1_id || !player2_id || !winner_id) {
+	  if (!playerWinner || !playerLoser || !playerWinnerScore || !playerLoserScore) {
 		return reply.status(400).send({ error: 'Invalid input' });
 	  }
 

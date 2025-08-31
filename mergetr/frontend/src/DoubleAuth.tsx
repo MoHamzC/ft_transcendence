@@ -53,6 +53,7 @@ export default function DoubleAuth() {
             await verifyOTP(email, otpCode);
             // Redirection avec paramètre de succès
             window.location.href = '/login=success';
+			navigate('/');
         } catch (err) {
             // L'erreur est déjà gérée par le hook
             console.error('OTP verification error:', err);

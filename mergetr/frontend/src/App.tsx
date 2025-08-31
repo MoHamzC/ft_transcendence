@@ -12,6 +12,7 @@ import Profile from './Profile.tsx';
 import Stats from './Stats.tsx';
 import LoginView from './LoginView.tsx';
 import PongGames from './PongGames.tsx';
+import PongGame from './games/PongGame.jsx';
 import JoinTournamentPage from './JoinTournamentPage';
 import CreateTournamentPage from './CreateTournamentPage';
 
@@ -40,7 +41,7 @@ import TournamentTemp from './TournamentTemp.tsx';
 
 function AppContent()
 {
-	const [isLogged, setIsLogged] = useState(true);
+	const [isLogged, setIsLogged] = useState<boolean | null>(null);
 	const location = useLocation();
 	const BACKEND_URL = 'http://localhost:5001';
 
@@ -65,7 +66,16 @@ function AppContent()
 		};
 
 		checkAuthStatus();
-	}, [location.pathname]); // Se déclenche à chaque changement de route
+	}, [location.pathname]);
+
+	// Show loading while checking authentication
+	if (isLogged === null) {
+		return (
+			<div style={{ width: '100vw', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+				<div>Loading...</div>
+			</div>
+		);
+	}
 
 	return (
 		<>
@@ -86,8 +96,8 @@ function AppContent()
 						<Routes>
 							<Route path="/" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Home /></div>} />
 							<Route path="/login" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><LoginView setIsLogged={setIsLogged} /></div>} />
-							<Route path="/pong" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><PongGames /></div>} />
-							<Route path="/pong/play" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><div>Jeu Pong en cours de développement</div></div>} />
+							<Route path="/pong" element={<PongGames />} />
+							<Route path="/pong/play" element={<PongGame />} />
 							<Route path="/aboutus" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><AboutUs /></div>} />
 							<Route path="/leaderbord" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Leaderbord/></div>} />
 							<Route path="/friends" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Friends /></div>} />

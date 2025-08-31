@@ -45,6 +45,10 @@ export async function registerRoutes(fastify) {
     const friendsOnlineRoutes = (await import('./friendsOnlineRoutes.js')).default
     await fastify.register(friendsOnlineRoutes, { prefix: '/api' })
 
+    // Routes des joueurs/jeu
+    const gameRoutes = (await import('./game_route.js')).default
+    await fastify.register(gameRoutes, { prefix: '/api/players' })
+
 	//Match Routes
     const matchRoutes = (await import('../services/matchService.js')).default
     await fastify.register(matchRoutes, { prefix: '/api' })
