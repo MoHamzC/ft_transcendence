@@ -21,14 +21,17 @@ export class VaultService {
             await this.client.status();
             console.log('✅ Vault connected successfully');
 
+            // Marquer comme initialisé AVANT d'initialiser les secrets
+            this.isInitialized = true;
+
             // Initialiser les secrets par défaut en mode dev
             if (process.env.NODE_ENV !== 'production') {
                 await this.initializeDevSecrets();
             }
 
-            this.isInitialized = true;
         } catch (error) {
             console.error('❌ Vault connection failed:', error.message);
+            this.isInitialized = false; // S'assurer que c'est bien false en cas d'erreur
             throw error;
         }
     }
@@ -37,6 +40,10 @@ export class VaultService {
      * Initialise les secrets par défaut pour le développement
      */
     async initializeDevSecrets() {
+        if (!this.isInitialized) {
+            throw new Error('Vault not initialized. Call initialize() first.');
+        }
+
         try {
             console.log('🔐 Initializing development secrets in Vault...')
 
