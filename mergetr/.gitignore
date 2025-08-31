@@ -1,2 +1,9 @@
-./TODO
-TODO
+node_modules
+npm-debug.log
+README.md
+.env
+.env.example
+.nyc_output
+coverage
+.vscode
+.DS_Store
