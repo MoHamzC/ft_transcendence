@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import AboutUs from './AboutUs.tsx';
 import BackHome from './BackHome.tsx';
 import SideMenu from './SideMenu.tsx';
@@ -38,9 +38,10 @@ import TournamentTemp from './TournamentTemp.tsx';
 //   console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
 // }
 
-function App()
+function AppContent()
 {
-	const [isLogged, setIsLogged] = useState(false);
+	const [isLogged, setIsLogged] = useState(true);
+	const location = useLocation();
 	const BACKEND_URL = 'http://localhost:5001';
 
 	useEffect(() => {
@@ -52,10 +53,8 @@ function App()
 				});
 
 				if (response.ok) {
-
 					setIsLogged(true);
 				} else {
-
 					setIsLogged(false);
 				}
 			} catch (err)
@@ -66,11 +65,10 @@ function App()
 		};
 
 		checkAuthStatus();
-	}, []);
+	}, [location.pathname]); // Se déclenche à chaque changement de route
 
 	return (
 		<>
-
 			<div style={{ width: '100vw', minHeight: '100vh', position: 'relative', overflow: 'auto' }}>
 				<Particles
 					particleColors={['#ffffff', '#ffffff']}
@@ -83,38 +81,44 @@ function App()
 					disableRotation={false}
 					className=""
 				/>
-				<Router>
-					{/* <Profiler id="MainRoutes" onRender={onRenderCallback}> */}
-						<div style={{ position: 'relative', zIndex: 10, width: '100%', minHeight: '100vh' }}>
-							<Routes>
-								<Route path="/" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Home /></div>} />
-								<Route path="/login" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><LoginView setIsLogged={setIsLogged} /></div>} />
-								<Route path="/pong" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><PongGames /></div>} />
-								<Route path="/pong/play" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><div>Jeu Pong en cours de développement</div></div>} />
-								<Route path="/aboutus" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><AboutUs /></div>} />
-								<Route path="/leaderbord" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Leaderbord/></div>} />
-								<Route path="/friends" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Friends /></div>} />
-								<Route path="/settings" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Settings /></div>} />
-								<Route path="/profile" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Profile /></div>} />
-								<Route path="/stats" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Stats/></div>} />
-								<Route path="/register" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Register/></div>} />
-								<Route path="/logout" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Logout setIsLogged={setIsLogged} /></div>} />
-								<Route path="/error" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Error/></div>} />
-								<Route path="/doubleauth" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><DoubleAuth /></div>} />
-								<Route path="/ResetPassword" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><ResetPassword /></div>} />
-								<Route path="/selectplayers" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><SelectPlayers /></div>} />
-								<Route path="/tournament" element={<TournamentTemp />} />
-								<Route path="/jointournament/:tournamentId" element={<JoinTournamentPage />} />
-								<Route path="/createtournament" element={<CreateTournamentPage />} />
-							</Routes>
-						</div>
-					{/* </Profiler> */}
-					<SideMenu isLogged={isLogged} setIsLogged={setIsLogged} />
-					<BackHome />
-
-				</Router>
+				{/* <Profiler id="MainRoutes" onRender={onRenderCallback}> */}
+					<div style={{ position: 'relative', zIndex: 10, width: '100%', minHeight: '100vh' }}>
+						<Routes>
+							<Route path="/" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Home /></div>} />
+							<Route path="/login" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><LoginView setIsLogged={setIsLogged} /></div>} />
+							<Route path="/pong" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><PongGames /></div>} />
+							<Route path="/pong/play" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><div>Jeu Pong en cours de développement</div></div>} />
+							<Route path="/aboutus" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><AboutUs /></div>} />
+							<Route path="/leaderbord" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Leaderbord/></div>} />
+							<Route path="/friends" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Friends /></div>} />
+							<Route path="/settings" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Settings /></div>} />
+							<Route path="/profile" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Profile /></div>} />
+							<Route path="/stats" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Stats/></div>} />
+							<Route path="/register" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Register/></div>} />
+							<Route path="/logout" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Logout setIsLogged={setIsLogged} /></div>} />
+							<Route path="/error" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Error/></div>} />
+							<Route path="/doubleauth" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><DoubleAuth /></div>} />
+							<Route path="/ResetPassword" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><ResetPassword /></div>} />
+							<Route path="/selectplayers" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><SelectPlayers /></div>} />
+							<Route path="/tournament" element={<TournamentTemp />} />
+							<Route path="/jointournament/:tournamentId" element={<JoinTournamentPage />} />
+							<Route path="/createtournament" element={<CreateTournamentPage />} />
+						</Routes>
+					</div>
+				{/* </Profiler> */}
+				<SideMenu isLogged={isLogged} setIsLogged={setIsLogged} />
+				<BackHome />
 			</div>
 		</>
+	)
+}
+
+function App()
+{
+	return (
+		<Router>
+			<AppContent />
+		</Router>
 	)
 }
 

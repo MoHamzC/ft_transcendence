@@ -10,18 +10,14 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    https: {
-      key: readFileSync(join(process.cwd(), '..', 'ssl', 'key.pem')),
-      cert: readFileSync(join(process.cwd(), '..', 'ssl', 'cert.pem'))
-    },
     proxy: {
       '/api': {
-        target: 'https://node:5001',
+        target: 'http://node:5001',
         changeOrigin: true,
         secure: false
       },
       '/auth': {
-        target: 'https://node:5001',
+        target: 'http://node:5001',
         changeOrigin: true,
         secure: false
       }
