@@ -1,32 +1,53 @@
+# Global.gd
 extends Node
 
+# --- score ---
 var score_left: int = 0
 var score_right: int = 0
 var max_score: int = 1
+
+# --- game ---
 var game_start: bool = false
 var right_ia: bool = true
-var skin_PL: String = "red"
-var skin_PR: String = "blue"
+
+# --- skin et id ---
+var skin_PL_color: String = "red"
+var skin_PL_id: String = ""
+var skin_PR_color: String = "blue"
+var skin_PR_id: String = ""
 
 
 func _ready():
 	if Engine.has_singleton("JavaScriptBridge"):
 		var js = JavaScriptBridge.get_interface("window")
-		if js:  # Vérifie juste que l’objet existe
-			var search = str(js.location.search)  # "?ia=true" ou "?ia=false"
+		if js:
+			var search = str(js.location.search)  # "?ia=true&PL_color=blue&PL_id=948929725..."
+			
+			# Activer l'IA si paramètre présent
 			if search.find("ia=true") != -1:
 				right_ia = true
-			if search.find("PL=") != -1:
-				var parts = search.split("PL=")
+
+			# Récupérer les paramètres PL_
+			if search.find("PL_color=") != -1:
+				var parts = search.split("PL_color=")
 				if parts.size() > 1:
-					var value = parts[1].split("&")[0]
-					Global.skin_PL = value
-			if search.find("PR=") != -1:
-				var parts = search.split("PR=")
+					skin_PL_color = parts[1].split("&")[0]
+			if search.find("PL_id=") != -1:
+				var parts = search.split("PL_id=")
 				if parts.size() > 1:
-					var value = parts[1].split("&")[0]
-					Global.skin_PR = value
+					skin_PL_id = parts[1].split("&")[0]
+
+			# Récupérer les paramètres PR_
+			if search.find("PR_color=") != -1:
+				var parts = search.split("PR_color=")
+				if parts.size() > 1:
+					skin_PR_color = parts[1].split("&")[0]
+			if search.find("PR_id=") != -1:
+				var parts = search.split("PR_id=")
+				if parts.size() > 1:
+					skin_PR_id = parts[1].split("&")[0]
+
+	# Debug
 	print("Right IA activé :", right_ia)
-	
-	#"?ia=true&PL=blue&PR=green"
-	#?ia=true&PL=custom&PR=white" ca cest pour les skins
+	print("Player Left :", skin_PL_color, skin_PL_id)
+	print("Player Right:", skin_PR_color, skin_PR_id)

@@ -21,16 +21,16 @@ func on_goal_scored():
 
 		if Global.score_left > Global.score_right:
 			winner_name = "PlayerLeft"
-			winner_id = "player_left_id"  # à remplacer par le vrai ID
+			winner_id = Global.skin_PL_id  # à remplacer par le vrai ID
 			looser_name = "PlayerRight"
-			looser_id = "player_right_id"  # à remplacer par le vrai ID
+			looser_id = Global.skin_PR_id  # à remplacer par le vrai ID
 			score_winner = Global.score_left
 			score_looser = Global.score_right
 		else:
 			winner_name = "PlayerRight"
-			winner_id = "player_right_id"  # à remplacer par le vrai ID
+			winner_id = Global.skin_PR_id # à remplacer par le vrai ID
 			looser_name = "PlayerLeft"
-			looser_id = "player_left_id"  # à remplacer par le vrai ID
+			looser_id = Global.skin_PL_id  # à remplacer par le vrai ID
 			score_winner = Global.score_right
 			score_looser = Global.score_left
 
@@ -46,12 +46,10 @@ func on_goal_scored():
 func send_match_result(winner_name: String, winner_id: String, looser_name: String, looser_id: String, score_winner: int, score_looser: int) -> void:
 	var url = "http://localhost:5001/api/match"
 	var data := {
-		"playerWinner": winner_name,
-		"playerLooser": looser_name,
+		"playerWinner": winner_id,
+		"playerLooser": looser_id,
 		"playerWinnerScore": score_winner,
 		"playerLooserScore": score_looser,
-		"winner_id": winner_id,
-		"looser_id": looser_id
 	}
 	var json_data := JSON.stringify(data)
 	print("JSON envoyé :", json_data)

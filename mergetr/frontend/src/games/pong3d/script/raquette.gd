@@ -30,7 +30,7 @@ func _ready():
 	mesh.set_surface_override_material(0, material)
 
 	# applique couleur ou texture
-	_apply_skin(material, Global.skin_PR)
+	_apply_skin(material, Global.skin_PR_color)
 
 func ia_calcule():
 	var pos = ball.global_position
