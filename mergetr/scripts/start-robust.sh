@@ -32,50 +32,42 @@ fi
 
 # Créer le .env si nécessaire
 if [ ! -f ".env" ]; then
-    echo "📝 Création du fichier .env avec des valeurs sécurisées..."
-    # Générer des mots de passe sécurisés (sans caractères spéciaux)
-    DB_PASSWORD=$(openssl rand -hex 32)
-    JWT_SECRET=$(openssl rand -hex 64)
-    VAULT_TOKEN=$(openssl rand -hex 32)
-
     cat > .env << EOF
-# Configuration ft_transcendence
 NODE_ENV=dev
 HTTPS_PORT=5001
 
 # Base de données
 POSTGRES_VERSION=14
 POSTGRES_USER=admin
-POSTGRES_PASSWORD=${DB_PASSWORD}
+POSTGRES_PASSWORD=test
 POSTGRES_DB=db_transcendence
 
 # Vault
 VAULT_ADDR=http://vault:8200
-VAULT_TOKEN=${VAULT_TOKEN}
+VAULT_TOKEN=myroot
 
 # JWT
-JWT_SECRET=${JWT_SECRET}
+JWT_SECRET=your_super_secret_jwt_key_here
 
-# OAuth 42 (optionnel - laissez vide si non utilisé)
-CLIENT_ID_42=
-CLIENT_SECRET_42=
+# Security
+SALT_ROUNDS=12
 
-# OAuth GitHub (optionnel - laissez vide si non utilisé)
-GITHUB_CLIENT_ID=
-GITHUB_CLIENT_SECRET=
+# OAuth 42
+CLIENT_ID_42=your_42_client_id
+CLIENT_SECRET_42=your_42_client_secret
 
-# Email (optionnel - laissez vide si non utilisé)
+# OAuth GitHub
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+
+# Email
 MAIL_HOST=smtp.gmail.com
-MAIL_USER=
-MAIL_PASS=
-EOF
-    echo "✅ Fichier .env créé avec des valeurs sécurisées générées automatiquement"
-    echo "⚠️  IMPORTANT: Notez ces valeurs si vous voulez les réutiliser plus tard"
-    echo "   Database Password: ${DB_PASSWORD}"
-    echo "   JWT Secret: ${JWT_SECRET}"
-    echo "   Vault Token: ${VAULT_TOKEN}"
-fi
+MAIL_USER=your_email@gmail.com
+MAIL_PASS=your_app_password
 
+EOF
+fi
+sleep 1
 # Créer le compose.yaml si nécessaire
 if [ ! -f "compose.yaml" ]; then
     echo "📝 Création du fichier .env avec des valeurs sécurisées..."
@@ -89,7 +81,7 @@ services:
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN:-CHANGE_THIS_VAULT_TOKEN}
       VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
-      VAULT_ADDR: http://vault:8200
+      VAULT_ADDR: http://localhost:8200
     ports:
       - "8200:8200"
     volumes:
@@ -209,7 +201,6 @@ services:
 
 volumes:
   pgdata:
-
 EOF
     echo "✅ Fichier compose.yaml créé"
 fi
@@ -277,27 +268,27 @@ services:
       NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-secure_password_change_me}@db:5432/${POSTGRES_DB:-db_transcendence}
-      VAULT_ADDR: http://vault:8200
-      VAULT_TOKEN: ${VAULT_TOKEN:-myroot}
-      JWT_SECRET: ${JWT_SECRET:-fallback_jwt_secret_change_me}
+      VAULT_ADDR: http://localhost:8200
+      VAULT_TOKEN: ${VAULT_TOKEN}
+      JWT_SECRET: ${JWT_SECRET}
       
       # OAuth Configuration (via Vault en production)
-      CLIENT_ID_42: ${CLIENT_ID_42:-}
-      CLIENT_SECRET_42: ${CLIENT_SECRET_42:-}
+      CLIENT_ID_42: ${CLIENT_ID_42}
+      CLIENT_SECRET_42: ${CLIENT_SECRET_42}
       REDIRECT_URI: https://localhost/auth/42/callback
       
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
-      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
       GITHUB_REDIRECT_URI: https://localhost/auth/github/callback
       
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_REDIRECT_URI: https://localhost/auth/google/callback
       
       # Email Configuration
-      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
-      MAIL_USER: ${MAIL_USER:-}
-      MAIL_PASS: ${MAIL_PASS:-}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
       
       # Sécurité
       ALLOWED_ORIGINS: https://localhost,https://127.0.0.1

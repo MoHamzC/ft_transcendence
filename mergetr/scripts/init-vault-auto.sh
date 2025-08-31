@@ -6,7 +6,7 @@ set -e
 echo "🔐 Initialisation automatique de Vault..."
 
 # Configuration Vault
-VAULT_ADDR="${VAULT_ADDR:-http://vault:8200}"
+VAULT_ADDR="${VAULT_ADDR:-http://localhost:8200}"
 VAULT_TOKEN="${VAULT_TOKEN:-myroot}"
 
 export VAULT_ADDR
@@ -18,7 +18,7 @@ max_attempts=30
 attempt=1
 
 while [ $attempt -le $max_attempts ]; do
-    if curl -s "$VAULT_ADDR/v1/sys/health" >/dev/null 2>&1; then
+    if curl -s "localhost:8200/v1/sys/health" >/dev/null 2>&1; then
         echo "✅ Vault est prêt !"
         break
     fi
