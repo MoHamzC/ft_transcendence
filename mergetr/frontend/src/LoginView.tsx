@@ -16,7 +16,7 @@ export default function LoginView({ setIsLogged }: any)
 
         if (loginSuccess === 'success') {
             setIsLogged(true);
-            navigate('/selectplayers');
+            navigate('/');
             return;
         }
 
@@ -29,7 +29,7 @@ export default function LoginView({ setIsLogged }: any)
 
                 if (response.ok) {
                     setIsLogged(true);
-                    navigate('/selectplayers');
+                    navigate('/');
                 }
             } catch (err) {
                 console.error('Error checking auth status:', err);
@@ -86,7 +86,7 @@ export default function LoginView({ setIsLogged }: any)
                     // Login réussi sans 2FA
                     alert(result.message || 'Login successful');
                     setIsLogged(true);
-                    navigate('/selectplayers');
+                    navigate('/');
                 }
             } else {
                 const error = await response.json();

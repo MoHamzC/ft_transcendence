@@ -39,21 +39,9 @@ function onRenderCallback(
   console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
 }
 
-// function onRenderCallback(
-//   id: string,
-//   phase: 'mount' | 'update',
-//   actualDuration: number,
-//   baseDuration: number,
-//   startTime: number,
-//   commitTime: number,
-//   interactions: Set<any>
-// ) {
-//   console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
-// }
-
 function AppContent()
 {
-	const [isLogged, setIsLogged] = useState<boolean | null>(null);
+	const [isLogged, setIsLogged] = useState(true);
 	const location = useLocation();
 	const BACKEND_URL = 'http://localhost:5001';
 
