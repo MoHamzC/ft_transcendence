@@ -86,7 +86,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 	async function logout(request, reply) {
 		reply.clearCookie('access_token');
-		return reply.code(200).redirect('http://localhost:5173');
+		return reply.code(200).redirect('http://localhost:5173/');
 	}
 
 	async function verifyUser(request, reply) {
@@ -213,8 +213,8 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 			//Insert the user into the DB
 			const result = await pool.query(
-				'INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING *',
-				[email, username, hashedPassword]
+				'INSERT INTO users (email, username, password_hash, is_registered) VALUES ($1, $2, $3, $4) RETURNING *',
+				[email, username, hashedPassword, true]
 			)
 			console.log("User created!");
 

@@ -36,6 +36,8 @@
     "fastify-plugin": "^5.0.1",
     "gl-matrix": "^3.4.3",
     "isomorphic-dompurify": "^2.26.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-vault": "^0.10.5",
     "nodemailer": "^7.0.6",
     "nodemon": "^3.1.10",
     "ogl": "^1.0.11",

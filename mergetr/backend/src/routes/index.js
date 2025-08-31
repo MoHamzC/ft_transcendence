@@ -30,6 +30,10 @@ export async function registerRoutes(fastify) {
     const tournamentRoutes = (await import('./indexTournament.js')).default
     await fastify.register(tournamentRoutes, { prefix: '/api' })
 
+    // Routes des tournois avec utilisateurs temporaires
+    const tournamentTempRoutes = (await import('./tournamentTemp.js')).default
+    await fastify.register(tournamentTempRoutes, { prefix: '/api/tournament-temp' })
+
     // Routes GDPR
     const gdprRoutes = (await import('./gdpr.route.js')).default
     await fastify.register(gdprRoutes, { prefix: '/api/gdpr' })
@@ -40,6 +44,10 @@ export async function registerRoutes(fastify) {
     // Routes des amis en ligne
     const friendsOnlineRoutes = (await import('./friendsOnlineRoutes.js')).default
     await fastify.register(friendsOnlineRoutes, { prefix: '/api' })
+
+	//Match Routes
+    const matchRoutes = (await import('../services/matchService.js')).default
+    await fastify.register(matchRoutes, { prefix: '/api' })
 
     fastify.log.info('✅ All routes registered')
 }

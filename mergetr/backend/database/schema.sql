@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
     providers TEXT[] DEFAULT '{}',
     last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_online BOOLEAN DEFAULT FALSE,
+    is_registered BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -96,6 +97,54 @@ CREATE TABLE IF NOT EXISTS user_settings (
     pong_skin_type VARCHAR(20) DEFAULT 'color' CHECK (pong_skin_type IN ('color', 'avatar'))
 );
 
+-- Table des tokens d'accès pour OAuth et sessions
+CREATE TABLE IF NOT EXISTS user_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    access_token VARCHAR(512) UNIQUE NOT NULL,
+    refresh_token VARCHAR(512),
+    token_type VARCHAR(20) DEFAULT 'Bearer',
+    provider VARCHAR(50), -- 'google', 'github', '42', 'local', etc.
+    scope TEXT,
+    expires_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+-- Table pour les sessions utilisateur (Express sessions et autres)
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    session_id VARCHAR(255) UNIQUE NOT NULL,
+    session_data JSONB,
+    provider VARCHAR(50) DEFAULT 'local',
+    ip_address INET,
+    user_agent TEXT,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+-- Table pour les données OAuth spécifiques par provider
+CREATE TABLE IF NOT EXISTS oauth_profiles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    provider VARCHAR(50) NOT NULL,
+    provider_id VARCHAR(255) NOT NULL,
+    provider_username VARCHAR(100),
+    provider_email VARCHAR(255),
+    profile_data JSONB,
+    access_token VARCHAR(512),
+    refresh_token VARCHAR(512),
+    expires_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(provider, provider_id),
+    UNIQUE(user_id, provider)
+);
+
 -- =============================================================================
 -- TABLES TOURNOIS
 -- =============================================================================
@@ -104,7 +153,6 @@ CREATE TABLE IF NOT EXISTS user_settings (
 CREATE TABLE IF NOT EXISTS tournaments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
-    description TEXT,
     mode VARCHAR(10) NOT NULL CHECK (mode IN ('4_players', '8_players')),
     max_players INTEGER NOT NULL CHECK (max_players IN (4, 8)),
     status VARCHAR(20) DEFAULT 'registration' CHECK (status IN ('registration', 'in_progress', 'finished', 'cancelled')),
@@ -122,11 +170,26 @@ CREATE TABLE IF NOT EXISTS tournament_participants (
     tournament_id UUID NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE SET NULL, -- NULL si joueur invité
     alias VARCHAR(50) NOT NULL, -- Nom affiché dans le tournoi
+    player_slot INTEGER NOT NULL, -- Ajout du numéro de slot
     registration_order INTEGER NOT NULL,
     is_eliminated BOOLEAN DEFAULT FALSE,
+    is_authenticated BOOLEAN DEFAULT FALSE, -- Ajouté pour indiquer si le joueur est authentifié
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(tournament_id, alias), -- Alias unique par tournoi
-    UNIQUE(tournament_id, user_id) -- Un utilisateur ne peut s'inscrire qu'une fois par tournoi
+    UNIQUE(tournament_id, user_id), -- Un utilisateur ne peut s'inscrire qu'une fois par tournoi
+    UNIQUE(tournament_id, player_slot) -- Un slot ne peut être occupé qu'une fois
+);
+
+-- Table des sessions de tournoi (pour utilisateurs authentifiés)
+CREATE TABLE IF NOT EXISTS tournament_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tournament_id UUID NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    session_token VARCHAR(255) NOT NULL,
+    player_slot INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(tournament_id, user_id),
+    UNIQUE(tournament_id, player_slot)
 );
 
 -- Table des matchs du tournoi
@@ -155,11 +218,11 @@ CREATE TABLE IF NOT EXISTS tournament_matches (
 DO $$
 BEGIN
     IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints 
+        SELECT 1 FROM information_schema.table_constraints
         WHERE constraint_name = 'tournaments_winner_id_fkey'
     ) THEN
-        ALTER TABLE tournaments 
-        ADD CONSTRAINT tournaments_winner_id_fkey 
+        ALTER TABLE tournaments
+        ADD CONSTRAINT tournaments_winner_id_fkey
         FOREIGN KEY (winner_id) REFERENCES tournament_participants(id) ON DELETE SET NULL;
     END IF;
 END $$;
@@ -168,12 +231,12 @@ END $$;
 DO $$
 BEGIN
     IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints 
+        SELECT 1 FROM information_schema.table_constraints
         WHERE constraint_name = 'check_mode_max_players'
     ) THEN
-        ALTER TABLE tournaments ADD CONSTRAINT check_mode_max_players 
+        ALTER TABLE tournaments ADD CONSTRAINT check_mode_max_players
         CHECK (
-            (mode = '4_players' AND max_players = 4) OR 
+            (mode = '4_players' AND max_players = 4) OR
             (mode = '8_players' AND max_players = 8)
         );
     END IF;
@@ -224,6 +287,33 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_games_winner') THEN
         CREATE INDEX idx_games_winner ON games(winner_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_user_tokens_user') THEN
+        CREATE INDEX idx_user_tokens_user ON user_tokens(user_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_user_tokens_access_token') THEN
+        CREATE INDEX idx_user_tokens_access_token ON user_tokens(access_token);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_user_tokens_provider') THEN
+        CREATE INDEX idx_user_tokens_provider ON user_tokens(provider);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_user_tokens_expires') THEN
+        CREATE INDEX idx_user_tokens_expires ON user_tokens(expires_at);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_user_sessions_user') THEN
+        CREATE INDEX idx_user_sessions_user ON user_sessions(user_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_user_sessions_session_id') THEN
+        CREATE INDEX idx_user_sessions_session_id ON user_sessions(session_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_user_sessions_expires') THEN
+        CREATE INDEX idx_user_sessions_expires ON user_sessions(expires_at);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_oauth_profiles_user') THEN
+        CREATE INDEX idx_oauth_profiles_user ON oauth_profiles(user_id);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_oauth_profiles_provider') THEN
+        CREATE INDEX idx_oauth_profiles_provider ON oauth_profiles(provider, provider_id);
     END IF;
 END $$;
 
@@ -286,6 +376,18 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_leaderboard_updated_at') THEN
         CREATE TRIGGER update_leaderboard_updated_at BEFORE UPDATE ON leaderboard
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_user_tokens_updated_at') THEN
+        CREATE TRIGGER update_user_tokens_updated_at BEFORE UPDATE ON user_tokens
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_user_sessions_updated_at') THEN
+        CREATE TRIGGER update_user_sessions_updated_at BEFORE UPDATE ON user_sessions
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_oauth_profiles_updated_at') THEN
+        CREATE TRIGGER update_oauth_profiles_updated_at BEFORE UPDATE ON oauth_profiles
             FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     END IF;
 END $$;

@@ -55,8 +55,8 @@ async function handleFtLogin(request, reply, ftUserData){
 	const uniqueUsername = await generateUniqueUsername(ftUserData.login);
 
 	const result = await pool.query(
-		'INSERT INTO users (username, email, intra42_id) VALUES ($1, $2, $3) RETURNING *',
-		[uniqueUsername, ftUserData.email, ftUserData.id]
+		'INSERT INTO users (username, email, intra42_id, is_registered) VALUES ($1, $2, $3, $4) RETURNING *',
+		[uniqueUsername, ftUserData.email, ftUserData.id, true]
 	)
 
 	if (!result) {

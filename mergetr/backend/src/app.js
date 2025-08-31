@@ -11,6 +11,10 @@ import { registerCors } from './config/cors.js'
 // Routes
 import { registerRoutes } from './routes/index.js'
 
+// Import tournament routes
+import tournamentTempRoutes from './routes/tournamentTemp.js';
+import tournamentRoutes from './routes/indexTournament.js';
+
 // Charger les variables d'environnement
 dotenv.config({ path: '../.env' })
 
