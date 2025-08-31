@@ -4,11 +4,15 @@ extends RigidBody3D
 @export var acceleration: float = 0.05
 @export var max_speed: float = 50.0
 
+@onready var hit_sound = $HitSound
+@onready var point_sound = $PointSound
+
+var pitch_value := 1.0
+
 func _ready():
 	contact_monitor = true
 	max_contacts_reported = 1
 	connect("body_entered", Callable(self, "_on_Ball_body_entered"))
-	
 
 func _integrate_forces(_state):
 	if Global.game_start == false:
@@ -22,13 +26,15 @@ func _integrate_forces(_state):
 		linear_velocity.x = 10 * sign(linear_velocity.x if linear_velocity.x != 0 else 1)
 
 func reset_ball():
-
 	custom_integrator = true
 	linear_velocity = Vector3.ZERO
 
 	var new_transform = global_transform
 	new_transform.origin = Vector3(0, 0, 8.5)
 	global_transform = new_transform
+	
+	point_sound.play()
+	pitch_value = 1.0
 
 	if (Global.score_left >= Global.max_score or Global.score_right >= Global.max_score):
 		visible = false
@@ -41,5 +47,10 @@ func reset_ball():
 	var direction = Vector3(dir_x, 0, dir_z).normalized()
 
 	linear_velocity = direction * initial_speed
-
 	custom_integrator = false
+
+func _on_Ball_body_entered(body):
+	if body.is_in_group("raquette"):
+		hit_sound.pitch_scale = pitch_value
+		hit_sound.play()
+		pitch_value += 0.05

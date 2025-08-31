@@ -1,8 +1,11 @@
 extends Node3D
 
+@onready var explosion_song = $ExplosionSong
 func on_goal_scored():
 	if Global.score_left >= Global.max_score or Global.score_right >= Global.max_score:
-		await get_tree().create_timer(6.1).timeout
+		await get_tree().create_timer(5.8).timeout
+		explosion_song.play()
+		await get_tree().create_timer(0.3).timeout
 		get_tree().change_scene_to_file("res://scene/victory_scene.tscn")
 		if Global.score_left > Global.score_right:
 			send_match_result("PlayerLeft", "PlayerRight", Global.score_left, Global.score_right)
