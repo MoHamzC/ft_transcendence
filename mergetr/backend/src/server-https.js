@@ -7,6 +7,8 @@ import securityPlugin from './plugins/security.js';
 import jwtPlugin from './plugins/jwt.js';
 import { registerRoutes } from './routes/index.js';
 import { vaultService } from './services/VaultService.js';
+import fastifyJwt from '@fastify/jwt';
+import fastifyCookie from '@fastify/cookie';
 
 async function start()
 {
@@ -33,6 +35,10 @@ async function start()
     // 1. Charger d'abord le plugin de sécurité
     await app.register(securityPlugin);
 
+    // 1.5. Cookie plugin
+    await app.register(fastifyCookie);
+    console.log('🍪 Cookie plugin registered');
+
     app.get('/healthz', async () =>
     {
         return { ok: true, ts: Date.now(), protocol: 'https' };
@@ -40,6 +46,7 @@ async function start()
 
     // 2. Puis JWT
     await app.register(jwtPlugin);
+    console.log('🔐 JWT plugin registered');
     
     // 3. Enfin les routes
     await registerRoutes(app);

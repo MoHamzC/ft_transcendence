@@ -1,6 +1,6 @@
 // src/plugins/database.js
 // Plugin pour la configuration de la base de données
-import pool from '../config/db.js'
+import { getPool } from '../config/db.js'
 import { initDatabase } from '../config/initDb.js'
 
 /**
@@ -9,6 +9,9 @@ import { initDatabase } from '../config/initDb.js'
  */
 export async function registerDatabase(fastify) {
     try {
+        // Obtenir le pool de connexions
+        const pool = await getPool()
+
         // Test de connexion
         const res = await pool.query('SELECT NOW()')
         fastify.log.info('✅ Database connected — Current time:', res.rows[0].now)

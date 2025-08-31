@@ -12,7 +12,7 @@ echo "=================================="
 
 # Test 1: HTTPS fonctionne
 echo -e "${YELLOW}🧪 Test 1: Serveur HTTPS réactif...${NC}"
-if curl -k -s https://localhost:3443/healthz | grep -q "https"; then
+if curl -k -s https://localhost:5001/healthz | grep -q "https"; then
     echo -e "${GREEN}✅ Serveur HTTPS actif${NC}"
 else
     echo -e "${RED}❌ Serveur HTTPS non accessible${NC}"
@@ -21,7 +21,7 @@ fi
 
 # Test 2: Certificat SSL présent
 echo -e "${YELLOW}🧪 Test 2: Certificat SSL...${NC}"
-if openssl s_client -connect localhost:3443 -servername localhost </dev/null 2>/dev/null | grep -q "CONNECTED"; then
+if openssl s_client -connect localhost:5001 -servername localhost </dev/null 2>/dev/null | grep -q "CONNECTED"; then
     echo -e "${GREEN}✅ Certificat SSL valide${NC}"
 else
     echo -e "${RED}❌ Problème certificat SSL${NC}"
@@ -29,7 +29,7 @@ fi
 
 # Test 3: Headers de sécurité
 echo -e "${YELLOW}🧪 Test 3: Headers de sécurité...${NC}"
-HEADERS=$(curl -k -I https://localhost:3443/healthz 2>/dev/null)
+HEADERS=$(curl -k -I https://localhost:5001/healthz 2>/dev/null)
 
 if echo "$HEADERS" | grep -q "strict-transport-security"; then
     echo -e "${GREEN}✅ HSTS activé${NC}"
@@ -45,5 +45,5 @@ fi
 
 echo ""
 echo -e "${GREEN}🎯 Score sécurité estimé: 95-100/100${NC}"
-echo -e "${BLUE}🌐 Accès: https://localhost:3443${NC}"
+echo -e "${BLUE}🌐 Accès: https://localhost:5001${NC}"
 echo -e "${YELLOW}📋 Commande correction: make enable-https${NC}"

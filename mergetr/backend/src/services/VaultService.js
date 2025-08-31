@@ -185,13 +185,24 @@ export class VaultService {
         }
 
         try {
-            // Pour KV v2, on doit lire depuis "secret/data/path" et récupérer result.data.data
+            // Essayer d'abord le format KV v2
             const kvPath = path.startsWith('secret/data/') ? path : `secret/data/${path.replace('secret/', '')}`;
             const result = await this.client.read(kvPath);
             return result.data.data; // KV v2 structure
         } catch (error) {
-            console.error(`❌ Failed to read secret from ${path}:`, error.message);
-            throw error;
+            // Si KV v2 échoue, essayer le format direct (KV v1 ou secrets créés manuellement)
+            try {
+                const result = await this.client.read(path);
+                // Pour les secrets créés manuellement, les données sont directement dans result.data
+                if (result.data && typeof result.data === 'object') {
+                    return result.data;
+                }
+                // Si c'est une valeur simple, la retourner directement
+                return result.data;
+            } catch (fallbackError) {
+                console.error(`❌ Failed to read secret from ${path} (tried both KV v2 and direct):`, fallbackError.message);
+                throw fallbackError;
+            }
         }
     }
 
@@ -207,7 +218,8 @@ export class VaultService {
      */
     async getJWTSecret() {
         const data = await this.readSecret('secret/jwt');
-        return data.secret;
+        // Retourner directement la valeur du secret
+        return data.secret || data;
     }
 
     /**

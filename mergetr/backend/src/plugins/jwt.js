@@ -4,30 +4,34 @@ import fastifyJwt from '@fastify/jwt';
 import { vaultService } from '../services/VaultService.js';
 
 export default fp(async (app) => {
+  console.log('🔐 JWT plugin starting...');
+
   let secret;
-  
+
   try {
-    // Initialiser Vault si ce n'est pas déjà fait
+    // Essayer de récupérer le secret depuis Vault
     if (!vaultService.isInitialized) {
       await vaultService.initialize();
     }
-    
-    // Récupérer le secret JWT depuis Vault
-    secret = await vaultService.getJWTSecret();
-    app.log.info('✅ JWT secret loaded from Vault');
-    
+
+    const jwtData = await vaultService.getJWTSecret();
+    secret = jwtData.secret || jwtData; // Utiliser jwtData directement si secret n'existe pas
+    console.log('✅ JWT secret loaded from Vault');
+
   } catch (error) {
-    app.log.warn('⚠️ Failed to load JWT secret from Vault, using fallback:', error.message);
-    
-    // Fallback sur les variables d'environnements
+    console.log('⚠️ Failed to load JWT secret from Vault, using fallback:', error.message);
+
+    // Fallback vers les variables d'environnement
     secret = process.env.JWT_SECRET;
     if (!secret) {
-      app.log.error('❌ JWT_SECRET is missing in .env and Vault unavailable');
+      app.log.error('❌ JWT_SECRET is missing in environment and Vault unavailable');
       process.exit(1);
     }
   }
 
+  console.log('🔐 JWT secret found, registering fastify-jwt...');
   app.register(fastifyJwt, { secret });
+  console.log('🔐 JWT plugin registered successfully');
 
   app.decorate('authenticate', async (request, reply) => {
     try {
@@ -36,4 +40,6 @@ export default fp(async (app) => {
       reply.code(401).send({ error: 'Unauthorized' });
     }
   });
+
+  console.log('🔐 JWT plugin loaded');
 });

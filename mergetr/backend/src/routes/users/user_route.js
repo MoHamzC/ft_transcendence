@@ -1,6 +1,15 @@
 import bcrypt from 'bcrypt'
 import nodeMailer from 'nodemailer';
-import pool from '../../config/db.js'
+import getPool from '../../config/db.js'
+
+// Obtenir le pool de connexions
+let pool = null
+async function getDbPool() {
+  if (!pool) {
+    pool = await getPool()
+  }
+  return pool
+}
 import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 	async function otpAuth(request, reply, email){
@@ -63,7 +72,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			const otp_Creation_Time = new Date().toISOString();
 			console.log(otp_Creation_Time);
 
-			const place_Otp_Db = await pool.query(
+			const place_Otp_Db = await (await getPool()).query(
 				'UPDATE users SET otp_code = $1, otp_generated_at = $2 WHERE email = $3',
 				[code_Otp, otp_Creation_Time, email]
 			);
@@ -130,6 +139,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 	async function login (request, reply){
 		const { email, password } = request.body
+		const pool = await getDbPool()
 
 		const user = await pool.query(
 			'Select id, email, username, password_hash FROM users WHERE email = $1',
@@ -166,7 +176,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			// Create JWT token (inclure à la fois sub et id pour compatibilité)
 			const payload = { sub: user.rows[0].id, id: user.rows[0].id, username: user.rows[0].username, email: email };
 			console.log(payload);
-			const token = request.jwt.sign(payload)
+			const token = request.server.jwt.sign(payload)
 			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
 			return reply.code(200).send({
 				message: "Login successful",
@@ -186,6 +196,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 				return reply.code(400).send({error: "Tous les champs sont requis pour créer l'utilisateur" })
 		}
 		const hashedPassword = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS));
+		const pool = await getDbPool()
 		try {
 
 			//Check in DB if the email already exists

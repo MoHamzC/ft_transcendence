@@ -181,13 +181,42 @@ test_gdpr() {
     print_subheader "Route de test GDPR"
     run_test "GDPR Test Route" "curl -k $BACKEND_URL/api/gdpr/test"
 
+    print_subheader "Création d'un utilisateur test"
+    echo "Création de l'utilisateur test pour les tests GDPR..."
+    
+    # Supprimer l'utilisateur existant s'il existe
+    docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM user_settings WHERE user_id IN (SELECT id FROM users WHERE email = 'test2@example.com');" 2>/dev/null || true
+    docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM users WHERE email = 'test2@example.com';" 2>/dev/null || true
+    
+    # Créer l'utilisateur via l'API d'inscription
+    register_response=$(curl -k -X POST $BACKEND_URL/api/auth/register \
+        -H "Content-Type: application/json" \
+        -d '{"email":"test2@example.com","username":"testuser","password":"TestPassword123"}' 2>/dev/null)
+    
+    if echo "$register_response" | grep -q "id"; then
+        print_success "Utilisateur test créé"
+    else
+        print_warning "Échec de création utilisateur via API, tentative directe en DB..."
+        
+        # Fallback: créer directement en DB
+        docker compose exec -T db psql -U admin -d db_transcendence -c "INSERT INTO users (email, username, password_hash) VALUES ('test2@example.com', 'testuser', '\$2b\$10\$v1CQWXFYnMAZ7PvXxmCb4OyWIzT9bSjxjgqjpINdidrZ3Rc8q/Gvq');" 2>/dev/null || true
+        user_id=$(docker compose exec -T db psql -U admin -d db_transcendence -c "SELECT id FROM users WHERE email = 'test2@example.com';" -t -A 2>/dev/null || echo "")
+        
+        if [ ! -z "$user_id" ]; then
+            docker compose exec -T db psql -U admin -d db_transcendence -c "INSERT INTO user_settings (user_id) VALUES ($user_id);" 2>/dev/null || true
+            print_success "Utilisateur test créé (fallback DB)"
+        else
+            print_error "Impossible de créer l'utilisateur test"
+        fi
+    fi
+
     print_subheader "Authentification pour tests GDPR"
     echo "Tentative de login pour obtenir un token JWT..."
     login_response=$(curl -k -X POST $BACKEND_URL/api/auth/login \
         -H "Content-Type: application/json" \
-        -d '{"username":"test","password":"test"}' 2>/dev/null)
+        -d '{"email":"test2@example.com","password":"TestPassword123"}' 2>/dev/null)
 
-    if echo "$login_response" | grep -q "success.*true"; then
+    if echo "$login_response" | grep -q "Login successful"; then
         print_success "Authentification : RÉUSSIE"
         token=$(echo "$login_response" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
         echo "Token JWT obtenu : ${token:0:50}..."
@@ -299,22 +328,6 @@ test_performance() {
 # =============================================================================
 
 main() {
-    echo -e "${PURPLE}"
-    cat << 'EOF'
- _______ _______ _______ _______ _______ _______ _______ _______ _______
-|       |       |       |       |       |       |       |       |       |
-| F     | T     | _     | T     | R     | A     | N     | S     | C     |
-|  _____||_____ | |_____||_____ | |_____||_____ | |_____||_____ | |_____|
-| |_____  _____||_____  _____||_____  _____||_____  _____||_____  _____|
-|_____  ||     ||     ||     ||     ||     ||     ||     ||     ||     |
- _____| |_______|_______|_______|_______|_______|_______|_______|_______|
-|       |       |       |       |       |       |       |       |       |
-| T     | E     | S     | T     | S     | C     | R     | I     | P     |
-|_______|_______|_______|_______|_______|_______|_______|_______|_______|
-
-EOF
-    echo -e "${NC}"
-
     print_info "Démarrage des tests complets de ft_transcendence..."
     print_info "Date : $(date)"
     print_info "Backend URL : $BACKEND_URL"
