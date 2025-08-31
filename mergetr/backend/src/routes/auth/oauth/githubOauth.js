@@ -85,8 +85,8 @@ async function handleGithubLogin(request, reply, githubUserData){
 	const uniqueUsername = await generateUniqueUsername(githubUserData.login);
 
 	const result = await pool.query(
-		'INSERT INTO users (username, email, github_id) VALUES ($1, $2, $3) RETURNING *',
-		[uniqueUsername, githubUserData.email, githubUserData.id]
+		'INSERT INTO users (username, email, github_id, is_registered) VALUES ($1, $2, $3, $4) RETURNING *',
+		[uniqueUsername, githubUserData.email, githubUserData.id, true]
 	)
 
 	if (!result) {

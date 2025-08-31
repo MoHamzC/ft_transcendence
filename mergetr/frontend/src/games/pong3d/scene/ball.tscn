@@ -1,7 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://crkle0ntt1n8a"]
+[gd_scene load_steps=9 format=3 uid="uid://crkle0ntt1n8a"]
 
 [ext_resource type="Script" uid="uid://uxx1scxgvjc4" path="res://script/ball.gd" id="1_x8fbi"]
 [ext_resource type="Texture2D" uid="uid://eopeocf2ubdo" path="res://asset/Asteroid_2a_Asteroid2a_Metalness_2K-Asteroid2a_Roughness_2K.png" id="2_h6iok"]
+[ext_resource type="AudioStream" uid="uid://v4r4jqpwriwb" path="res://asset/song/rebond_-1.wav" id="3_h45nl"]
+[ext_resource type="AudioStream" uid="uid://430qatai7uq0" path="res://asset/song/point.wav" id="4_lhhrc"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_x8fbi"]
 bounce = 1.0
@@ -30,3 +32,10 @@ shape = SubResource("SphereShape3D_41u45")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 light_energy = 0.3
+
+[node name="HitSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_h45nl")
+
+[node name="PointSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("4_lhhrc")
+volume_db = 36.61

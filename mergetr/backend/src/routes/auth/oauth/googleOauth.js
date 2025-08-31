@@ -97,8 +97,8 @@ async function handleGoogleLogin(request, reply, googleUserData){
 	const uniqueUsername = await generateUniqueUsername(googleUserData.name);
 
 	const result = await pool.query(
-		'INSERT INTO users (username, email, google_id) VALUES ($1, $2, $3) RETURNING *',
-		[uniqueUsername, googleUserData.email, googleUserData.id]
+		'INSERT INTO users (username, email, google_id, is_registered) VALUES ($1, $2, $3, $4) RETURNING *',
+		[uniqueUsername, googleUserData.email, googleUserData.id, true]
 	)
 
 	if (!result) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import FuzzyText from './FuzzyText';
+import BackHome from './BackHome'; // ajout pour utiliser le même BackHome que dans Pong
 interface UserData {
   id: string;
   username: string;
@@ -30,7 +31,7 @@ const Profile: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // Vérifier l'authentification
+
         const authResponse = await fetch(`${BACKEND_URL}/api/users/protected`, {
           method: 'GET',
           credentials: 'include',
@@ -41,14 +42,14 @@ const Profile: React.FC = () => {
           return;
         }
 
-        // Charger les données utilisateur
+
         const userResponse = await fetch(`${BACKEND_URL}/api/users/me`, {
           method: 'GET',
           credentials: 'include',
         });
 
         if (!userResponse.ok) {
-          throw new Error(`Erreur ${userResponse.status}: Impossible de récupérer les données utilisateur`);
+          throw new Error(`Erreur ${userResponse.status}: Can't get user data`);
         }
 
         const data = await userResponse.json();
@@ -86,15 +87,14 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Vérifier le type de fichier
+
     if (!file.type.startsWith('image/')) {
-      setError('Veuillez sélectionner un fichier image valide (JPG, PNG, GIF, etc.)');
+      setError('Please select a valid image file (JPG, PNG, GIF, etc.)');
       return;
     }
 
-    // Vérifier la taille du fichier (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      setError('Le fichier est trop volumineux. Taille maximale : 5MB');
+      setError('File too big. Maximum size is 5MB');
       return;
     }
 
@@ -119,7 +119,6 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
       const data = await response.json();
       console.log('✅ Avatar uploadé avec succès:', data);
 
-      // Mettre à jour l'avatar dans l'état local
       if (user) {
         setUser({
           ...user,
@@ -132,12 +131,12 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
         });
       }
 
-      // Réinitialiser l'input file
+
       event.target.value = '';
 
     } catch (err) {
-      console.error('❌ Erreur upload avatar:', err);
-      setError(err instanceof Error ? err.message : 'Erreur lors de l\'upload de l\'avatar');
+      console.error('❌ Error while uploading avatar:', err);
+      setError(err instanceof Error ? err.message : 'Error while uploading avatar');
     } finally {
       setUploadingAvatar(false);
     }
@@ -248,30 +247,17 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
       color: 'white',
       minHeight: '100vh'
     }}>
-      {/* Header */}
+      {/* BackHome retiré comme demandé */}
       <div style={{
         textAlign: 'center',
         marginBottom: '40px',
-        background: 'rgba(255, 255, 255, 0.05)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
         borderRadius: '20px',
         padding: '30px'
       }}>
-        <h1 style={{
-          color: '#2ed573',
-          marginBottom: '10px',
-          fontSize: '2.5rem',
-          fontWeight: 'bold'
-        }}>
-          ✅ Mon Profil
-        </h1>
-        <p style={{
-          color: 'rgba(255,255,255,0.8)',
-          fontSize: '1.1rem'
-        }}>
-          Bienvenue sur votre espace personnel
-        </p>
+
+          <FuzzyText fontSize="clamp(2rem, 4.5vw, 4.5rem)">Profile</FuzzyText>
+
+
       </div>
 
       {/* Avatar et infos principales */}
@@ -366,15 +352,24 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
                 textAlign: 'center'
               }}
               onMouseEnter={(e) => {
-                if (!uploadingAvatar) {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }
+                if (!uploadingAvatar) e.currentTarget.style.transform = 'translateY(-2px)';
               }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
             >
-              {uploadingAvatar ? '📤 Upload...' : '📸 Changer photo'}
+              {uploadingAvatar ? '📤 Upload...' : (
+                <span style={{ display:'inline-flex', alignItems:'center', gap:'6px' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                       viewBox="0 0 24 24"
+                       fill="currentColor"
+                       width="18"
+                       height="18"
+                       aria-hidden="true">
+                    <path d="M12 9a3.75 3.75 0 1 0 0 7.5A3.75 3.75 0 0 0 12 9Z" />
+                    <path fillRule="evenodd" d="M9.344 3.071a49.52 49.52 0 0 1 5.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 0 1-3 3h-15a3 3 0 0 1-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 0 0 1.11-.71l.822-1.315a2.942 2.942 0 0 1 2.332-1.39ZM6.75 12.75a5.25 5.25 0 1 1 10.5 0 5.25 5.25 0 0 1-10.5 0Zm12-1.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
+                  </svg>
+                  Changer photo
+                </span>
+              )}
             </label>
           </div>
         </div>
@@ -556,73 +551,39 @@ console.log('✅ Avatar uploadé avec succès:', data);console.log('✅ Avatar u
         justifyContent: 'center',
         flexWrap: 'wrap'
       }}>
-        <button
-          onClick={() => navigate('/')}
-          style={{
-            background: 'linear-gradient(135deg, #4c9aff, #ff6b9d)',
-            color: 'white',
-            border: 'none',
-            padding: '12px 24px',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            transition: 'transform 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
-        >
-          🏠 Accueil
-        </button>
-
+        {/* Bouton Accueil supprimé – BackHome gère le retour */}
         <button
           onClick={() => navigate('/settings')}
-          style={{
-            background: 'linear-gradient(135deg, #ff6b9d, #c942ff)',
-            color: 'white',
-            border: 'none',
-            padding: '12px 24px',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            transition: 'transform 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
+          className="bg-[oklch(25.7%_0.09_281.288)] text-white border-none px-6 py-3 rounded-[14px] active:scale-85cursor-pointer text-[16px] font-bold transition-transform duration-200 shadow-[0_6px_18px_-4px_rgba(201,66,255,0.45)] hover:scale-105 flex items-center gap-2"
         >
-          ⚙️ Paramètres
+          <span style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 24 24"
+                 fill="currentColor"
+                 width="22"
+                 height="22"
+                 aria-hidden="true">
+              <path d="M6 12a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 1 1 1.5 0v7.5A.75.75 0 0 1 6 12ZM18 12a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 1.5 0v7.5A.75.75 0 0 1 18 12ZM6.75 20.25v-1.5a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0ZM18.75 18.75v1.5a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 1.5 0ZM12.75 5.25v-1.5a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0ZM12 21a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 1.5 0v7.5A.75.75 0 0 1 12 21ZM3.75 15a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0ZM12 11.25a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5ZM15.75 15a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0Z" />
+            </svg>
+            Paramètres
+          </span>
         </button>
 
         <button
           onClick={() => navigate('/stats')}
-          style={{
-            background: 'linear-gradient(135deg, #2ed573, #ff6b9d)',
-            color: 'white',
-            border: 'none',
-            padding: '12px 24px',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: 'bold',
-            transition: 'transform 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
+          className="bg-[oklch(25.7%_0.09_281.288)] text-white border-none hover:scale-105 active:scale-95 px-6 py-3 rounded-[14px] cursor-pointer text-[16px] font-bold transition-transform duration-200 shadow-[0_6px_18px_-4px_rgba(201,66,255,0.45)] hover:scale-105 flex items-center gap-2"
         >
-          📊 Statistiques
+          <span style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 24 24"
+                 fill="currentColor"
+                 width="22"
+                 height="22"
+                 aria-hidden="true">
+              <path fillRule="evenodd" d="M15.22 6.268a.75.75 0 0 1 .968-.431l5.942 2.28a.75.75 0 0 1 .431.97l-2.28 5.94a.75.75 0 1 1-1.4-.537l1.63-4.251-1.086.484a11.2 11.2 0 0 0-5.45 5.173.75.75 0 0 1-1.199.19L9 12.312l-6.22 6.22a.75.75 0 0 1-1.06-1.061l6.75-6.75a.75.75 0 0 1 1.06 0l3.606 3.606a12.695 12.695 0 0 1 5.68-4.974l1.086-.483-4.251-1.632a.75.75 0 0 1-.432-.97Z" clipRule="evenodd" />
+            </svg>
+            Statistiques
+          </span>
         </button>
       </div>
 

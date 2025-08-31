@@ -1,10 +1,10 @@
 async function	jwtTokenOauth(request, reply, user) {
 	try {
-		const payload = { sub: user.rows[0].id, id: user.rows[0].id, username: user.rows[0].username, email: user.rows[0].email };
+		const payload = { sub: user.id, id: user.id, username: user.username, email: user.email };
 		const token = request.jwt.sign(payload);
 
 		reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:true });
-		const redirectUrl = request.query.next || 'http://localhost:5173/'
+		const redirectUrl = request.query.next || 'http://localhost:5173/?login=success'
 		return reply.redirect(redirectUrl);
 	} catch (err) {
 		console.log(err);
