@@ -184,9 +184,6 @@ test_gdpr() {
     print_subheader "Création d'un utilisateur test"
     echo "Création de l'utilisateur test pour les tests GDPR..."
     
-    # Supprimer l'utilisateur existant s'il existe
-    docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM user_settings WHERE user_id IN (SELECT id FROM users WHERE email = 'test2@example.com');" 2>/dev/null || true
-    docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM users WHERE email = 'test2@example.com';" 2>/dev/null || true
     
     # Créer l'utilisateur via l'API d'inscription
     register_response=$(curl -k -X POST $BACKEND_URL/api/auth/register \
@@ -235,6 +232,9 @@ test_gdpr() {
 
         # Test de suppression de compte
         run_test "GDPR Account Deletion" "curl -k -X DELETE $BACKEND_URL/api/gdpr/account -H 'Authorization: Bearer $token' -H 'Content-Type: application/json' -d '{\"confirmation\":\"DELETE_MY_ACCOUNT_PERMANENTLY\",\"reason\":\"privacy_concerns\"}'"
+        # Supprimer l'utilisateur existant s'il existe
+        docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM user_settings WHERE user_id IN (SELECT id FROM users WHERE email = 'test2@example.com');" 2>/dev/null || true
+        docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM users WHERE email = 'test2@example.com';" 2>/dev/null || true
 
     else
         print_error "Authentification : ÉCHEC"
@@ -376,3 +376,18 @@ main() {
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi
+
+
+# curl -k https://localhost:5001/healthz
+# curl -k -X POST https://localhost:5001/api/auth/login -H "Content-Type: application/json" -d '{"email":"test2@example.com","password":"TestPassword123"}'
+# curl -s http://localhost:8200/v1/sys/health
+# curl -H "X-Vault-Token: myroot" http://localhost:8200/v1/secret/data/database
+# curl -X POST -H "X-Vault-Token: myroot" -H "Content-Type: application/json" -d '{"data":{"user":"admin","host":"db","database":"db_transcendence","password":"test","port":"5432"}}' http://localhost:8200/v1/secret/data/database
+# curl -k -X POST https://localhost:5001/api/auth/login -H "Content-Type: application/json" -d '{"email":"test2@example.com","password":"TestPassword123"}'
+# docker-compose exec db psql -U admin -d db_transcendence -c "SELECT version();"
+# docker-compose restart node
+# curl -k -X POST https://localhost:5001/api/auth/login -H "Content-Type: application/json" -d '{"email":"test2@example.com","password":"TestPassword123"}'
+# docker-compose exec db psql -U admin -d db_transcendence -c "SELECT id, email FROM users WHERE email = 'test2@example.com';"
+# docker-compose exec db psql -U admin -d db_transcendence -c "SELECT user_id, two_factor_enabled FROM user_settings WHERE user_id = 'b5d5537d-5c04-4f9c-a6e7-a5ee4b3539fa';"
+# docker-compose exec db psql -U admin -d db_transcendence -c "INSERT INTO user_settings (user_id, two_factor_enabled) VALUES ('b5d5537d-5c04-4f9c-a6e7-a5ee4b3539fa', false);"
+# curl -k -X POST https://localhost:5001/api/auth/login -H "Content-Type: application/json" -d '{"email":"test2@example.com","password":"TestPassword123"}'
