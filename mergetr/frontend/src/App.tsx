@@ -23,6 +23,7 @@ import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
 import SelectPlayers from './SelectPlayers.tsx';
 import Tournament from './Tournament.tsx';
+import PongGame from './games/PongGame.jsx';
 function onRenderCallback(
   id: string,
   phase: 'mount' | 'update',
@@ -87,7 +88,7 @@ function App()
 								<Route path="/" element={<Home />} />
 								<Route path="/login" element={<LoginView setIsLogged={setIsLogged} />} />
 								<Route path="/pong" element={<PongGames />} />
-								<Route path="/pong/play" element={<div>Jeu Pong en cours de développement</div>} />
+								<Route path="/pong/play" element={<PongGame />} />
 								<Route path="/aboutus" element={<AboutUs />} />
 								<Route path="/leaderbord" element={<Leaderbord/>} />
 								<Route path="/friends" element={<Friends />} />

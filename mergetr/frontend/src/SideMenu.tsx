@@ -44,10 +44,10 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
             items={[
               { label: 'Home', href: '/' },
               { label: 'Profile', href: '/profile' },
-              { label: 'Stats', href: '/stats' },
+              // { label: 'Stats', href: '/stats' },
               { label: 'Leaderboard', href: '/leaderbord' },
               { label: 'Friends', href: '/friends' },
-              { label: 'Settings', href: '/settings' },
+              // { label: 'Settings', href: '/settings' },
               { label: 'Logout', href: '/logout' }
             ]}
             activeHref={window.location.pathname}
