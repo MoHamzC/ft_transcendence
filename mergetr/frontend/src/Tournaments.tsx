@@ -14,6 +14,7 @@ export default function Tournaments() {
   const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
   const [showBracket, setShowBracket] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [username, setUsername] = useState<string | null>(null);
 
   const loadTournaments = async () => {
     try {
@@ -23,7 +24,7 @@ export default function Tournaments() {
       setTournaments(response.tournaments);
       setError('');
     } catch (err: any) {
-      setError(err.message || 'Erreur lors du chargement des tournois');
+  setError(err.message || 'Failed to load tournaments');
       console.error('Error loading tournaments:', err);
     } finally {
       setLoading(false);
@@ -34,9 +35,27 @@ export default function Tournaments() {
     loadTournaments();
   }, [filterStatus]);
 
+  useEffect(() => {
+  // fetch current user to display username when connected
+    let mounted = true;
+    const fetchUser = async () => {
+      try {
+        const res = await fetch('/api/users/me', { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const name = data.user?.username || data.username || data.name || null;
+        if (mounted && name) setUsername(name);
+      } catch (e) {
+        // ignore
+      }
+    };
+    void fetchUser();
+    return () => { mounted = false; };
+  }, []);
+
   const handleJoinTournament = (tournament: Tournament) => {
     if (tournament.status !== 'registration') {
-      setError('Ce tournoi n\'accepte plus d\'inscriptions');
+      setError('This tournament is no longer accepting registrations');
       return;
     }
     setSelectedTournament(tournament);
@@ -52,9 +71,9 @@ export default function Tournaments() {
     try {
       await TournamentService.startTournament(tournament.id);
       await loadTournaments(); // Recharger pour voir le changement de statut
-      setError('');
+  setError('');
     } catch (err: any) {
-      setError(err.message || 'Erreur lors du démarrage du tournoi');
+  setError(err.message || 'Error starting the tournament');
     }
   };
 
@@ -70,18 +89,18 @@ export default function Tournaments() {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'registration': return 'Inscriptions ouvertes';
-      case 'in_progress': return 'En cours';
-      case 'finished': return 'Terminé';
-      case 'cancelled': return 'Annulé';
+  case 'registration': return 'Open';
+  case 'in_progress': return 'In progress';
+  case 'finished': return 'Finished';
+  case 'cancelled': return 'Cancelled';
       default: return status;
     }
   };
 
   const getModeText = (mode: string) => {
     switch (mode) {
-      case '4_players': return '4 joueurs';
-      case '8_players': return '8 joueurs';
+      case '4_players': return '4 players';
+      case '8_players': return '8 players';
       default: return mode;
     }
   };
@@ -103,32 +122,37 @@ export default function Tournaments() {
     <div className="tournaments-container">
       {/* Header */}
       <div className="tournaments-header">
-        <div className="tournaments-header-content">
-          <h1 className="tournaments-title">TOURNOIS</h1>
-          <div className="tournaments-actions">
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="btn-primary"
-            >
-              + Créer un tournoi
-            </button>
+          <div className="tournaments-header-content">
+          <h1 className="tournaments-title">TOURNAMENTS</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {username && (
+              <div style={{ color: '#cfe', fontWeight: 600 }}>Hello, {username}</div>
+            )}
+            <div className="tournaments-actions">
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="btn-primary hover:scale-105 transition-transform"
+              >
+                + Create tournament
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
       <div className="tournaments-filters">
-        <div className="filter-buttons">
+          <div className="filter-buttons">
           {[
-            { key: 'all', label: 'Tous' },
-            { key: 'registration', label: 'Inscriptions ouvertes' },
-            { key: 'in_progress', label: 'En cours' },
-            { key: 'finished', label: 'Terminés' }
+            { key: 'all', label: 'All' },
+            { key: 'registration', label: 'Open registration' },
+            { key: 'in_progress', label: 'In progress' },
+            { key: 'finished', label: 'Finished' }
           ].map(filter => (
             <button
               key={filter.key}
               onClick={() => setFilterStatus(filter.key)}
-              className={`filter-btn ${filterStatus === filter.key ? 'active' : ''}`}
+              className={`filter-btn ${filterStatus === filter.key ? 'active' : ''} hover:scale-105 transition-transform`}
             >
               {filter.label}
             </button>
@@ -154,7 +178,7 @@ export default function Tournaments() {
         {/* Loading */}
         {loading && (
           <div className="loading-message">
-            Chargement des tournois...
+            Loading tournaments...
           </div>
         )}
 
@@ -163,14 +187,14 @@ export default function Tournaments() {
           <div>
             {tournaments.length === 0 ? (
               <div className="empty-state">
-                Aucun tournoi trouvé.
+                No tournaments found.
                 <br />
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="btn-primary"
+                  className="btn-primary hover:scale-105 transition-transform"
                   style={{ marginTop: '1rem' }}
                 >
-                  Créer le premier tournoi
+                  Create the first tournament
                 </button>
               </div>
             ) : (
@@ -204,17 +228,17 @@ export default function Tournaments() {
                       {tournament.status === 'registration' && (
                         <>
                           <button
-                            onClick={() => handleJoinTournament(tournament)}
-                            className="btn-secondary"
-                          >
-                            Rejoindre
-                          </button>
+                              onClick={() => handleJoinTournament(tournament)}
+                              className="btn-secondary hover:scale-105 transition-transform"
+                            >
+                              Join
+                            </button>
                           {tournament.participant_count >= 2 && (
                             <button
                               onClick={() => handleStartTournament(tournament)}
-                              className="btn-primary"
+                              className="btn-primary hover:scale-105 transition-transform"
                             >
-                              Démarrer
+                                Start
                             </button>
                           )}
                         </>
@@ -223,15 +247,15 @@ export default function Tournaments() {
                       {(tournament.status === 'in_progress' || tournament.status === 'finished') && (
                         <button
                           onClick={() => handleViewBracket(tournament)}
-                          className="btn-primary"
+                          className="btn-primary hover:scale-105 transition-transform"
                         >
-                          Voir l'arborescence
+                          View bracket
                         </button>
                       )}
                     </div>
 
                     <div className="tournament-date">
-                      Créé le {new Date(tournament.created_at).toLocaleDateString('fr-FR')}
+                      Created on {new Date(tournament.created_at).toLocaleDateString('en-US')}
                     </div>
                   </div>
                 ))}

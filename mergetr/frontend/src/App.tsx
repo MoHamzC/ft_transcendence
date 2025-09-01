@@ -26,6 +26,7 @@ import Tournament from './Tournament.tsx';
 import PongGame from './games/PongGame.jsx';
 import MatchHistory from './MatchHistory.tsx';
 import JoinTournamentPage from './JoinTournamentPage.tsx';
+import TournamentPlay from './TournamentPlay.tsx';
 // profiler callback removed (unused)
 
 function App()
@@ -95,7 +96,7 @@ function App()
 								<Route path="/selectplayers" element={<SelectPlayers />} />
 								<Route path="/tournament" element={<Tournament />} />
 								<Route path="/tournament/:tournamentId/join" element={<JoinTournamentPage />} />
-								<Route path="/tournament/:tournamentId/play" element={<PongGame />} />
+								<Route path="/tournament/:tournamentId/play" element={<TournamentPlay />} />
 								<Route path="/matchhistory" element={<MatchHistory />} />
 							</Routes>
 						</div>
