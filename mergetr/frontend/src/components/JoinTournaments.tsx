@@ -155,7 +155,7 @@ export default function Join({ isOpen, onClose, onStartMatch }: JoinProps) {
             )}
 
             <div className="flex items-center justify-center gap-3 mt-2">
-             
+
 
               <button
                 type="submit"

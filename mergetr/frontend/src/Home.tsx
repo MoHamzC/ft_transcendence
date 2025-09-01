@@ -2,6 +2,7 @@
 import SplashCursor from './SplashCursor.tsx';
 import FuzzyText from './FuzzyText';
 import { useNavigate } from 'react-router-dom';
+import CreateTournement from './components/CreateTournement.tsx';
 
 export default function Home()
 {
@@ -32,6 +33,14 @@ export default function Home()
 
             </div>
 
+
+            <CreateTournement
+                isOpen={showJoin}
+                onClose={() => setShowJoin(false)}
+                onTournamentCreated={() => {
+                    navigate('/pong');
+                }}
+            />
         </>
     )
 }

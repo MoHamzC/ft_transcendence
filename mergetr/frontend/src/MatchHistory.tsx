@@ -1,132 +1,84 @@
-import React, { useEffect, useState } from 'react';
+import { useMemo } from 'react';
+import TargetCursor from './TargetCursor';
 import FuzzyText from './FuzzyText';
 
-interface MatchRow {
+type Match = {
   id: string;
-  date: string;
-  opponentId: string;
-  opponentUsername: string;
-  userScore: number;
-  opponentScore: number;
-  result: 'win' | 'loss';
+  date: string; // ISO
+  opponent: string;
+  result: 'win' | 'loss' | 'draw';
+  score: string; // e.g. 5-3
+  mode?: string;
+};
+
+const SAMPLE_MATCHES: Match[] = [
+  { id: '1', date: '2025-08-30T19:32:00Z', opponent: 'alice', result: 'win', score: '5-2', mode: '1v1' },
+  { id: '2', date: '2025-08-28T21:15:00Z', opponent: 'bob', result: 'loss', score: '3-5', mode: '1v1' },
+  { id: '3', date: '2025-08-25T18:05:00Z', opponent: 'carol', result: 'draw', score: '4-4', mode: 'tournament' },
+  { id: '4', date: '2025-08-20T15:42:00Z', opponent: 'dan', result: 'win', score: '5-0', mode: '1v1' },
+  { id: '5', date: '2025-08-18T17:00:00Z', opponent: 'eve', result: 'loss', score: '2-5', mode: '3D' },
+];
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleString();
 }
 
-const MatchHistory: React.FC = () => {
-  const [matches, setMatches] = useState<MatchRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
-  const [total, setTotal] = useState(0);
-  const limit = 15;
-
-  useEffect(() => {
-    let abort = false;
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await fetch(`/api/match-history?limit=${limit}&offset=${page * limit}`, {
-          credentials: 'include'
-        });
-        if (!res.ok) {
-          throw new Error('Erreur chargement historique');
-        }
-        const data = await res.json();
-        if (abort) return;
-        setMatches(data.data || []);
-        setTotal(data.pagination?.total || 0);
-      } catch (e:any) {
-        if (!abort) setError(e.message || 'Erreur inconnue');
-      } finally {
-        if (!abort) setLoading(false);
-      }
-    };
-    fetchData();
-    return () => { abort = true; };
-  }, [page]);
-
-  const pages = Math.ceil(total / limit);
+export default function MatchHistory() {
+  const matches = useMemo(() => {
+    const list = SAMPLE_MATCHES.slice();
+    list.sort((a, b) => +new Date(b.date) - +new Date(a.date));
+    return list;
+  }, []);
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px', color: 'white', minHeight: '100vh' }}>
-      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <FuzzyText fontSize="clamp(2rem,4vw,3.5rem)">Match History</FuzzyText>
+    <div className="min-h-screen p-8 text-white">
+       <TargetCursor spinDuration={2} hideDefaultCursor={true} />
+
+      <div className="p-10 max-w-4xl mx-auto text-center mb-6">
+        <FuzzyText fontSize="clamp(1.6rem, 4vw, 3rem)">Match History</FuzzyText>
       </div>
 
-      {loading && <p style={{ opacity: 0.8 }}>Chargement...</p>}
-      {error && <p style={{ color: '#f87171' }}>{error}</p>}
+      <div className="hover:scale-103 transition-transform max-w-4xl  bg-[#0f1720]  rounded-2xl p-6 cursor-target">
+        <div className="flex items-center justify-between mb-6">
 
-      {!loading && matches.length === 0 && !error && (
-        <p style={{ opacity: 0.7 }}>Aucun match trouvé.</p>
-      )}
+          <div className="flex items-center gap-3">
 
-      {matches.length > 0 && (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-            <thead>
-              <tr style={{ background: 'rgba(255,255,255,0.08)' }}>
-                <th style={thStyle}>Date</th>
-                <th style={thStyle}>Adversaire</th>
-                <th style={thStyle}>Score</th>
-                <th style={thStyle}>Résultat</th>
-              </tr>
-            </thead>
-            <tbody>
-              {matches.map(m => {
-                const date = new Date(m.date);
-                const dateStr = date.toLocaleDateString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit' }) + ' ' + date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-                return (
-                  <tr key={m.id} style={{ background: 'rgba(255,255,255,0.03)' }}>
-                    <td style={tdStyle}>{dateStr}</td>
-                    <td style={tdStyle}>{m.opponentUsername}</td>
-                    <td style={tdStyle}>{m.userScore} - {m.opponentScore}</td>
-                    <td style={{ ...tdStyle, color: m.result === 'win' ? '#4ade80' : '#f87171', fontWeight: 600 }}>
-                      {m.result === 'win' ? 'Victoire' : 'Défaite'}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          </div>
         </div>
-      )}
 
-      {pages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
-          <button disabled={page === 0} onClick={() => setPage(p => p - 1)} style={navBtn(page === 0)}>Précédent</button>
-          <span style={{ fontSize: '0.85rem', opacity: 0.8 }}>Page {page + 1} / {pages}</span>
-          <button disabled={page >= pages - 1} onClick={() => setPage(p => p + 1)} style={navBtn(page >= pages - 1)}>Suivant</button>
+  <div className="mb-6" />
+
+        <div className="space-y-3">
+          {matches.length === 0 ? (
+            <div className="p-6 rounded bg-white/3 text-gray-200">No matches found.</div>
+          ) : (
+            matches.map(m => (
+                <div key={m.id} className="p-4 rounded bg-blue-800/40 flex items-center justify-between cursor-target">
+                <div>
+                  <div className="flex items-center gap-3">
+
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#6d28d9] text-white font-bold">
+                      {m.opponent.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="font-semibold">vs {m.opponent}</div>
+                      <div className="text-sm text-white-300">{m.mode} • {formatDate(m.date)}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <div className="font-bold text-lg">{m.score}</div>
+
+                  <div className="text-sm text-[#c084fc]">{m.result.toUpperCase()}</div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
-      )}
+
+      </div>
     </div>
   );
-};
-
-const thStyle: React.CSSProperties = {
-  padding: '10px 12px',
-  textAlign: 'left',
-  fontWeight: 600,
-  fontSize: '0.75rem',
-  letterSpacing: '0.05em',
-  textTransform: 'uppercase'
-};
-
-const tdStyle: React.CSSProperties = {
-  padding: '10px 12px',
-  borderTop: '1px solid rgba(255,255,255,0.08)'
-};
-
-const navBtn = (disabled: boolean): React.CSSProperties => ({
-  background: disabled ? 'rgba(255,255,255,0.15)' : 'linear-gradient(135deg,#6366f1,#8b5cf6)',
-  color: 'white',
-  border: 'none',
-  padding: '8px 16px',
-  borderRadius: '8px',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-  fontSize: '0.8rem',
-  fontWeight: 600,
-  opacity: disabled ? 0.6 : 1,
-  transition: 'all .2s'
-});
-
-export default MatchHistory;
+}
