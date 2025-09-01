@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { calculateScore } from './CalculateScore';
 import { randomDirection, randomFloatBetween } from './utils.jsx';
 import WinScreen from './winScreen.jsx';
-import sendMatchResult from './send_result.jsx';
+//import sendMatchResult from './send_result.jsx';
 
 function PongGame() {
   const canvasRef = useRef(null);
@@ -101,27 +101,27 @@ function PongGame() {
 
       // win condition
       if (leftScore.current >= 5 || rightScore.current >= 5) {
-        let winnerId, loserId, scoreWinner, scoreLoser;
+       // let winnerId, loserId, scoreWinner, scoreLoser;
 
         if (leftScore.current >= 5) {
           setWinner(playerLeft.name);
-          winnerId = playerLeft.id;
-          loserId = playerRight.id;
-          scoreWinner = leftScore.current;
-          scoreLoser = rightScore.current;
+        //  winnerId = playerLeft.id;
+       //   loserId = playerRight.id;
+       //   scoreWinner = leftScore.current;
+        //  scoreLoser = rightScore.current;
         } else {
           setWinner(playerRight.name);
-          winnerId = playerRight.id;
-          loserId = playerLeft.id;
-          scoreWinner = rightScore.current;
-          scoreLoser = leftScore.current;
+       //   winnerId = playerRight.id;
+       //   loserId = playerLeft.id;
+       //   scoreWinner = rightScore.current;
+       //   scoreLoser = leftScore.current;
         }
 
         setShowWin(true);
         gameRunning.current = false;
 
         // envoi du resultat au backend
-        sendMatchResult(winnerId, loserId, scoreWinner, scoreLoser);
+      //  sendMatchResult(winnerId, loserId, scoreWinner, scoreLoser);
       }
 
       // mouvement balle
