@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import PillNav from './PillNav.tsx';
 import logo from './assets/logo.png';
 import "./SideMenu.css";
@@ -8,6 +8,10 @@ import "./App.tsx";
 export default function SideMenu({ isLogged, setIsLogged }: any) {
   
   const navigate = useNavigate();
+  const location = useLocation();
+
+ 
+  if (location.pathname.startsWith('/pong')) return null;
 
   function handleNav(href: string) {
     navigate(href);

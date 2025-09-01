@@ -47,7 +47,7 @@ export default function Join({ isOpen, onClose, onStartMatch }: JoinProps) {
           setPlayer1(data.user.username);
         }
       } catch (err) {
-        if (mounted) setError('Erreur récupération user');
+        if (mounted) setError('Error fetching user');
       }
     }
     void fetchUser();
