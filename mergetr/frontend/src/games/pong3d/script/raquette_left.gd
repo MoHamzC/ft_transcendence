@@ -9,6 +9,7 @@ var previous_position: Vector3
 var fixed_x: float
 var fixed_y: float
 var has_joypad: bool = false
+var has_joypad: bool = false
 
 func _ready():
 	fixed_x = global_position.x
@@ -34,6 +35,7 @@ func _ready():
 func _physics_process(_delta):
 	var direction = Vector3.ZERO
 
+	# --- clavier ---
 	# --- clavier ---
 	if Input.is_action_pressed("w"):
 		direction.z -= 1
@@ -61,6 +63,7 @@ func _physics_process(_delta):
 	velocity = direction.normalized() * speed
 	move_and_slide()
 
+	# verrouille X et Y
 	# verrouille X et Y
 	global_position.x = fixed_x
 	global_position.y = fixed_y
