@@ -23,6 +23,22 @@ RUN npm install --production
 # Copie du code source backend
 COPY backend/ ./
 
+# Étape 2.5: Build du frontend
+FROM node:18-alpine AS frontend_builder
+
+WORKDIR /app/frontend
+
+# Copie des fichiers package.json du frontend
+COPY frontend/package*.json ./
+RUN npm install
+
+# Copie du code source frontend
+COPY frontend/ ./
+
+# Build du frontend pour la production avec les bonnes variables d'environnement
+ENV VITE_BACKEND_URL=""
+RUN npm run build
+
 # Étape 3: Image finale combinée
 FROM nginx:1.24-alpine AS production
 
@@ -41,8 +57,8 @@ WORKDIR /app
 # Copie de l'application Node.js depuis le builder
 COPY --from=node_builder /app/backend /app/backend
 
-# Copie du frontend buildé
-COPY frontend/dist /usr/share/nginx/html
+# Copie du frontend buildé depuis le frontend builder
+COPY --from=frontend_builder /app/frontend/dist /usr/share/nginx/html
 
 # Copie de la configuration nginx
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf

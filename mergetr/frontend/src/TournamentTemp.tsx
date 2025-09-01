@@ -6,8 +6,6 @@ import './TournamentTemp.css';
 
 // Interfaces removed (simplified view)
 
-// const BACKEND_URL = 'http://localhost:5001'; // unused for now
-
 export default function TournamentTemp() {
   const navigate = useNavigate();
   // (Simplified view — detailed tournament listing removed for now)

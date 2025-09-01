@@ -37,15 +37,22 @@ for i in {1..30}; do
         echo "✅ PostgreSQL prêt"; break; fi; sleep 1; if [ "$i" = 30 ]; then echo "❌ PostgreSQL non prêt"; exit 1; fi
 done
 
+# 5b. Vérification connexion SQL réelle (parfois pg_isready OK avant socket prêt)
+echo "⏳ Validation connexion SQL..."
+for i in {1..15}; do
+    if $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T db sh -c "psql -h 127.0.0.1 -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-db_transcendence} -c 'SELECT 1;'" >/dev/null 2>&1; then
+        echo "✅ Connexion SQL opérationnelle"; break; fi; sleep 1; if [ "$i" = 15 ]; then echo "❌ Connexion SQL toujours indisponible"; exit 1; fi
+done
+
 # 6. Vérifier / appliquer schéma si tables manquantes
 echo "🗄️  Vérification schéma..."
-if ! $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T db psql -U "${POSTGRES_USER:-admin}" -d "${POSTGRES_DB:-db_transcendence}" -c "SELECT 1 FROM users LIMIT 1;" >/dev/null 2>&1; then
+if ! $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T db sh -c "psql -h 127.0.0.1 -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-db_transcendence} -c 'SELECT 1 FROM users LIMIT 1;'" >/dev/null 2>&1; then
     echo "📝 Application schéma (fallback)"
     SCHEMA_FILE="backend/database/schema.sql"
     if [ -f "$SCHEMA_FILE" ]; then
         DB_USER="${POSTGRES_USER:-admin}"; DB_NAME="${POSTGRES_DB:-db_transcendence}"
         echo "   → Injection via stdin (évite docker cp / lchown)"
-        if $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T db sh -c "psql -U $DB_USER -d $DB_NAME -v ON_ERROR_STOP=1 -f /dev/stdin" < "$SCHEMA_FILE"; then
+    if $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T db sh -c "psql -h 127.0.0.1 -U $DB_USER -d $DB_NAME -v ON_ERROR_STOP=1 -f /dev/stdin" < "$SCHEMA_FILE"; then
             echo "✅ Schéma appliqué"
         else
             echo "❌ Échec application schéma"; exit 1
