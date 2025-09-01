@@ -7,6 +7,15 @@ async function indexRoutes(fastify, options){
 		});
 	})
 
+	// Health check endpoint for production monitoring
+	fastify.get('/healthz', async (request, reply) => {
+		reply.send ({
+			status: 'OK',
+			timestamp: new Date().toISOString(),
+			message: 'ft_transcendence API is healthy'
+		});
+	})
+
 	//graceful shutdown
 	const listeners = ['SIGINT', 'SIGTERM']
 	listeners.forEach((signal) => {

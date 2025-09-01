@@ -56,31 +56,46 @@ export class GDPRService {
      */
     static async deleteAccount(userId) {
         const client = await pool.connect();
-
+        const debug = [];
         try {
             await client.query('BEGIN');
 
-            // 1. Supprimer les données liées
-            await client.query('DELETE FROM friendships WHERE requester_id = $1 OR addressee_id = $1', [userId]);
-            // Matches table may not exist in some deployments; guard with existence check
-            const { rows: matchTable } = await client.query(`SELECT to_regclass('public.matches') AS exist`);
-            if (matchTable[0]?.exist) {
-                await client.query('DELETE FROM matches WHERE player1_id = $1 OR player2_id = $1', [userId]);
-            }
-            await client.query('DELETE FROM stats WHERE user_id = $1', [userId]);
+            const safeExec = async (label, sql, params) => {
+                try {
+                    await client.query(sql, params);
+                } catch (e) {
+                    debug.push({ step: label, error: e.message });
+                }
+            };
 
-            // 2. Supprimer l'utilisateur
-            await client.query('DELETE FROM users WHERE id = $1', [userId]);
+            // Supprimer les données liées (chaque étape tolérante aux erreurs)
+            await safeExec('delete_friendships', 'DELETE FROM friendships WHERE requester_id = $1 OR addressee_id = $1', [userId]);
+            await safeExec('delete_games', 'DELETE FROM games WHERE player1_id = $1 OR player2_id = $1', [userId]);
+            await safeExec('delete_stats', 'DELETE FROM stats WHERE user_id = $1', [userId]);
+            await safeExec('delete_tokens', 'DELETE FROM user_tokens WHERE user_id = $1', [userId]);
+            await safeExec('delete_sessions', 'DELETE FROM user_sessions WHERE user_id = $1', [userId]);
+            await safeExec('delete_oauth', 'DELETE FROM oauth_profiles WHERE user_id = $1', [userId]);
+            await safeExec('delete_leaderboard', 'DELETE FROM leaderboard WHERE user_id = $1', [userId]);
+            await safeExec('delete_settings', 'DELETE FROM user_settings WHERE user_id = $1', [userId]);
+
+            // Supprimer l'utilisateur (étape critique)
+            const res = await client.query('DELETE FROM users WHERE id = $1 RETURNING id', [userId]);
+            if (res.rowCount === 0) {
+                debug.push({ step: 'delete_user', error: 'User not found' });
+                await client.query('ROLLBACK');
+                const err = new Error('User not found');
+                err._gdprDebug = debug;
+                throw err;
+            }
 
             await client.query('COMMIT');
-
-            console.log(`✅ Compte ${userId} supprimé conformément au GDPR`);
-            return { success: true, message: 'Account deleted successfully' };
-
+            console.log(`✅ Compte ${userId} supprimé conformément au GDPR (debug: ${debug.length} notes)`);
+            return { success: true, message: 'Account deleted successfully', debug: process.env.NODE_ENV === 'production' ? undefined : debug };
         } catch (error) {
-            await client.query('ROLLBACK');
+            try { await client.query('ROLLBACK'); } catch {}
             console.error('Erreur suppression GDPR:', error);
-            throw error;
+            if (process.env.NODE_ENV === 'production') throw error;
+            return { success: false, error: 'Account deletion failed', detail: error.message, debug };
         } finally {
             client.release();
         }
@@ -92,48 +107,37 @@ export class GDPRService {
      */
     static async exportUserData(userId) {
         try {
-            // 1. Données utilisateur
-            const userResult = await pool.query(`
-                SELECT id, email
-                FROM users WHERE id = $1
-            `, [userId]);
+            const debug = [];
+            let userData = null;
+            try {
+                const userResult = await pool.query('SELECT id, email FROM users WHERE id = $1', [userId]);
+                if (userResult.rows.length === 0) throw new Error('User not found');
+                userData = userResult.rows[0];
+            } catch (e) { debug.push({ section: 'user', error: e.message }); }
 
-            if (userResult.rows.length === 0) {
-                throw new Error('User not found');
-            }
+            let statsRow = null;
+            try {
+                const statsResult = await pool.query('SELECT games_played, games_won, games_lost FROM stats WHERE user_id = $1', [userId]);
+                statsRow = statsResult.rows[0] || null;
+            } catch (e) { debug.push({ section: 'stats', error: e.message }); }
 
-            const userData = userResult.rows[0];
+            let gamesRows = [];
+            try {
+                const gamesResult = await pool.query(`SELECT player1_score, player2_score, started_at, finished_at FROM games WHERE player1_id = $1 OR player2_id = $1 ORDER BY started_at DESC LIMIT 50`, [userId]);
+                gamesRows = gamesResult.rows;
+            } catch (e) { debug.push({ section: 'games', error: e.message }); }
 
-            // 2. Statistiques de jeu
-            const statsResult = await pool.query(`
-                SELECT games_played, games_won, games_lost
-                FROM stats WHERE user_id = $1
-            `, [userId]);
-
-            // 3. Parties de jeu
-            let gamesResult = { rows: [] };
-            const { rows: matchTable2 } = await pool.query(`SELECT to_regclass('public.matches') AS exist`);
-            if (matchTable2[0]?.exist) {
-                gamesResult = await pool.query(`
-                    SELECT score_player1, score_player2, played_at
-                    FROM matches WHERE player1_id = $1 OR player2_id = $1
-                    ORDER BY played_at DESC
-                    LIMIT 50
+            let friendsRows = [];
+            try {
+                const friendsResult = await pool.query(`
+                    SELECT u.email as friend_email, f.status, f.created_at as friends_since
+                    FROM friendships f
+                    JOIN users u ON ((u.id = f.requester_id AND f.addressee_id = $1) OR (u.id = f.addressee_id AND f.requester_id = $1))
+                    WHERE f.status = 'accepted'
                 `, [userId]);
-            }
+                friendsRows = friendsResult.rows;
+            } catch (e) { debug.push({ section: 'friends', error: e.message }); }
 
-            // 4. Amis (utiliser friendships)
-            const friendsResult = await pool.query(`
-                SELECT u.email as friend_email, f.status, f.created_at as friends_since
-                FROM friendships f
-                JOIN users u ON (
-                    (u.id = f.requester_id AND f.addressee_id = $1) OR
-                    (u.id = f.addressee_id AND f.requester_id = $1)
-                )
-                WHERE f.status = 'accepted'
-            `, [userId]);
-
-            // 5. Créer l'export GDPR
             const gdprExport = {
                 export_info: {
                     generated_at: new Date().toISOString(),
@@ -143,23 +147,23 @@ export class GDPRService {
                 },
                 personal_data: {
                     profile: userData,
-                    game_stats: statsResult.rows[0] || null,
-                    game_history: gamesResult.rows,
-                    friends: friendsResult.rows
+                    game_stats: statsRow,
+                    game_history: gamesRows,
+                    friends: friendsRows
                 },
                 gdpr_rights: {
-                    right_to_access: "This export fulfills your right to access under GDPR Article 15",
-                    right_to_rectification: "You can request corrections via our platform",
-                    right_to_erasure: "You can request account deletion via our platform",
-                    right_to_portability: "This data is provided in JSON format for portability"
-                }
+                    right_to_access: 'This export fulfills your right to access under GDPR Article 15',
+                    right_to_rectification: 'You can request corrections via our platform',
+                    right_to_erasure: 'You can request account deletion via our platform',
+                    right_to_portability: 'This data is provided in JSON format for portability'
+                },
+                debug: process.env.NODE_ENV === 'production' ? undefined : debug
             };
-
             return gdprExport;
-
         } catch (error) {
-            console.error('Erreur export GDPR:', error);
-            throw error;
+            console.error('Erreur export GDPR (fatal):', error);
+            if (process.env.NODE_ENV === 'production') throw error;
+            return { error: 'export_failed', detail: error.message };
         }
     }
 

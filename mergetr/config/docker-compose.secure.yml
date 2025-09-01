@@ -64,15 +64,15 @@ services:
       # OAuth Configuration (via Vault en production)
       CLIENT_ID_42: ${CLIENT_ID_42:-}
       CLIENT_SECRET_42: ${CLIENT_SECRET_42:-}
-      REDIRECT_URI: https://localhost/auth/42/callback
+      REDIRECT_URI: https://localhost:8443/auth/42/callback
       
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
-      GITHUB_REDIRECT_URI: https://localhost/auth/github/callback
+      GITHUB_REDIRECT_URI: https://localhost:8443/auth/github/callback
       
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      GOOGLE_REDIRECT_URI: https://localhost/auth/google/callback
+      GOOGLE_REDIRECT_URI: https://localhost:8443/auth/google/callback
       
       # Email Configuration
       MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}

@@ -37,8 +37,8 @@ async function start()
 {
     // Configuration HTTPS avec certificats auto-signés
     const httpsOptions = {
-        key: readFileSync(join(process.cwd(), 'ssl', 'key.pem')),
-        cert: readFileSync(join(process.cwd(), 'ssl', 'cert.pem'))
+        key: readFileSync(join(process.cwd(), '..', 'ssl', 'key.pem')),
+        cert: readFileSync(join(process.cwd(), '..', 'ssl', 'cert.pem'))
     };
 
     const app = Fastify({ 

@@ -18,7 +18,7 @@ export function use2FA(): Use2FAReturn {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const BACKEND_URL = 'http://localhost:5001';
+    const BACKEND_URL = 'https://localhost:8443';
 
     const clearError = () => setError(null);
 

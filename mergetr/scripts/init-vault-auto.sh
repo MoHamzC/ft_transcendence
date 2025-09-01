@@ -13,8 +13,17 @@ fi
 
 echo "🔐 Initialisation automatique de Vault..."
 
-# Configuration Vault
-VAULT_ADDR="http://localhost:8200"
+# Configuration Vault - Détecter si on est dans Docker ou en local
+if [ -n "$DOCKER_ENV" ] || [ -f /.dockerenv ]; then
+    # On est dans Docker, utiliser le nom du service
+    VAULT_ADDR="http://vault:8200"
+    echo "🐳 Environnement Docker détecté"
+else
+    # On est en local, utiliser localhost
+    VAULT_ADDR="http://localhost:8200"
+    echo "🖥️  Environnement local détecté"
+fi
+
 VAULT_TOKEN="${VAULT_TOKEN:-myroot}"
 
 echo "VAULT_ADDR: $VAULT_ADDR"
@@ -23,9 +32,22 @@ echo "VAULT_TOKEN: $VAULT_TOKEN"
 export VAULT_ADDR
 export VAULT_TOKEN
 
+# Installer vault CLI si nécessaire
+if ! command -v vault &> /dev/null; then
+    echo "📦 Installation de Vault CLI..."
+    apk add --no-cache vault 2>/dev/null || {
+        echo "⚠️  Impossible d'installer vault CLI via apk, téléchargement direct..."
+        wget -q https://releases.hashicorp.com/vault/1.15.6/vault_1.15.6_linux_amd64.zip -O /tmp/vault.zip
+        unzip -q /tmp/vault.zip -d /tmp/
+        mv /tmp/vault /usr/local/bin/
+        chmod +x /usr/local/bin/vault
+        rm /tmp/vault.zip
+    }
+fi
+
 # Attendre que Vault soit prêt
 echo "⏳ Attente de Vault..."
-max_attempts=5
+max_attempts=10
 attempt=1
 
 while [ $attempt -le $max_attempts ]; do
@@ -35,7 +57,7 @@ while [ $attempt -le $max_attempts ]; do
     fi
 
     echo "⏳ Tentative $attempt/$max_attempts - Vault pas encore prêt..."
-    sleep 2
+    sleep 3
     attempt=$((attempt + 1))
 done
 

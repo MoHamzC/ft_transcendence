@@ -4,7 +4,7 @@ import FuzzyText from './FuzzyText';
 import TargetCursor from './TargetCursor';
 import './TournamentTemp.css';
 
-const BACKEND_URL = 'http://localhost:5001';
+const BACKEND_URL = 'https://localhost:8443';
 
 export default function CreateTournamentPage() {
   const navigate = useNavigate();

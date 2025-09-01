@@ -7,7 +7,7 @@ import Select from "./Select"
 
 export default function Settings () {
     const navigate = useNavigate();
-    const BACKEND_URL = 'http://localhost:5001';
+    const BACKEND_URL = 'https://localhost:8443';
 
     const [language, setLanguage] = React.useState('en');
     const [doubleAuth, setDoubleAuth] = React.useState(false);

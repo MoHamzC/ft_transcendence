@@ -147,12 +147,13 @@ fastify.register(import('./routes/friendsRoutes.js'), { prefix: '/api/user' });
 // Run the server!
 const start = async () => {
 	try {
-		const port = process.env.PORT || 5001;
+		const port = parseInt(process.env.PORT) || 3000; // Default to 3000 for production
+		console.log(`Starting server on port ${port} (NODE_ENV: ${process.env.NODE_ENV})`);
 		await fastify.listen({port : port, host : '0.0.0.0'});
-		console.log(`Server listening on 0.0.0.0:${port}`);
+		console.log(`✅ Server listening on 0.0.0.0:${port}`);
 	} catch (err) {
 		fastify.log.error(err);
-		console.log("Error: Can't start the server");
+		console.log("❌ Error: Can't start the server");
 		process.exit(1);
 	}
 }

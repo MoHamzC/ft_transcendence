@@ -8,7 +8,7 @@ interface JoinProps {
   ai?: boolean; // true when AI opponent selected
 }
 
-const BACKEND_URL = 'http://localhost:5001';
+const BACKEND_URL = 'https://localhost:8443';
 
 export default function Join({ isOpen, onClose, onStartMatch, ai = false }: JoinProps) {
   const [player1, setPlayer1] = useState('');

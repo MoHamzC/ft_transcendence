@@ -27,8 +27,8 @@ export async function registerRoutes(fastify) {
     await fastify.register(userSettingsRoutes, { prefix: '/api/users' })
 
     // Routes des tournois
-    const tournamentRoutes = (await import('./indexTournament.js')).default
-    await fastify.register(tournamentRoutes, { prefix: '/api' })
+    const tournamentRoutes = (await import('./tournamentTemp.js')).default
+    await fastify.register(tournamentRoutes, { prefix: '/api/tournament' })
 
     // Routes des tournois avec utilisateurs temporaires
     const tournamentTempRoutes = (await import('./tournamentTemp.js')).default

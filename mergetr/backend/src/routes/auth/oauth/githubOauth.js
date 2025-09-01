@@ -2,6 +2,8 @@ import pool from '../../../config/db.js'
 import { jwtTokenOauth } from './oauth.js';
 import { generateUniqueUsername } from '../../../utils/usernameGenerator.js';
 
+console.debug('[OAuthGitHub] Loaded with GITHUB_REDIRECT_URI=%s GITHUB_CLIENT_ID=%s', process.env.GITHUB_REDIRECT_URI, process.env.GITHUB_CLIENT_ID);
+
 async function linkGithubAccount(user, githubUserData){
 	const addGithubDataInDb = await pool.query(
 		'UPDATE users SET github_id = $1 WHERE id = $2',
@@ -132,11 +134,17 @@ async function handleGithubLogin(request, reply, githubUserData){
 
 async function oauthGithubRoutes (fastify, options){
 	//github OAuth 2.0
+	fastify.addHook('onRequest', (req, _reply, done) => {
+		if (req.routerPath && req.routerPath.startsWith('/auth/github')) {
+			console.debug('[OAuthGitHub] onRequest %s GITHUB_REDIRECT_URI=%s', req.routerPath, process.env.GITHUB_REDIRECT_URI);
+		}
+		done();
+	});
 
 	fastify.get('/github', async (request, reply) => {
 		const authUrl = 'https://github.com/login/oauth/authorize?' +
 			`client_id=${process.env.GITHUB_CLIENT_ID}&` +
-			`redirect_uri=${process.env.GITHUB_REDIRECT_URI}&` +
+			`redirect_uri=${process.env.GITHUB_REDIRECT_URI || 'https://localhost:8443/auth/github/callback'}&` +
 			'response_type=code&' +
 			'scope=public'
 
@@ -163,7 +171,7 @@ async function oauthGithubRoutes (fastify, options){
 				code: code,
 				client_id: process.env.GITHUB_CLIENT_ID,
 				client_secret: process.env.GITHUB_CLIENT_SECRET,
-				redirect_uri: process.env.GITHUB_REDIRECT_URI
+						redirect_uri: process.env.GITHUB_REDIRECT_URI || 'https://localhost:8443/auth/github/callback'
 			})
 		})
 		if (!tokenResponse.ok) {

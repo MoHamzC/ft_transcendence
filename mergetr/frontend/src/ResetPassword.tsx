@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import FuzzyText from "./FuzzyText";
 
-const BACKEND_URL = 'http://localhost:5001';
+const BACKEND_URL = 'https://localhost:8443';
 export default function ResetPassword() {
     const navigate = useNavigate();
     const [password, setPassword] = useState(""); 

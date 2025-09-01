@@ -2,6 +2,8 @@ import pool from '../../../config/db.js'
 import { jwtTokenOauth } from './oauth.js';
 import { generateUniqueUsername } from '../../../utils/usernameGenerator.js';
 
+console.debug('[OAuthGoogle] Loaded with GOOGLE_REDIRECT_URI=%s GOOGLE_CLIENT_ID=%s', process.env.GOOGLE_REDIRECT_URI, process.env.GOOGLE_CLIENT_ID);
+
 // Helper to guarantee a provider is present exactly once in users.providers
 async function ensureProvider(userId, provider){
 	try {
@@ -132,10 +134,16 @@ async function handleGoogleLogin(request, reply, googleUserData){
 
 async function	oauthGoogleRoutes(fastify, options){
 	// Google OAuth 2.0
+	fastify.addHook('onRequest', (req, _reply, done) => {
+		if (req.routerPath && req.routerPath.startsWith('/auth/google')) {
+			console.debug('[OAuthGoogle] onRequest %s GOOGLE_REDIRECT_URI=%s', req.routerPath, process.env.GOOGLE_REDIRECT_URI);
+		}
+		done();
+	});
 	fastify.get('/google', async (request, reply) => {
 		const authUrl = 'https://accounts.google.com/o/oauth2/auth?' +
 			`client_id=${process.env.GOOGLE_CLIENT_ID}&` +
-			`redirect_uri=${process.env.GOOGLE_REDIRECT_URI}&` +
+			`redirect_uri=${process.env.GOOGLE_REDIRECT_URI || 'https://localhost:8443/auth/google/callback'}&` +
 			'response_type=code&' +
 			'scope=email profile'
 
@@ -161,7 +169,7 @@ async function	oauthGoogleRoutes(fastify, options){
 				code: code,
 				client_id: process.env.GOOGLE_CLIENT_ID,
 				client_secret: process.env.GOOGLE_CLIENT_SECRET,
-				redirect_uri: process.env.GOOGLE_REDIRECT_URI
+						redirect_uri: process.env.GOOGLE_REDIRECT_URI || 'https://localhost:8443/auth/google/callback'
 			})
 		})
 		if (!tokenResponse.ok) {

@@ -42,7 +42,7 @@ function AppContent()
 {
 	const [isLogged, setIsLogged] = useState<boolean | null>(null);
 	const location = useLocation();
-	const BACKEND_URL = 'http://localhost:5001';
+	const BACKEND_URL = 'https://localhost:8443';
 
 	useEffect(() => {
 		const checkAuthStatus = async () => {
