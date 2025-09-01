@@ -213,6 +213,12 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 				[result.rows[0].id]
 			)
 
+			// Créer les statistiques de l'utilisateur
+			await pool.query(
+				'INSERT INTO stats (user_id) VALUES ($1)',
+				[result.rows[0].id]
+			)
+
 			//create a Response corresponding to the ResponseSchema
 			const userResponse = {
 				id: result.rows[0].id,
