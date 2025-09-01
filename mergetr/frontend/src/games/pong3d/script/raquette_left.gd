@@ -1,14 +1,11 @@
 extends CharacterBody3D
 
 @export var speed: float = 20.0
-@export var joypad_id: int = 0           # ID de la manette à utiliser (0 = première détectée)
-@export var deadzone: float = 0.15       # Valeur minimale pour que le stick bouge
-@export var invert_y: bool = false       # Mettre true si le stick est inversé
+@export var joypad_id: int = 0  # ID de la manette à utiliser (0 = première détectée)
 
 var previous_position: Vector3
 var fixed_x: float
 var fixed_y: float
-var has_joypad: bool = false
 var has_joypad: bool = false
 
 func _ready():
@@ -18,7 +15,7 @@ func _ready():
 	# récupère le Mesh et crée un matériau unique
 	var mesh = $CollisionShape3D/MeshInstance3D
 	if mesh == null:
-		push_error("⚠️ Aucun Mesh trouvé pour la raquette")
+		push_error("⚠️ Aucun Mesh trouvé pour la raquette gauche")
 		return
 
 	var material = mesh.get_surface_override_material(0)
@@ -36,34 +33,21 @@ func _physics_process(_delta):
 	var direction = Vector3.ZERO
 
 	# --- clavier ---
-	# --- clavier ---
 	if Input.is_action_pressed("w"):
 		direction.z -= 1
 	if Input.is_action_pressed("s"):
 		direction.z += 1
 
-	# --- manette ---
-	if not has_joypad:
-		var joypads = Input.get_connected_joypads()
-		if joypads.size() > 0:
-			joypad_id = joypads[0]
-			has_joypad = true
-			print("🎮 Manette détectée :", Input.get_joy_name(joypad_id))
-
+	# --- manette (stick gauche vertical) ---
 	if has_joypad:
 		var axis_value = Input.get_joy_axis(joypad_id, JOY_AXIS_LEFT_Y)
-		if invert_y:
-			axis_value = -axis_value
-		if abs(axis_value) > deadzone:
+		if abs(axis_value) > 0.1: # deadzone
 			direction.z += axis_value
-		# debug en temps réel
-		print("Stick gauche Y :", axis_value)
 
 	# --- déplacement ---
 	velocity = direction.normalized() * speed
 	move_and_slide()
 
-	# verrouille X et Y
 	# verrouille X et Y
 	global_position.x = fixed_x
 	global_position.y = fixed_y
@@ -92,11 +76,3 @@ func _apply_skin(material: StandardMaterial3D, skin: String):
 			"gray": material.albedo_color = Color.DIM_GRAY
 			_:
 				material.albedo_color = Color.WHITE
-
-
-# --- debug boutons et axes ---
-func _input(event):
-	if event is InputEventJoypadButton:
-		print("Bouton :", event.button_index, "pressé sur manette :", event.device)
-	elif event is InputEventJoypadMotion:
-		print("Axe :", event.axis, "valeur :", event.axis_value, "sur manette :", event.device)
