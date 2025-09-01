@@ -31,13 +31,21 @@ function PongGame() {
   const [playerRight, setPlayerRight] = useState(null);
 
   useEffect(() => {
-  fetch("https://localhost:8443/api/info_2d")
-      .then(res => res.json())
+    let aborted = false;
+    fetch("/api/info_2d", { credentials: 'include' })
+      .then(res => {
+        if (!res.ok) throw new Error('info_2d HTTP ' + res.status);
+        return res.json();
+      })
       .then(data => {
+        if (aborted) return;
         setPlayerLeft(data.playerLeft);
         setPlayerRight(data.playerRight);
       })
-      .catch(err => console.error("erreur reception joueur :", err));
+      .catch(err => {
+        if (!aborted) console.error("erreur reception joueur :", err);
+      });
+    return () => { aborted = true; };
   }, []);
 
   function restart() {
@@ -72,7 +80,7 @@ function PongGame() {
 
   // game loop
   useEffect(() => {
-    if (!playerLeft || !playerRight) return; // attendre que les infos soient chargées
+  if (!playerLeft || !playerRight) return; // attendre que les infos soient chargées
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
