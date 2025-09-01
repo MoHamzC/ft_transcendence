@@ -13,8 +13,7 @@ import Stats from './Stats.tsx';
 import LoginView from './LoginView.tsx';
 import PongGames from './PongGames.tsx';
 import PongGame from './games/PongGame.jsx';
-import JoinTournamentPage from './JoinTournamentPage';
-import CreateTournamentPage from './CreateTournamentPage';
+import MatchHistory from './MatchHistory';
 
 import Particles from './Particles.tsx';
 import Error from './Error.tsx';
@@ -25,7 +24,7 @@ import Home from './Home.tsx';
 import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
 import SelectPlayers from './SelectPlayers.tsx';
-
+import Tournament from './Tournament.tsx';
 function onRenderCallback(
   id: string,
   phase: 'mount' | 'update',
@@ -37,6 +36,8 @@ function onRenderCallback(
 ) {
   console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
 }
+
+// (Profiler callback removed to avoid unused variable warnings)
 
 function AppContent()
 {
@@ -103,6 +104,7 @@ function AppContent()
 							<Route path="/settings" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Settings /></div>} />
 							<Route path="/profile" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Profile /></div>} />
 							<Route path="/stats" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Stats/></div>} />
+							<Route path="/match-history" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><MatchHistory /></div>} />
 							<Route path="/register" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Register/></div>} />
 							<Route path="/logout" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Logout setIsLogged={setIsLogged} /></div>} />
 							<Route path="/error" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Error/></div>} />

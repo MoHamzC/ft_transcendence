@@ -101,13 +101,13 @@
 }
 
 .tab-button.active {
-  border-bottom-color: #00d4ff;
-  color: #00d4ff;
+  border-bottom-color: #24e484;
+  color: #24e484;
 }
 
 .tab-button.pending.active {
-  border-bottom-color: #ffa502;
-  color: #ffa502;
+  border-bottom-color: #d04deb;
+  color: #9727ff;
 }
 
 .tab-button:not(.active) {
@@ -174,9 +174,8 @@
 }
 
 .friend-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
-  border-color: #00d4ff;
+  
+  scale: 1.02;
 }
 
 .friend-card-content {
@@ -196,7 +195,7 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: linear-gradient(45deg, #00d4ff, #0099cc);
+  background: linear-gradient(45deg, #39b175, #39b175);
   display: flex;
   align-items: center;
   justify-content: center;

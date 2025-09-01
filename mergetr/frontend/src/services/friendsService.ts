@@ -8,6 +8,11 @@ export interface Friend {
   status: string;
   friendship_date?: string;
   request_date?: string;
+  // Nouveaux champs pour le statut en ligne
+  is_online?: boolean;
+  last_seen?: string;
+  online_status?: 'online' | 'away' | 'offline';
+  recently_active?: boolean;
 }
 
 export interface FriendRequest {
@@ -99,6 +104,35 @@ export class FriendsService {
     return this.request('/api/user/friends/remove', {
       method: 'POST',
       body: JSON.stringify({ friendId }),
+    });
+  }
+
+  // Récupérer la liste des amis avec leur statut en ligne
+  static async getFriendsWithStatus(): Promise<{ friends: Friend[] }> {
+    return this.request('/api/user/friends/status');
+  }
+
+  // Envoyer un heartbeat pour signaler que l'utilisateur est en ligne
+  static async sendHeartbeat(): Promise<{ status: string; timestamp: string }> {
+    return this.request('/api/user/heartbeat', {
+      method: 'POST',
+      body: JSON.stringify({}), // Body vide mais valide
+    });
+  }
+
+  // Marquer l'utilisateur comme offline lors de la déconnexion
+  static async setOfflineStatus(): Promise<{ status: string }> {
+    return this.request('/api/user/logout-status', {
+      method: 'POST',
+      body: JSON.stringify({}), // Body vide mais valide
+    });
+  }
+
+  // Nettoyer les utilisateurs inactifs
+  static async cleanupInactiveUsers(): Promise<{ message: string; updated_users: number }> {
+    return this.request('/api/user/cleanup-inactive', {
+      method: 'POST',
+      body: JSON.stringify({}),
     });
   }
 }

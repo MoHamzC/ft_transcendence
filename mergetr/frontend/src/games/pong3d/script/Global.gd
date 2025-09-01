@@ -10,43 +10,74 @@ var max_score: int = 1
 var game_start: bool = false
 var right_ia: bool = true
 
-# --- skin et id ---
+# --- player left ---
 var skin_PL_color: String = "red"
 var skin_PL_id: String = ""
-var skin_PR_color: String = "blue"
+var skin_PL_name: String = "Player Left"
+
+# --- player right ---
+var skin_PR_color: String = "red"
 var skin_PR_id: String = ""
+var skin_PR_name: String = "Player Right"
+
+# --- tournament ---
+var tournament_id: String = "false"
+
+# --- fonction pour décoder les paramètres URL ---
+func decode_param(s: String) -> String:
+	s = s.replace("%20", " ")
+	s = s.replace("%23", "#")
+	return s
 
 
 func _ready():
+	var url = ""  # valeur par défaut
 	if Engine.has_singleton("JavaScriptBridge"):
 		var js = JavaScriptBridge.get_interface("window")
 		if js:
-			var search = str(js.location.search)  # "?ia=true&PL_color=blue&PL_id=948929725..."
-			# Activer l'IA si paramètre présent
-			if search.find("ia=true") != -1:
-				right_ia = true
+			url = str(js.location.href)
 
-			# Récupérer les paramètres PL_
-			if search.find("PL_color=") != -1:
-				var parts = search.split("PL_color=")
-				if parts.size() > 1:
-					skin_PL_color = parts[1].split("&")[0]
-			if search.find("PL_id=") != -1:
-				var parts = search.split("PL_id=")
-				if parts.size() > 1:
-					skin_PL_id = parts[1].split("&")[0]
+	if url != "":
+		var search_index = url.find("?")
+		if search_index != -1:
+			var search = url.substr(search_index + 1, url.length() - search_index - 1)
+			var params = {}
+			for pair in search.split("&"):
+				var kv = pair.split("=")
+				if kv.size() == 2:
+					params[kv[0]] = decode_param(kv[1])
 
-			# Récupérer les paramètres PR_
-			if search.find("PR_color=") != -1:
-				var parts = search.split("PR_color=")
-				if parts.size() > 1:
-					skin_PR_color = parts[1].split("&")[0]
-			if search.find("PR_id=") != -1:
-				var parts = search.split("PR_id=")
-				if parts.size() > 1:
-					skin_PR_id = parts[1].split("&")[0]
+			# Activer l'IA
+			right_ia = params.get("ia", "false") == "true"
+
+			# Player Left
+			skin_PL_color = params.get("playerColor", skin_PL_color)
+			skin_PL_id    = params.get("playerId", skin_PL_id)
+			skin_PL_name  = params.get("playerName", skin_PL_name)
+
+			# Player Right
+			skin_PR_color = params.get("opponentColor", skin_PR_color)
+			skin_PR_id    = params.get("opponentId", skin_PR_id)
+			skin_PR_name  = params.get("opponentName", skin_PR_name)
+
+			# Tournament
+			tournament_id = params.get("tournamentId", tournament_id)
+
+
+	var file = FileAccess.open("res://gamecontrollerdb.txt", FileAccess.READ)
+	if file:
+		while not file.eof_reached():
+			var line = file.get_line()
+			if line.strip_edges() != "":
+				Input.add_joy_mapping(line, true)
+		print("✅ Base de données manettes chargée")
+	else:
+		print("⚠️ Impossible de charger gamecontrollerdb.txt")
+
+
 
 	# Debug
 	print("Right IA activé :", right_ia)
-	print("Player Left :", skin_PL_color, skin_PL_id)
-	print("Player Right:", skin_PR_color, skin_PR_id)
+	print("Player Left :", skin_PL_name, " ", skin_PL_color, " ", skin_PL_id)
+	print("Player Right :", skin_PR_name, " ", skin_PR_color, " ", skin_PR_id)
+	print("Tournament ID :", tournament_id)

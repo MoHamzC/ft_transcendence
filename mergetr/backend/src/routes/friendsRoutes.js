@@ -181,7 +181,121 @@ export default async function friendsRoutes(app /* : FastifyInstance */)
         return { friends };
     });
 
+    // GET /api/user/friends/status - Liste des amis avec statut en ligne
     //
+    app.get('/friends/status',
+    {
+        schema:
+        {
+            summary: 'Liste des amis avec statut en ligne',
+            response:
+            {
+                200:
+                {
+                    type: 'object',
+                    properties:
+                    {
+                        friends: { type: 'array', items: { type: 'object', additionalProperties: true } }
+                    }
+                }
+            }
+        }
+    },
+    async (request, reply) =>
+    {
+        const uid = request.user.id;
+        const friends = await FriendService.listFriendsWithOnlineStatus(uid);
+        return { friends };
+    });
+
+    // POST /api/user/heartbeat - Signaler que l'utilisateur est en ligne
+    //
+    app.post('/heartbeat',
+    {
+        schema:
+        {
+            summary: 'Signaler que l\'utilisateur est en ligne',
+            response:
+            {
+                200:
+                {
+                    type: 'object',
+                    properties:
+                    {
+                        status: { type: 'string' },
+                        timestamp: { type: 'string' }
+                    }
+                }
+            }
+        }
+    },
+    async (request, reply) =>
+    {
+        const uid = request.user.id;
+        const result = await FriendService.updateHeartbeat(uid);
+        return { 
+            status: 'online', 
+            timestamp: result.last_seen 
+        };
+    });
+
+    // POST /api/user/logout-status - Marquer l'utilisateur comme offline
+    //
+    app.post('/logout-status',
+    {
+        schema:
+        {
+            summary: 'Marquer l\'utilisateur comme offline',
+            response:
+            {
+                200:
+                {
+                    type: 'object',
+                    properties:
+                    {
+                        status: { type: 'string' }
+                    }
+                }
+            }
+        }
+    },
+    async (request, reply) =>
+    {
+        const uid = request.user.id;
+        await FriendService.setUserOffline(uid);
+        return { status: 'offline' };
+    });
+
+    // POST /api/user/cleanup-inactive - Nettoyer les utilisateurs inactifs
+    //
+    app.post('/cleanup-inactive',
+    {
+        schema:
+        {
+            summary: 'Nettoyer les utilisateurs inactifs',
+            response:
+            {
+                200:
+                {
+                    type: 'object',
+                    properties:
+                    {
+                        message: { type: 'string' },
+                        updated_users: { type: 'number' }
+                    }
+                }
+            }
+        }
+    },
+    async (request, reply) =>
+    {
+        const cleanedUsers = await FriendService.cleanupInactiveUsers();
+        return { 
+            message: 'Cleanup completed',
+            updated_users: cleanedUsers.length 
+        };
+    });
+
     //
     // POST /api/user/friends
     // Body: { username }

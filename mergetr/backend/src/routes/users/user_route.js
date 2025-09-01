@@ -213,6 +213,12 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 				[result.rows[0].id]
 			)
 
+			// Créer les statistiques de l'utilisateur
+			await pool.query(
+				'INSERT INTO stats (user_id) VALUES ($1)',
+				[result.rows[0].id]
+			)
+
 			//create a Response corresponding to the ResponseSchema
 			const userResponse = {
 				id: result.rows[0].id,
@@ -308,6 +314,51 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 	});
 
 	fastify.post('/login', login);
+
+	// Création d'un utilisateur invité (guest) sans mot de passe
+	// POST /api/users/guest { username }
+	fastify.post('/guest', async (request, reply) => {
+		try {
+			const { username } = request.body || {};
+			if (!username || typeof username !== 'string') {
+				return reply.code(400).send({ error: 'Username requis' });
+			}
+			const cleanUsername = username.trim().toLowerCase();
+			if (cleanUsername.length < 3 || cleanUsername.length > 24) {
+				return reply.code(400).send({ error: 'Username doit contenir entre 3 et 24 caractères' });
+			}
+			if (!/^[a-z0-9_\-]+$/.test(cleanUsername)) {
+				return reply.code(400).send({ error: 'Username invalide (caractères autorisés: a-z 0-9 _ -)' });
+			}
+			const email = `${cleanUsername}@pong.local`;
+
+			// Vérifier si un utilisateur déjà enregistré avec ce username existe
+			const existing = await pool.query('SELECT id, is_registered FROM users WHERE username = $1', [cleanUsername]);
+			if (existing.rows.length > 0) {
+				if (existing.rows[0].is_registered) {
+					return reply.code(409).send({ error: 'Username déjà pris' });
+				}
+				// Retourner l'utilisateur invité existant
+				return reply.code(200).send({ id: existing.rows[0].id, username: cleanUsername, guest: true });
+			}
+
+			// Créer l'utilisateur invité (hash vide/null, is_registered = false)
+			const insertUser = await pool.query(
+				`INSERT INTO users (email, username, is_registered) VALUES ($1, $2, $3) RETURNING id`,
+				[email, cleanUsername, false]
+			);
+			const userId = insertUser.rows[0].id;
+
+			// Initialiser settings & stats
+			await pool.query('INSERT INTO user_settings (user_id) VALUES ($1) ON CONFLICT DO NOTHING', [userId]);
+			await pool.query('INSERT INTO stats (user_id) VALUES ($1) ON CONFLICT DO NOTHING', [userId]);
+
+			return reply.code(201).send({ id: userId, username: cleanUsername, guest: true });
+		} catch (err) {
+			console.error('Erreur création guest user', err);
+			return reply.code(500).send({ error: 'Erreur serveur' });
+		}
+	});
 
 	fastify.post('/verify-otp', async (request, reply) => {
 		try {

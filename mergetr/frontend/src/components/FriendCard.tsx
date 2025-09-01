@@ -13,14 +13,44 @@ export default function FriendCard({ friend, onRemove, type, onAccept, onReject 
   const getStatusText = () => {
     switch (type) {
       case 'friend':
-        return 'Ami';
+        return 'Friend';
       case 'pending':
-        return 'Demande reçue';
+        return 'Request received';
       case 'sent':
-        return 'Demande envoyée';
+        return 'Request sent';
       default:
         return '';
     }
+  };
+
+  const getOnlineStatusDisplay = () => {
+    if (type !== 'friend' || !friend.online_status) return null;
+
+    const statusConfig = {
+      online: { text: 'En ligne', color: '#22c55e', bgColor: '#22c55e20' },
+      away: { text: 'Hors ligne', color: '#6b7280', bgColor: '#6b728020' },
+      offline: { text: 'Hors ligne', color: '#6b7280', bgColor: '#6b728020' },
+    };
+
+    const config = statusConfig[friend.online_status] || statusConfig.offline;
+
+    return (
+      <div className="flex items-center gap-2">
+        <div
+          className="w-2 h-2 rounded-full"
+          style={{ backgroundColor: config.color }}
+        />
+        <span
+          className="text-xs px-2 py-1 rounded-full font-medium"
+          style={{
+            color: config.color,
+            backgroundColor: config.bgColor,
+          }}
+        >
+          {config.text}
+        </span>
+      </div>
+    );
   };
 
   const statusClasses = {
@@ -39,21 +69,31 @@ export default function FriendCard({ friend, onRemove, type, onAccept, onReject 
 
           <div className="min-w-0">
             <div className="friend-details">
-              <h3 className="text-lg font-semibold text-[#cfeaff] truncate">{friend.username}</h3>
+              <h3 className="text-lg font-semibold text-[#cfeaff] truncate">
+                {friend.username}
+              </h3>
               <p className="text-sm text-[#9aa0b3] truncate">{friend.email}</p>
             </div>
 
             <div className="friend-status mt-2 flex items-center gap-3">
-              <span
-                className={`status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusClasses[type]}`}
-                aria-hidden
-              >
-                {getStatusText()}
-              </span>
+              {/* Statut d'amitié */}
+              {type !== 'friend' && (
+                <span
+                  className={`status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusClasses[type]}`}
+                  aria-hidden
+                >
+                  {getStatusText()}
+                </span>
+              )}
+
+              {/* Statut en ligne pour les amis */}
+              {getOnlineStatusDisplay()}
 
               {(friend.friendship_date || friend.request_date) && (
                 <span className="friend-date text-xs text-[#7f8596]">
-                  {new Date(friend.friendship_date || friend.request_date || '').toLocaleDateString()}
+                  {new Date(
+                    friend.friendship_date || friend.request_date || ''
+                  ).toLocaleDateString()}
                 </span>
               )}
             </div>
@@ -65,19 +105,19 @@ export default function FriendCard({ friend, onRemove, type, onAccept, onReject 
             <>
               <button
                 onClick={() => onAccept(friend.id)}
-                className="btn-small px-3 py-1 rounded-lg bg-[#7eeaff] text-[#060010] text-sm font-semibold shadow-sm hover:brightness-95"
-                aria-label={`Accepter ${friend.username}`}
+                className="btn-small px-3 py-1 rounded-lg bg-[#7eeaff] text-[#060010] text-sm font-semibold shadow-sm hover:scale-105 active:scale-95"
+                aria-label={`Accept ${friend.username}`}
                 type="button"
               >
-                Accepter
+                Accept
               </button>
               <button
                 onClick={() => onReject(friend.id)}
-                className="btn-small px-3 py-1 rounded-lg bg-[#ffd1dc] text-[#231f2b] text-sm font-semibold shadow-sm hover:brightness-95"
-                aria-label={`Rejeter ${friend.username}`}
+                className="btn-small px-3 py-1 rounded-lg bg-[#7eeaff] text-[#060010] text-sm font-semibold shadow-sm hover:scale-105 active:scale-95"
+                aria-label={`Reject ${friend.username}`}
                 type="button"
               >
-                Rejeter
+                Reject
               </button>
             </>
           )}
@@ -85,16 +125,16 @@ export default function FriendCard({ friend, onRemove, type, onAccept, onReject 
           {type === 'friend' && (
             <button
               onClick={() => onRemove(friend.id)}
-              className="btn-small px-3 py-1 rounded-lg bg-[#ffd1dc] text-[#231f2b] text-sm font-semibold shadow-sm hover:brightness-95"
-              aria-label={`Supprimer ${friend.username}`}
+              className="btn-small px-3 py-1 rounded-lg bg-[#7eeaff] text-[#060010] text-sm hover:scale-105 active:scale-95"
+              aria-label={`Remove ${friend.username}`}
               type="button"
             >
-              Supprimer
+              Remove
             </button>
           )}
 
           {type === 'sent' && (
-            <span className="text-xs text-[#7f8596] py-1 px-2">En attente</span>
+            <span className="text-xs text-[#7f8596] py-1 px-2">Pending</span>
           )}
         </div>
       </div>

@@ -17,7 +17,7 @@ const StatusBadge = ({ status, lastSeen, formatLastSeen }) => {
             case 'away':
                 return { 
                     color: 'orange', 
-                    text: 'Absent',
+                    text: 'Hors ligne',
                     icon: '🟠'
                 };
             default:
@@ -159,11 +159,11 @@ export const FriendsOnline = () => {
                         </div>
                     )}
 
-                    {/* Amis absents */}
+                    {/* Amis hors lignes */}
                     {awayFriends.length > 0 && (
                         <div className="friends-section">
                             <h3 className="section-title">
-                                🟠 Absents ({awayFriends.length})
+                                🟠 Hors lignes ({awayFriends.length})
                             </h3>
                             <div className="friends-list">
                                 {awayFriends.map(friend => (
