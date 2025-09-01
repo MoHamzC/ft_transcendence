@@ -10,10 +10,6 @@ export async function registerRoutes(fastify) {
     const indexRoutes = (await import('./health.js')).default
     await fastify.register(indexRoutes)
 
-    // Routes d'authentification
-    const authRoutes = (await import('./users/user_route.js')).default
-    await fastify.register(authRoutes, { prefix: '/api/auth' })
-
     // Routes OAuth (existantes)
     const oauthRoutes = (await import('./auth/oauth/oauth.js')).default
     await fastify.register(oauthRoutes, { prefix: '/auth' })

@@ -1,9 +1,6 @@
-# docker-compose.secure.yml
-# Configuration Docker Compose sécurisée avec HTTPS
 version: '3.8'
 
 services:
-  # Base de données PostgreSQL
   db:
     image: postgres:14
     container_name: ft_transcendence_db
@@ -23,9 +20,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    # Sécurité: pas d'exposition de port externe
 
-  # HashiCorp Vault pour la gestion des secrets
   vault:
     image: hashicorp/vault:1.15
     container_name: ft_transcendence_vault
@@ -45,9 +40,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    # Sécurité: pas d'exposition de port externe
 
-  # Application principale avec nginx + Node.js
   app:
     build:
       context: .
@@ -79,7 +72,7 @@ services:
       MAIL_PORT: "587"
       MAIL_USER: "${MAIL_USER}"
       MAIL_PASS: "${MAIL_PASS}"
-      ALLOWED_ORIGINS: "https://localhost,https://127.0.0.1"
+      ALLOWED_ORIGINS: "https://localhost:8443,https://127.0.0.1:8443,http://localhost:5173,http://127.0.0.1:5173,https://localhost,https://127.0.0.1"
       GDPR_DEBUG: "1"
     ports:
       - "8080:80"
@@ -89,17 +82,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "https://localhost/healthz", "--insecure"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
     volumes:
-      # Persistance des certificats SSL
       - ./ssl:/etc/nginx/ssl
     security_opt:
       - no-new-privileges:true
-    read_only: false # nginx a besoin d'écrire des fichiers temporaires
+    read_only: false
     tmpfs:
       - /tmp
       - /var/cache/nginx
@@ -117,5 +104,6 @@ volumes:
     driver: local
   vault_data:
     driver: local
+
 
 
