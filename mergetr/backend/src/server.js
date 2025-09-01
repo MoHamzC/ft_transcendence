@@ -10,6 +10,7 @@ import fastifyStatic from "@fastify/static"
 import nodeMailer from "nodemailer";
 import { vaultService } from './services/VaultService.js'
 import multipart from '@fastify/multipart';
+import { createAIUser } from './middleware/AIuser.js'
 import path from "path";
 import fs from 'fs';
 
@@ -103,6 +104,15 @@ const initDB = async () => {
 
 await initDB();
 
+fastify.addHook('onReady', async function () {
+  try {
+    await createAIUser();
+	console.log('✅ Utilisateur IA initialisé avec succès');
+  } catch (error) {
+    fastify.log.error('Erreur lors de l\'initialisation de l\'IA:', error);
+  }
+});
+
 // Initialisation de Vault
 try {
 	await vaultService.initialize();
@@ -121,6 +131,7 @@ fastify.register(import('./routes/users/user_route.js'), { prefix: '/api/users' 
 fastify.register(import('./routes/users/user_settings.js'), { prefix: '/api/users' });
 fastify.register(import('./routes/tournamentTemp.js'), { prefix: '/api/tournament' });
 fastify.register(import('./services/matchService.js'), { prefix: '/api' });
+fastify.register(import('./routes/stats.js'), { prefix: '/api/stats' });
 
 // Routes de sécurité
 fastify.register(import('./routes/gdpr.route.js'), { prefix: '/api/gdpr' });
