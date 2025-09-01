@@ -1,13 +1,27 @@
 import pool from '../../config/db.js'
 import bcrypt from 'bcrypt'
-import { verifyUser } from './user_route.js'
+// verifyUser supprimé de l'export principal: implémentation locale
+async function localVerifyUser(request, reply) {
+	try {
+		const token = request.cookies.access_token;
+		if (!token) return reply.code(401).send({ error: 'Not authenticated' });
+		const decoded = await request.jwt.verify(token);
+		const userId = decoded.id || decoded.sub;
+		if (!userId) return reply.code(401).send({ error: 'Invalid token' });
+		const dbRes = await pool.query('SELECT id, username, email FROM users WHERE id = $1', [userId]);
+		if (dbRes.rows.length === 0) return reply.code(401).send({ error: 'User not found' });
+		request.user = { id: dbRes.rows[0].id, username: dbRes.rows[0].username, email: dbRes.rows[0].email };
+	} catch (err) {
+		return reply.code(401).send({ error: 'Authentication failed' });
+	}
+}
 import multipart from '@fastify/multipart'
 import fastifyStatic from '@fastify/static'
 import path from 'path'
 import fs from 'fs'
 
 async function userSettingsRoutes(fastify, options) {
-	fastify.put('/settings', { preHandler: verifyUser }, async (request, reply) => {
+	fastify.put('/settings', { preHandler: localVerifyUser }, async (request, reply) => {
 		console.log('request.user:', request.user);
 		const userId = request.user?.id;
 		console.log('userId:', userId);
@@ -65,7 +79,7 @@ async function userSettingsRoutes(fastify, options) {
 		}
 	})
 
-	fastify.put("/reset_password", { preHandler: verifyUser }, async (request, reply) => {
+	fastify.put("/reset_password", { preHandler: localVerifyUser }, async (request, reply) => {
 		try {
 			const userData = request.user;
 			const { newPassword, newPasswordConfirmation } = request.body;
@@ -98,7 +112,7 @@ async function userSettingsRoutes(fastify, options) {
 		}
 	})
 
-	fastify.get('/avatar', { preHandler: verifyUser }, async (request, reply) => {
+	fastify.get('/avatar', { preHandler: localVerifyUser }, async (request, reply) => {
 		try {
 			const user = request.user;
 
@@ -125,7 +139,7 @@ async function userSettingsRoutes(fastify, options) {
 		}
 	});
 
-	fastify.post('/avatar', { preHandler: verifyUser }, async (request, reply) => {
+	fastify.post('/avatar', { preHandler: localVerifyUser }, async (request, reply) => {
 		try {
 			const userId = request.user.id;
 			const data = await request.file();
@@ -178,7 +192,7 @@ async function userSettingsRoutes(fastify, options) {
 })
 
 	// Route pour récupérer tous les paramètres utilisateur
-	fastify.get('/user-settings', { preHandler: verifyUser }, async (request, reply) => {
+	fastify.get('/user-settings', { preHandler: localVerifyUser }, async (request, reply) => {
 		try {
 			const userId = request.user.id;
 
@@ -212,7 +226,7 @@ async function userSettingsRoutes(fastify, options) {
 	});
 
 	// Route pour mettre à jour la bio utilisateur
-	fastify.put('/bio', { preHandler: verifyUser }, async (request, reply) => {
+	fastify.put('/bio', { preHandler: localVerifyUser }, async (request, reply) => {
 		try {
 			const userId = request.user.id;
 			const { bio } = request.body;

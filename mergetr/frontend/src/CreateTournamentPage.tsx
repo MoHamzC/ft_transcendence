@@ -22,7 +22,7 @@ export default function CreateTournamentPage() {
 
     try {
       setLoading(true);
-      const response = await fetch(`${BACKEND_URL}/api/tournament/create`, {
+  const response = await fetch(`${BACKEND_URL}/api/tournament-temp/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

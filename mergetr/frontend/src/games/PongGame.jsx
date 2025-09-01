@@ -6,6 +6,14 @@ import { randomDirection, randomFloatBetween} from './utils.jsx';
 import WinScreen from './winScreen.jsx';
 
 function PongGame() {
+	// Contexte tournoi (optionnel)
+	const [tournamentCtx, setTournamentCtx] = useState(null);
+	useEffect(()=>{
+		try {
+			const raw = localStorage.getItem('currentTournamentMatch');
+			if (raw) setTournamentCtx(JSON.parse(raw));
+		} catch {}
+	}, []);
 	const canvasRef = useRef(null);
 
 	// Player metadata from URL
@@ -281,6 +289,12 @@ function PongGame() {
 
 	return (
 	  <>
+	  {tournamentCtx && (
+	    <div style={{position:'fixed', top:10, left:10, background:'#111', color:'#fff', padding:'6px 10px', borderRadius:6, fontSize:'0.75rem', opacity:0.85}}>
+	      <div>Round Match</div>
+	      <div>{tournamentCtx.player1_alias} vs {tournamentCtx.player2_alias}</div>
+	    </div>
+	  )}
 	    <canvas
 	      ref={canvasRef}
 	      style={{

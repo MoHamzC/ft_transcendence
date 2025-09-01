@@ -1,6 +1,6 @@
 import Fastify from 'fastify'
 import pool from './config/db.js'
-import { initDatabase } from './config/initDb.js'
+import { initDatabase, ensureSchema } from './config/initDb.js'
 import { registerCors } from './config/cors.js'
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
@@ -103,6 +103,7 @@ const initDB = async () => {
 };
 
 await initDB();
+await ensureSchema();
 
 fastify.addHook('onReady', async function () {
   try {
@@ -129,6 +130,11 @@ fastify.register(import('./routes/auth/oauth/42Oauth.js'), { prefix: '/auth'});
 fastify.register(import('./routes/auth/oauth/githubOauth.js'), { prefix: '/auth'});
 fastify.register(import('./routes/users/user_route.js'), { prefix: '/api/users' });
 fastify.register(import('./routes/users/user_settings.js'), { prefix: '/api/users' });
+// Routes joueurs / profils de jeu (pour /api/players/me)
+fastify.register(import('./routes/game_route.js'), { prefix: '/api/players' });
+// Tournoi routes (new prefix)
+fastify.register(import('./routes/tournamentTemp.js'), { prefix: '/api/tournament-temp' });
+// Backward compatibility old prefix (will be removed later)
 fastify.register(import('./routes/tournamentTemp.js'), { prefix: '/api/tournament' });
 fastify.register(import('./services/matchService.js'), { prefix: '/api' });
 fastify.register(import('./routes/stats.js'), { prefix: '/api/stats' });

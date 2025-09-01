@@ -168,7 +168,8 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			const payload = { sub: user.rows[0].id, id: user.rows[0].id, username: user.rows[0].username, email: email };
 			console.log(payload);
 			const token = request.server.jwt.sign(payload)
-			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
+			const secureFlag = process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production';
+			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure: secureFlag });
 			return reply.code(200).send({
 				message: "Login successful",
 				username: user.rows[0].username,
@@ -184,7 +185,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 	async function createUser(request, reply) {
 		const { email, username, password } = request.body
 		if (!email || !username || !password){
-				return reply.code(400).send({error: "Tous les champs sont requis pour créer l'utilisateur" })
+			return reply.code(400).send({ error: 'Tous les champs sont requis' });
 		}
 		const hashedPassword = await bcrypt.hash(password, Number(process.env.SALT_ROUNDS));
 		try {
@@ -399,7 +400,8 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			// Create JWT token (inclure id)
 			const payload = { sub: result.rows[0].id, id: result.rows[0].id, username: result.rows[0].username, email: email };
 			const token = request.jwt.sign(payload)
-			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure:false })
+			const secureFlag = process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production';
+			reply.setCookie('access_token', token, { path:'/', httpOnly: true, secure: secureFlag });
 			return reply.code(200).send({ message: "OTP verification successful", username: result.rows[0].username });
 		} catch(err) {
 			console.log(err);
@@ -438,4 +440,3 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 }
 
 export default userRoutes;
-export { verifyUser };

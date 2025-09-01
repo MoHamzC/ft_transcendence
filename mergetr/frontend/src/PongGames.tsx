@@ -5,6 +5,7 @@ import TargetCursor from './TargetCursor.tsx';
 import FuzzyText from './FuzzyText.tsx';
 import Join1v1 from './components/Join1v1';
 import Join1v13d from './components/Join1v13d';
+// removed unused imports logo, ElasticSlider
 import MyToggle from './MyToggle';
 import axios from 'axios';
 
@@ -67,11 +68,14 @@ const navigate = useNavigate();
     <div className="flex flex-col items-center justify-center min-h-screen">
       <TargetCursor spinDuration={2} hideDefaultCursor={true} />
       <div className="max-w-4xl w-full mx-4 p-8">
-          <h1 className="text-center mb-12 text-white cursor-target flex justify-center items-center">
-            <div style={{ display: 'block', margin: '0 auto' }}>
-              <FuzzyText fontSize="clamp(2rem, 4.5vw, 4.5rem)">Pongz</FuzzyText>
-            </div>
-          </h1>
+        <h1 className="text-center mb-12 text-white cursor-target flex justify-center items-center">
+
+          <FuzzyText
+            fontSize="clamp(2rem, 4.5vw, 4.5rem)"
+          >
+            Pongz
+          </FuzzyText>
+        </h1>
 
         <div className="grid md:grid-cols-2 gap-8">
 
@@ -89,22 +93,13 @@ const navigate = useNavigate();
               </p>
               <div className="flex flex-col gap-4">
                 <div className="relative w-full">
-                    <button
-                      onClick={() => setShowJoin1v1(true)}
-                      className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
-                      style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
-                    >
-                      Play now
-                    </button>
-                    {/* <div className="mt-2">
-                    <Link
-                      to="/selectplayers"
-                      className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
-                      style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
-                    >
-                      Play in tournament
-                    </Link>
-                    </div> */}
+                  <Link
+                    to="/pong/play"
+                    className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
+                    style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
+                  >
+                    Play now
+                  </Link>
                 </div>
               </div>
             </div>
@@ -146,7 +141,17 @@ const navigate = useNavigate();
           </div>
         </div>
 
-        <div className="mt-12 grid md:grid-cols-2 gap-8 text-gray-400">
+        {/* Standalone tournament button */}
+        <div className="mt-12 flex flex-col items-center gap-10">
+          <Link
+            to="/tournament"
+            className="px-10 py-5 rounded-2xl cursor-target text-lg font-semibold shadow-lg active:scale-95 hover:scale-105 transition-all border border-purple-500/30"
+            style={{ background: 'linear-gradient(135deg,#00ff88,#00cc6a)', color:'#1a1a2e' }}
+          >
+            🏆 Play in Tournament
+          </Link>
+
+          <div className="grid md:grid-cols-2 gap-8 text-gray-400 w-full">
 
           <div className="flex flex-col items-center">
             <h4 className="mb-4 text-green-300">Player 1</h4>
@@ -167,6 +172,7 @@ const navigate = useNavigate();
           </div>
           <div className="col-span-2 flex justify-center mt-4">
             <p className="text-sm">5 points = win</p>
+          </div>
           </div>
         </div>
 

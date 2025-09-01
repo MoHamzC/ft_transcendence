@@ -29,6 +29,10 @@ func decode_param(s: String) -> String:
 	s = s.replace("%23", "#")
 	return s
 
+# --- tournoi context ---
+var tournament_id: String = ""
+var match_id: String = ""
+
 
 func _ready():
 	var url = ""  # valeur par défaut
@@ -76,8 +80,20 @@ func _ready():
 
 
 
+			# Contexte tournoi
+			if search.find("tournamentId=") != -1:
+				var parts = search.split("tournamentId=")
+				if parts.size() > 1:
+					tournament_id = parts[1].split("&")[0]
+					print("Tournament ID detected:", tournament_id)
+			if search.find("matchId=") != -1:
+				var parts = search.split("matchId=")
+				if parts.size() > 1:
+					match_id = parts[1].split("&")[0]
+					print("Match ID detected:", match_id)
+
 	# Debug
 	print("Right IA activé :", right_ia)
-	print("Player Left :", skin_PL_name, " ", skin_PL_color, " ", skin_PL_id)
-	print("Player Right :", skin_PR_name, " ", skin_PR_color, " ", skin_PR_id)
-	print("Tournament ID :", tournament_id)
+	print("Player Left :", skin_PL_color, skin_PL_id)
+	print("Player Right:", skin_PR_color, skin_PR_id)
+	print("Tournament context:", tournament_id, match_id)
