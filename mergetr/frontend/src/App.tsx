@@ -25,6 +25,19 @@ import Home from './Home.tsx';
 import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
 import SelectPlayers from './SelectPlayers.tsx';
+import Tournament from './Tournament.tsx';
+import PongGame from './games/PongGame.jsx';
+function onRenderCallback(
+  id: string,
+  phase: 'mount' | 'update',
+  actualDuration: number,
+  baseDuration: number,
+  startTime: number,
+  commitTime: number,
+  interactions: Set<any>
+) {
+  console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
+}
 
 function onRenderCallback(
   id: string,
@@ -90,30 +103,34 @@ function AppContent()
 					disableRotation={false}
 					className=""
 				/>
-				{/* <Profiler id="MainRoutes" onRender={onRenderCallback}> */}
-					<div style={{ position: 'relative', zIndex: 10, width: '100%', minHeight: '100vh' }}>
-						<Routes>
-							<Route path="/" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Home /></div>} />
-							<Route path="/login" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><LoginView setIsLogged={setIsLogged} /></div>} />
-							<Route path="/pong" element={<PongGames />} />
-							<Route path="/pong/play" element={<PongGame />} />
-							<Route path="/aboutus" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><AboutUs /></div>} />
-							<Route path="/leaderbord" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Leaderbord/></div>} />
-							<Route path="/friends" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Friends /></div>} />
-							<Route path="/settings" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Settings /></div>} />
-							<Route path="/profile" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Profile /></div>} />
-							<Route path="/stats" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Stats/></div>} />
-							<Route path="/register" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Register/></div>} />
-							<Route path="/logout" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Logout setIsLogged={setIsLogged} /></div>} />
-							<Route path="/error" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Error/></div>} />
-							<Route path="/doubleauth" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><DoubleAuth /></div>} />
-							<Route path="/ResetPassword" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><ResetPassword /></div>} />
-							<Route path="/selectplayers" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><SelectPlayers /></div>} />
-						</Routes>
-					</div>
-				{/* </Profiler> */}
-				<SideMenu isLogged={isLogged} setIsLogged={setIsLogged} />
-				<BackHome />
+				<Router>
+					{/* <Profiler id="MainRoutes" onRender={onRenderCallback}> */}
+						<div style={{ position: 'absolute', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+							<Routes>
+								<Route path="/" element={<Home />} />
+								<Route path="/login" element={<LoginView setIsLogged={setIsLogged} />} />
+								<Route path="/pong" element={<PongGames />} />
+								<Route path="/pong/play" element={<PongGame />} />
+								<Route path="/aboutus" element={<AboutUs />} />
+								<Route path="/leaderbord" element={<Leaderbord/>} />
+								<Route path="/friends" element={<Friends />} />
+								<Route path="/settings" element={<Settings />} />
+								<Route path="/profile" element={<Profile />} />
+								<Route path="/stats" element={<Stats/>} />
+								<Route path="/register" element={<Register/>} />
+								<Route path="/logout" element={<Logout setIsLogged={setIsLogged} />} />
+								<Route path="/error" element={<Error/>} />
+								<Route path="/doubleauth" element={<DoubleAuth />} />
+								<Route path="/ResetPassword" element={<ResetPassword />} />
+								<Route path="/selectplayers" element={<SelectPlayers />} />
+								<Route path="/tournament" element={<Tournament />} />
+							</Routes>
+						</div>
+					{/* </Profiler> */}
+					<SideMenu isLogged={isLogged} setIsLogged={setIsLogged} />
+					<BackHome />
+
+				</Router>
 			</div>
 		</>
 	)

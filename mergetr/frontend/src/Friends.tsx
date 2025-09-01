@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import InfiniteMenu from './InfiniteMenu.tsx';
 import FriendsService, { type Friend, type FriendRequest } from './services/friendsService';
@@ -39,12 +38,11 @@ export default function Friends() {
     loadFriends();
   }, []);
 
-  // No extra derived state needed; use friends.length directly where required
 
   const handleAcceptFriend = async (requesterId: string) => {
     try {
       await FriendsService.acceptFriendRequest(requesterId);
-      await loadFriends(); 
+      await loadFriends();
     } catch (err: any) {
       setError(err.message || 'Error accepting friend request');
     }
@@ -53,7 +51,7 @@ export default function Friends() {
   const handleRejectFriend = async (requesterId: string) => {
     try {
       await FriendsService.rejectFriendRequest(requesterId);
-      await loadFriends(); 
+      await loadFriends();
     } catch (err: any) {
       setError(err.message || 'Error rejecting friend request');
     }
@@ -62,7 +60,7 @@ export default function Friends() {
   const handleRemoveFriend = async (friendId: string) => {
     try {
       await FriendsService.removeFriend(friendId);
-      await loadFriends(); 
+      await loadFriends();
     } catch (err: any) {
       setError(err.message || 'Error removing friend');
     }
@@ -80,7 +78,8 @@ export default function Friends() {
           <div className="flex justify-center items-center w-full mt-4 gap-4">
             <button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#ffd1dc] text-[#23243a] font-bold shadow hover:scale-105 transition-all cursor-pointer"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold shadow hover:scale-105 transition-all cursor-pointer"
+              style={{ backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
@@ -88,17 +87,9 @@ export default function Friends() {
               Add A Friend
             </button>
 
-            {friends.length > 0 && (
-              <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#ffd1dc] text-[#23243a] font-bold shadow hover:scale-105 transition-all cursor-pointer">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
-                </svg>
-                Remove Friend
-              </button>
-            )}
           </div>
       <div className="friends-content">
-        {/* Tabs */}
+
         <div className="friends-tabs">
           <button
             onClick={() => setActiveTab('friends')}
@@ -114,17 +105,17 @@ export default function Friends() {
           </button>
         </div>
 
-        {/* Centered action buttons under title */}
+
         <div className="flex flex-col justify-center items-center w-full mt-8 mb-4">
-          {/* <FuzzyText>Friends</FuzzyText> */}
+
         </div>
 
-        {/* Loading */}
+
         {loading && (
           <div className="loading-message">Chargement...</div>
         )}
 
-        {/* Friends List */}
+
         {!loading && activeTab === 'friends' && (
           <div>
             {friends.length === 0 ? (
@@ -132,7 +123,7 @@ export default function Friends() {
                 No friends yet.... yete
                 <br />
                 <div className="flex justify-center items-center w-full mb-8 gap-4 mt-4">
-                  
+
                 </div>
               </div>
             ) : (
@@ -150,7 +141,6 @@ export default function Friends() {
           </div>
         )}
 
-        {/* Pending Requests */}
         {!loading && activeTab === 'pending' && (
           <div>
             {pendingRequests.length === 0 ? (

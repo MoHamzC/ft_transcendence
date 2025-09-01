@@ -1,10 +1,10 @@
 // PongGames.tsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import TargetCursor from './TargetCursor.tsx';
 import FuzzyText from './FuzzyText.tsx';
-import logo from './assets/logo.png';
-import ElasticSlider from './ElasticSlider'
+import Join1v1 from './components/Join1v1';
+import Join1v13d from './components/Join1v13d';
 import MyToggle from './MyToggle';
 import axios from 'axios';
 
@@ -12,6 +12,8 @@ const PongGames: React.FC = () => {
 	const [AIopponent, setAIopponent] = useState(false);
 	const [playerData, setPlayerData] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [showJoin1v1, setShowJoin1v1] = useState(false);
+	const [showJoin1v13d, setShowJoin1v13d] = useState(false);
 
 	useEffect(() => {
     // Fetch player data when component mounts
@@ -62,19 +64,16 @@ const PongGames: React.FC = () => {
   setIsLoading(false);
 };
 
+const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <TargetCursor spinDuration={2} hideDefaultCursor={true} />
       <div className="max-w-4xl w-full mx-4 p-8">
-        <h1 className="text-center mb-12 text-white cursor-target flex justify-center items-center">
-
-          <FuzzyText
-            fontSize="clamp(2rem, 4.5vw, 4.5rem)"
-            style={{ display: "block", margin: "0 auto" }}
-          >
-            Pongz
-          </FuzzyText>
-        </h1>
+          <h1 className="text-center mb-12 text-white cursor-target flex justify-center items-center">
+            <div style={{ display: 'block', margin: '0 auto' }}>
+              <FuzzyText fontSize="clamp(2rem, 4.5vw, 4.5rem)">Pongz</FuzzyText>
+            </div>
+          </h1>
 
         <div className="grid md:grid-cols-2 gap-8">
 
@@ -92,14 +91,14 @@ const PongGames: React.FC = () => {
               </p>
               <div className="flex flex-col gap-4">
                 <div className="relative w-full">
-                    <Link
-                    to="/pong/play"
-                    className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
-                    style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
+                    <button
+                      onClick={() => setShowJoin1v1(true)}
+                      className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
+                      style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
                     >
-                    Play now
-                    </Link>
-                    <div className="mt-2">
+                      Play now
+                    </button>
+                    {/* <div className="mt-2">
                     <Link
                       to="/selectplayers"
                       className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
@@ -107,7 +106,7 @@ const PongGames: React.FC = () => {
                     >
                       Play in tournament
                     </Link>
-                    </div>
+                    </div> */}
                 </div>
               </div>
             </div>
@@ -129,7 +128,7 @@ const PongGames: React.FC = () => {
               <div className="flex flex-col gap-4">
                 <div className="relative w-full">
                   <button
-                     onClick={handlePlay3D}
+                    onClick={() => setShowJoin1v13d(true)}
                     className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
                     style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
 					disabled={isLoading}
@@ -175,12 +174,30 @@ const PongGames: React.FC = () => {
 
 
         <div className="mt-8 text-center hover:scale-105 active:scale-95">
-          <Link
-            to="/"
-          >
-            ← Back Home
-          </Link>
+
+          <Link to="/">← Back Home</Link>
         </div>
+        {showJoin1v1 && (
+          <Join1v1
+            isOpen={showJoin1v1}
+            onClose={() => setShowJoin1v1(false)}
+            onStartMatch={(p1: string, p2: string) => {
+              setShowJoin1v1(false);
+              navigate('/pong/play', { state: { player1: p1, player2: p2 } });
+            }}
+          />
+        )}
+        {showJoin1v13d && (
+          <Join1v13d
+            isOpen={showJoin1v13d}
+            onClose={() => setShowJoin1v13d(false)}
+            onStartMatch={(p1: string, p2: string) => {
+              setShowJoin1v13d(false);
+              const url = `/export_pong3D/index.html?ia=${AIopponent}&p1=${encodeURIComponent(p1)}&p2=${encodeURIComponent(p2)}`;
+              window.location.href = url;
+            }}
+          />
+        )}
       </div>
     </div>
   );

@@ -1,31 +1,12 @@
 import FuzzyText from "./FuzzyText";
 import React, { useEffect, useState } from 'react';
 import TargetCursor from './TargetCursor';
-import { useNavigate } from 'react-router-dom';
-
+import {useNavigate} from "react-router-dom";
 export default function SelectPlayers() {
   const navigate = useNavigate();
-  const [showWelcome, setShowWelcome] = useState(false);
-
-  useEffect(() => {
-    // Vérifier si l'utilisateur vient de se connecter
-    const urlParams = new URLSearchParams(window.location.search);
-    const loginSuccess = urlParams.get('login');
-
-    if (loginSuccess === 'success') {
-      setShowWelcome(true);
-      // Nettoyer l'URL après 3 secondes
-      setTimeout(() => {
-        setShowWelcome(false);
-        window.history.replaceState({}, '', '/selectplayers');
-      }, 3000);
-    }
-  }, []);
-
   const handleChoose = (n: number) => {
     console.log('Chosen players:', n);
-    // Ici vous pouvez ajouter la logique pour démarrer le jeu avec n joueurs
-    // Par exemple : navigate('/pong/game', { state: { players: n } });
+    navigate(`/tournament`);
   };
 
   const buttonStyle: React.CSSProperties = {
@@ -48,35 +29,16 @@ export default function SelectPlayers() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
       <TargetCursor spinDuration={2} hideDefaultCursor={true} />
-
-      {showWelcome && (
-        <div style={{
-          position: 'fixed',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'linear-gradient(135deg, #00ff88, #00cc6a)',
-          color: '#1a1a2e',
-          padding: '1rem 2rem',
-          borderRadius: '10px',
-          fontWeight: 'bold',
-          zIndex: 1000,
-          animation: 'fadeInOut 3s ease-in-out'
-        }}>
-          🎉 Connexion réussie ! Bienvenue !
-        </div>
-      )}
-
-      <div style={{ display: "block", margin: "0 auto", textAlign: "center" }}>
-        <FuzzyText fontSize="clamp(2rem, 4.5vw, 4.5rem)">
-          Number of players
-        </FuzzyText>
-      </div>
+      <FuzzyText
+        fontSize="clamp(2rem, 4.5vw, 4.5rem)"
+      >
+        Number of players
+      </FuzzyText>
 
       <div className="mt-8 flex gap-6">
         <button
           onClick={() => handleChoose(4)}
-          className="block w-44 h-12 text-center cursor-target rounded-xl active:scale-95 hover:scale-105 cursor-pointer flex items-center justify-center transition-all duration-200"
+          className="rounded-xl active:scale-95 hover:scale-105 cursor-pointer cursor-target"
           style={buttonStyle}
         >
             <img src="/src/assets/icon_table_preserved.png" alt="Table Icon" style={{ width: '64px', height: '64px' }} />
@@ -85,7 +47,7 @@ export default function SelectPlayers() {
 
         <button
           onClick={() => handleChoose(8)}
-          className="block w-44 h-12 text-center cursor-target rounded-xl active:scale-95 cursor-pointer hover:scale-105 flex items-center justify-center transition-all duration-200"
+          className="rounded-xl active:scale-95 hover:scale-105 cursor-pointer cursor-target"
           style={buttonStyle}
         >
             <img src="/src/assets/pong_multi.png" alt="Pong Multi Icon" style={{ width: '64px', height: '64px' }} />
