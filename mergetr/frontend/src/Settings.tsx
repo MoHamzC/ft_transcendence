@@ -17,7 +17,7 @@ export default function Settings () {
     const [loadingSettings, setLoadingSettings] = React.useState(true);
     const [message, setMessage] = React.useState('');
 
-    // Load existing settings on mount
+    
     React.useEffect(() => {
         async function loadSettings() {
             try {
@@ -30,7 +30,7 @@ export default function Settings () {
                     const result = await response.json();
                     const settings = result.settings;
 
-                    // Initialize states with DB values
+                   
                     setDoubleAuth(settings.two_factor_enabled || false);
                     setPrivateProfile(settings.profile_private || false);
                     setFriendsRequest(settings.add_friend || false);
