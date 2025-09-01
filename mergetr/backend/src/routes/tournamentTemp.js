@@ -39,6 +39,12 @@ export default async function tournamentTempRoutes(fastify, options) {
                 createdBy
             });
 
+            if (!result.success) {
+                fastify.log.error({ msg: 'Tournament creation failed', name, mode, createdBy, detail: result.detail });
+            } else {
+                fastify.log.info({ msg: 'Tournament created', id: result.tournament.id, createdBy });
+            }
+
             return reply.send(result);
 
         } catch (error) {
@@ -213,5 +219,34 @@ export default async function tournamentTempRoutes(fastify, options) {
             message: 'Tournament Temp API is working!',
             timestamp: new Date().toISOString()
         };
+    });
+
+    // Endpoint pour enregistrer le résultat d'un match (payload du moteur de jeu)
+    fastify.post('/match', async (request, reply) => {
+        try {
+            const { tournamentId, matchId, playerWinner, playerLoser, playerWinnerScore, playerLoserScore } = request.body || {};
+
+            fastify.log.info({ route: '/api/tournament-temp/match', body: request.body, note: 'Incoming tournament match result' });
+
+            if (!tournamentId || !matchId || !playerWinner || !playerLoser) {
+                return reply.code(400).send({ success: false, error: 'Missing required fields' });
+            }
+
+            const result = await TournamentTempService.recordMatchResult({
+                tournamentId,
+                matchId,
+                playerWinner,
+                playerLoser,
+                playerWinnerScore: playerWinnerScore ?? 0,
+                playerLoserScore: playerLoserScore ?? 0
+            });
+
+            fastify.log.info({ route: '/api/tournament-temp/match', matchId, tournamentId, result, note: 'Result after recordMatchResult' });
+
+            return reply.send(result);
+        } catch (error) {
+            console.error('Error in record match route:', error);
+            return reply.code(500).send({ success: false, error: 'Internal server error' });
+        }
     });
 }

@@ -61,6 +61,8 @@ export default async function gameRoutes(fastify) {
     preValidation: [requireAuth]
   }, async (request, reply) => {
     try {
+  // Debug logging temporaire
+  fastify.log.info({ route: '/api/players/me', cookies: Object.keys(request.cookies || {}), hasToken: !!request.cookies?.access_token });
       const userId = request.user.id;
 
       const user = await fastify.db.query(

@@ -16,6 +16,10 @@ var skin_PL_id: String = ""
 var skin_PR_color: String = "blue"
 var skin_PR_id: String = ""
 
+# --- tournoi context ---
+var tournament_id: String = ""
+var match_id: String = ""
+
 
 func _ready():
 	if Engine.has_singleton("JavaScriptBridge"):
@@ -46,7 +50,20 @@ func _ready():
 				if parts.size() > 1:
 					skin_PR_id = parts[1].split("&")[0]
 
+			# Contexte tournoi
+			if search.find("tournamentId=") != -1:
+				var parts = search.split("tournamentId=")
+				if parts.size() > 1:
+					tournament_id = parts[1].split("&")[0]
+					print("Tournament ID detected:", tournament_id)
+			if search.find("matchId=") != -1:
+				var parts = search.split("matchId=")
+				if parts.size() > 1:
+					match_id = parts[1].split("&")[0]
+					print("Match ID detected:", match_id)
+
 	# Debug
 	print("Right IA activé :", right_ia)
 	print("Player Left :", skin_PL_color, skin_PL_id)
 	print("Player Right:", skin_PR_color, skin_PR_id)
+	print("Tournament context:", tournament_id, match_id)

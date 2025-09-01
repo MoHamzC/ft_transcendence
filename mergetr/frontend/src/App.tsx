@@ -12,7 +12,10 @@ import Profile from './Profile.tsx';
 import Stats from './Stats.tsx';
 import LoginView from './LoginView.tsx';
 import PongGames from './PongGames.tsx';
+// @ts-ignore - JS component without full TS types
 import PongGame from './games/PongGame.jsx';
+import TournamentTemp from './TournamentTemp.tsx';
+import TournamentPlay from './TournamentPlay.tsx';
 import JoinTournamentPage from './JoinTournamentPage';
 import CreateTournamentPage from './CreateTournamentPage';
 
@@ -26,17 +29,7 @@ import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
 import SelectPlayers from './SelectPlayers.tsx';
 
-function onRenderCallback(
-  id: string,
-  phase: 'mount' | 'update',
-  actualDuration: number,
-  baseDuration: number,
-  startTime: number,
-  commitTime: number,
-  interactions: Set<any>
-) {
-  console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
-}
+// Profiler callback removed (unused)
 
 function AppContent()
 {
@@ -109,6 +102,11 @@ function AppContent()
 							<Route path="/doubleauth" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><DoubleAuth /></div>} />
 							<Route path="/ResetPassword" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><ResetPassword /></div>} />
 							<Route path="/selectplayers" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><SelectPlayers /></div>} />
+							{/* Tournament system routes */}
+							<Route path="/tournament" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><TournamentTemp /></div>} />
+							<Route path="/tournament/:tournamentId/play" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><TournamentPlay /></div>} />
+							<Route path="/createtournament" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><CreateTournamentPage /></div>} />
+							<Route path="/jointournament/:tournamentId" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><JoinTournamentPage /></div>} />
 						</Routes>
 					</div>
 				{/* </Profiler> */}

@@ -44,6 +44,12 @@ func on_goal_scored():
 		get_tree().change_scene_to_file("res://scene/victory_scene.tscn")
 
 func send_match_result(winner_name: String, winner_id: String, loser_name: String, loser_id: String, score_winner: int, score_loser: int) -> void:
+	# Vérification des IDs
+	if winner_id == "" or loser_id == "":
+		push_error("IDs de joueurs vides ! Winner: " + winner_id + ", Loser: " + loser_id)
+		return
+
+	var is_tournament: bool = Global.tournament_id != "" and Global.match_id != ""
 	var url = "http://localhost:5001/api/match"
 	var data := {
 		"playerWinner": winner_id,
@@ -51,7 +57,25 @@ func send_match_result(winner_name: String, winner_id: String, loser_name: Strin
 		"playerWinnerScore": score_winner,
 		"playerLoserScore": score_loser,
 	}
+	if is_tournament:
+		url = "http://localhost:5001/api/tournament-temp/match"
+		# Pour l'API tournoi il faut les participant IDs (déjà fournis via PL_id / PR_id) + tournament/match ids
+		data = {
+			"tournamentId": Global.tournament_id,
+			"matchId": Global.match_id,
+			"playerWinner": winner_id,
+			"playerLoser": loser_id,
+			"playerWinnerScore": score_winner,
+			"playerLoserScore": score_loser,
+		}
 	var json_data := JSON.stringify(data)
+	print("=== MATCH RESULT DEBUG ===")
+	print("Is tournament:", is_tournament)
+	print("Tournament ID:", Global.tournament_id)
+	print("Match ID:", Global.match_id)
+	print("Winner ID:", winner_id)
+	print("Loser ID:", loser_id)
+	print("URL:", url)
 	print("JSON envoyé :", json_data)
 
 	var headers := ["Content-Type: application/json"]
@@ -59,12 +83,29 @@ func send_match_result(winner_name: String, winner_id: String, loser_name: Strin
 	if err != OK:
 		push_error("Erreur d'envoi HTTP : %s" % err)
 	else:
-		print("Requête HTTP envoyée !")
+		print("Requête HTTP envoyée avec succès!")
 
 func _on_http_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
-	print("Réponse du backend - Code: ", response_code)
-	print("Corps de la réponse: ", body.get_string_from_utf8())
+	print("=== HTTP RESPONSE DEBUG ===")
+	print("Result:", result)
+	print("Response code:", response_code)
+	var body_str = body.get_string_from_utf8()
+	print("Response body:", body_str)
 	if response_code == 200 or response_code == 201:
 		print("Match result envoyé avec succès!")
+		# Déclenche une entrée localStorage pour notifier l'onglet tournoi (si bridge présent)
+		if Engine.has_singleton("JavaScriptBridge") and Global.tournament_id != "":
+			var js = JavaScriptBridge.get_interface("window")
+			if js:
+				var key = "tournamentUpdate:" + Global.tournament_id
+				# Valeur aléatoire pour garantir un event
+				js.localStorage.setItem(key, str(Time.get_ticks_msec()))
+				print("Storage event triggered for tournament:", Global.tournament_id)
 	else:
 		print("Erreur lors de l'envoi du résultat: ", response_code)
+		if body_str:
+			var json = JSON.parse_string(body_str)
+			if json and json.has("error"):
+				print("Server error:", json.error)
+			elif json and json.has("message"):
+				print("Server message:", json.message)

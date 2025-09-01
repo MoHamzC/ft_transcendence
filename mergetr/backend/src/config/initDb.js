@@ -34,6 +34,25 @@ export async function initDatabase() {
     }
 }
 
+// Vérifie l'existence des tables critiques et applique le schema si manquant (sans drop)
+export async function ensureSchema() {
+    try {
+        const check = await pool.query(`SELECT to_regclass('public.tournaments') AS tournaments, to_regclass('public.tournament_participants') AS participants`);
+        const row = check.rows[0];
+        if (!row.tournaments || !row.participants) {
+            console.log('🛠  Tables de tournoi manquantes – application du schema.sql (mode non destructif)...');
+            const schemaPath = path.join(__dirname, '../../database/schema.sql');
+            const schema = fs.readFileSync(schemaPath, 'utf8');
+            await pool.query(schema); // contient des CREATE TABLE IF NOT EXISTS
+            console.log('✅ Schema tournoi appliqué');
+        } else {
+            console.log('✅ Schema tournoi déjà présent');
+        }
+    } catch (err) {
+        console.error('❌ ensureSchema error:', err.message);
+    }
+}
+
 // Option plus douce: ne supprime que les tables spécifiques
 export async function resetTables() {
     try {

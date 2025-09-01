@@ -20,6 +20,8 @@ export default function JoinTournamentPage() {
   const navigate = useNavigate();
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [aliases, setAliases] = useState<string[]>([]);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [persisted, setPersisted] = useState<boolean[]>([]); // slots already in DB
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -28,9 +30,39 @@ export default function JoinTournamentPage() {
     loadTournamentInfo();
   }, [tournamentId]);
 
+  // Fetch current logged-in user (username) and prefill first alias
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        // Try /api/players/me first (lightweight)
+        let r = await fetch(`${BACKEND_URL}/api/players/me`, { credentials: 'include' });
+        if (!r.ok) {
+          // Fallback to /api/users/me (full user route)
+          r = await fetch(`${BACKEND_URL}/api/users/me`, { credentials: 'include' });
+        }
+        if (r.ok) {
+          const data = await r.json();
+          const name = data.name || data.username || data.user?.username || null;
+          if (name) {
+            setCurrentUser(name);
+            // Prefill first alias only if not already filled
+            setAliases(prev => {
+              if (prev.length === 0) return prev; // wait tournament load
+              if (prev[0]) return prev; // don't overwrite manual input
+              const copy = [...prev];
+              copy[0] = name;
+              return copy;
+            });
+          }
+        }
+      } catch {/* silently ignore */}
+    };
+    fetchUser();
+  }, []);
+
   const loadTournamentInfo = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/tournament/${tournamentId}`, {
+      const response = await fetch(`${BACKEND_URL}/api/tournament-temp/${tournamentId}`, {
         credentials: 'include'
       });
 
@@ -38,7 +70,29 @@ export default function JoinTournamentPage() {
         const data = await response.json();
         if (data.success) {
           setTournament(data.tournament);
-          setAliases(Array(data.tournament.max_players).fill(''));
+          const max = data.tournament.max_players;
+          const arr = Array(max).fill('') as string[];
+          const persistedArr = Array(max).fill(false) as boolean[];
+          if (data.participants && Array.isArray(data.participants)) {
+            // Positionner chaque participant déjà inscrit
+            data.participants.forEach((p:any, idx:number) => {
+              const slotIndex = (p.player_slot ? p.player_slot - 1 : idx);
+              if (slotIndex >=0 && slotIndex < max) {
+                arr[slotIndex] = p.alias;
+                persistedArr[slotIndex] = true;
+                // Si c'est l'utilisateur authentifié on retient son alias
+                if (p.is_authenticated && !currentUser) {
+                  setCurrentUser(p.alias);
+                }
+              }
+            });
+          }
+          // Si aucun participant authentifié encore détecté mais currentUser existe, préremplir slot 0
+          if (currentUser && !persistedArr[0]) {
+            arr[0] = currentUser;
+          }
+          setAliases(arr);
+          setPersisted(persistedArr);
         }
       }
     } catch (err) {
@@ -54,11 +108,19 @@ export default function JoinTournamentPage() {
   };
 
   const joinTournamentWithAliases = async () => {
-    const filledAliases = aliases.filter(alias => alias.trim() !== '');
+    const trimmed = aliases.map(a => a.trim());
+    // Vérifier uniquement les slots non persistés
+    const missing = trimmed.some((a, i) => !persisted[i] && a === '');
 
-    if (filledAliases.length !== 4) {
-      setError('Exactly four aliases are required');
+    if (!tournament) return;
+    if (missing) {
+      setError('Fill all empty alias slots');
       return;
+    }
+
+    // Ensure first alias matches logged-in user if available
+    if (currentUser && trimmed[0] && trimmed[0] !== currentUser) {
+      // Accept difference, but still treat first as permanent if user is logged and wants custom alias
     }
 
     try {
@@ -66,16 +128,19 @@ export default function JoinTournamentPage() {
       setError('');
       setSuccess('');
 
-      for (const alias of filledAliases) {
-        const response = await fetch(`${BACKEND_URL}/api/tournament/${tournamentId}/join`, {
+      for (let i = 0; i < trimmed.length; i++) {
+        if (persisted[i]) continue; // déjà en DB
+        const alias = trimmed[i];
+        const response = await fetch(`${BACKEND_URL}/api/tournament-temp/${tournamentId}/join`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           credentials: 'include',
           body: JSON.stringify({
-            alias: alias.trim(),
-            isTemporary: true
+            alias,
+            // First slot: if user logged -> permanent (isTemporary false); else true
+            isTemporary: i === 0 ? !currentUser : true
           })
         });
 
@@ -86,10 +151,14 @@ export default function JoinTournamentPage() {
         }
       }
 
-      setSuccess(`Successfully joined ${filledAliases.length} players to the tournament!`);
+      // Démarrer automatiquement le tournoi puis rediriger vers l'écran de jeu
+      try {
+        await fetch(`${BACKEND_URL}/api/tournament-temp/${tournamentId}/start`, { method:'POST', credentials:'include' });
+      } catch {}
+      setSuccess('Players registered successfully! Starting...');
       setTimeout(() => {
-        navigate('/tournament');
-      }, 2000);
+        navigate(`/tournament/${tournamentId}/play`);
+      }, 1200);
 
     } catch (err) {
       console.error('Error joining tournament:', err);
@@ -185,7 +254,7 @@ export default function JoinTournamentPage() {
               <button
                 onClick={joinTournamentWithAliases}
                 className="action-btn join-btn"
-                disabled={loading || aliases.filter(alias => alias.trim() !== '').length !== 4}
+                disabled={loading || aliases.some((a,i)=> !persisted[i] && a.trim()==='')}
                 style={{ marginRight: '15px' }}
               >
                 {loading ? 'Joining...' : 'Join Tournament'}

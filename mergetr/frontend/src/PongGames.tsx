@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TargetCursor from './TargetCursor.tsx';
 import FuzzyText from './FuzzyText.tsx';
-import logo from './assets/logo.png';
-import ElasticSlider from './ElasticSlider'
+// removed unused imports logo, ElasticSlider
 import MyToggle from './MyToggle';
 
 const PongGames: React.FC = () => {
@@ -18,7 +17,6 @@ const PongGames: React.FC = () => {
 
           <FuzzyText
             fontSize="clamp(2rem, 4.5vw, 4.5rem)"
-            style={{ display: "block", margin: "0 auto" }}
           >
             Pongz
           </FuzzyText>
@@ -40,22 +38,13 @@ const PongGames: React.FC = () => {
               </p>
               <div className="flex flex-col gap-4">
                 <div className="relative w-full">
-                    <Link
+                  <Link
                     to="/pong/play"
                     className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
                     style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
-                    >
+                  >
                     Play now
-                    </Link>
-                    <div className="mt-2">
-                    <Link
-                      to="/selectplayers"
-                      className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
-                      style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
-                    >
-                      Play in tournament
-                    </Link>
-                    </div>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -96,7 +85,17 @@ const PongGames: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-12 grid md:grid-cols-2 gap-8 text-gray-400">
+        {/* Standalone tournament button */}
+        <div className="mt-12 flex flex-col items-center gap-10">
+          <Link
+            to="/tournament"
+            className="px-10 py-5 rounded-2xl cursor-target text-lg font-semibold shadow-lg active:scale-95 hover:scale-105 transition-all border border-purple-500/30"
+            style={{ background: 'linear-gradient(135deg,#00ff88,#00cc6a)', color:'#1a1a2e' }}
+          >
+            🏆 Play in Tournament
+          </Link>
+
+          <div className="grid md:grid-cols-2 gap-8 text-gray-400 w-full">
 
           <div className="flex flex-col items-center">
             <h4 className="mb-4 text-green-300">Player 1</h4>
@@ -117,6 +116,7 @@ const PongGames: React.FC = () => {
           </div>
           <div className="col-span-2 flex justify-center mt-4">
             <p className="text-sm">5 points = win</p>
+          </div>
           </div>
         </div>
 

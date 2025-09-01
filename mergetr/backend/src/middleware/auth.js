@@ -8,12 +8,31 @@
  */
 export const requireAuth = async (request, reply) => {
     try {
-        await request.jwtVerify()
+        // Récupération du token depuis le cookie ou l'en-tête Authorization
+        let token = request.cookies?.access_token;
+        if (!token && request.headers.authorization) {
+            token = request.headers.authorization.replace('Bearer ', '');
+        }
+
+        if (!token) {
+            return reply.code(401).send({
+                error: 'No token provided',
+                message: 'Authentification requise'
+            });
+        }
+
+        const decoded = await request.server.jwt.verify(token);
+        request.user = decoded;
+
+        // Harmoniser l'ID utilisateur
+        if (request.user && request.user.sub && !request.user.id) {
+            request.user.id = request.user.sub;
+        }
     } catch (err) {
-        reply.code(401).send({
+        return reply.code(401).send({
             error: 'Token manquant ou invalide',
             message: 'Authentification requise'
-        })
+        });
     }
 }
 
@@ -24,9 +43,20 @@ export const requireAuth = async (request, reply) => {
  */
 export const optionalAuth = async (request, reply) => {
     try {
-        await request.jwtVerify()
+        let token = request.cookies?.access_token;
+        if (!token && request.headers.authorization) {
+            token = request.headers.authorization.replace('Bearer ', '');
+        }
+        if (!token) {
+            request.user = null;
+            return;
+        }
+        const decoded = await request.server.jwt.verify(token);
+        request.user = decoded;
+        if (request.user && request.user.sub && !request.user.id) {
+            request.user.id = request.user.sub;
+        }
     } catch (err) {
-        // Pas d'erreur, juste pas d'utilisateur connecté
-        request.user = null
+        request.user = null; // utilisateur non authentifié
     }
 }
