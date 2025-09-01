@@ -48,13 +48,13 @@ const Profile: React.FC = () => {
         });
 
         if (!userResponse.ok) {
-          throw new Error(`Erreur ${userResponse.status}: Can't get user data`);
+          throw new Error(`Error ${userResponse.status}: Can't get user data`);
         }
 
         const data = await userResponse.json();
 
         if (!data.user) {
-          throw new Error('Données utilisateur manquantes dans la réponse');
+          throw new Error('Missing user data');
         }
         setUser(data.user);
 
