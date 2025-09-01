@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const BACKEND_URL = 'http://localhost:5001';
+const BACKEND_URL = 'https://localhost:8443';
 
 export default function Logout({ setIsLogged }: any) {
   const navigate = useNavigate();

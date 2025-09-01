@@ -51,10 +51,9 @@ export default fp(async (app) => {
             // En développement, autoriser localhost
             if (process.env.NODE_ENV === 'development') {
                 const allowedOrigins = [
-                    'http://localhost:5001',
-                    'http://localhost:5173', // Vite dev server
-                    'https://localhost:5001',
-                    'https://localhost:5173'
+                    'https://localhost:8443', // Backend HTTPS
+                    'http://localhost:5173', // Vite dev server (HTTP)
+                    'https://localhost:5173' // Possible HTTPS dev
                 ];
 
                 if (!origin || allowedOrigins.includes(origin)) {

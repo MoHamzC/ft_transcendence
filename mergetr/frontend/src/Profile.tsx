@@ -25,7 +25,7 @@ const Profile: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const navigate = useNavigate();
-  const BACKEND_URL = 'http://localhost:5001';
+  const BACKEND_URL = 'https://localhost:8443';
   const PONG_COLORS = ['blue','red','green','yellow','brown','black','white','pink','orange','purple','gray'];
   const [savingColor, setSavingColor] = useState(false);
   const [colorMsg, setColorMsg] = useState<string | null>(null);

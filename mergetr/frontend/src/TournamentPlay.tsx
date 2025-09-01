@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import TargetCursor from './TargetCursor';
 import FuzzyText from './FuzzyText';
 
-const BACKEND_URL = 'http://localhost:5001';
+const BACKEND_URL = 'https://localhost:8443';
 
 interface MatchRow {
   id: number;

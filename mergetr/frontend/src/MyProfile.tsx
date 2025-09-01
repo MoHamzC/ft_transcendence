@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 export default function MyProfile() {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const navigate = useNavigate();
-    const BACKEND_URL = 'http://localhost:5001';
+    const BACKEND_URL = 'https://localhost:8443';
 
     useEffect(() => {
         console.log('[MyProfile] mount');

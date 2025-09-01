@@ -22,11 +22,11 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 # Exposer le port
-EXPOSE 5001
+EXPOSE 8443
 
 # Variables d'environnement par défaut
 ENV NODE_ENV=development
-ENV PORT=5001
+ENV PORT=8443
 
 # Commande de démarrage (sera surchargée par compose.yaml)
 CMD ["npm", "run", "dev"]

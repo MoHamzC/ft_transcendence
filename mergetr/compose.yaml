@@ -5,14 +5,14 @@ services:
     cap_add:
       - IPC_LOCK
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: myroot
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN}
       VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
-      VAULT_ADDR: http://vault:8200
+      VAULT_ADDR: http://localhost:8200
     ports:
       - "8200:8200"
     volumes:
       - ./scripts/init-vault.sh:/init-vault.sh
-    command: vault server -dev -dev-root-token-id=myroot
+    command: vault server -dev -dev-root-token-id=${VAULT_TOKEN}
     healthcheck:
       test: ["CMD", "vault", "status"]
       interval: 10s
@@ -20,28 +20,47 @@ services:
       retries: 5
 
   db:
-    image: postgres:${POSTGRES_VERSION:-14}
+    image: postgres:${POSTGRES_VERSION}
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-test}
-      POSTGRES_DB: ${POSTGRES_DB:-db_transcendence}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5434:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/src/db/gdpr-schema.sql:/docker-entrypoint-initdb.d/02-gdpr-schema.sql
 
+  # Service d'initialisation automatique de Vault
   vault-init:
     image: hashicorp/vault:1.15
     depends_on:
       vault:
         condition: service_healthy
     environment:
-      VAULT_ADDR: http://172.18.0.2:8200
-      VAULT_TOKEN: myroot
+      VAULT_ADDR: http://vault:8200
+      VAULT_TOKEN: ${VAULT_TOKEN}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      CLIENT_ID_42: ${CLIENT_ID_42}
+      CLIENT_SECRET_42: ${CLIENT_SECRET_42}
+      CLIENT_ID_GITHUB: ${CLIENT_ID_GITHUB}
+      CLIENT_SECRET_GITHUB: ${CLIENT_SECRET_GITHUB}
+      CLIENT_ID_GOOGLE: ${CLIENT_ID_GOOGLE}
+      CLIENT_SECRET_GOOGLE: ${CLIENT_SECRET_GOOGLE}
     volumes:
-      - ./scripts/init-vault.sh:/init-vault.sh
-    command: ["/bin/sh", "/init-vault.sh"]
+      - ./scripts/init-vault-auto.sh:/init-vault-auto.sh
+    command: ["/bin/sh", "/init-vault-auto.sh"]
     profiles:
       - init
 
@@ -50,25 +69,30 @@ services:
     working_dir: /home/sgoinfre
     environment:
       - NODE_ENV=dev
-      - HTTP_PORT=5001
+  - HTTPS_PORT=8443
     volumes:
       - ./:/home/sgoinfre
-      - ./ssl:/home/sgoinfre/ssl:ro  # Monter les certificats SSL
+      - ./ssl:/home/sgoinfre/backend/ssl:ro  # Monter les certificats SSL dans le bon répertoire
     ports:
-      - "5001:5001"
+  - "8443:8443"
     env_file:
       - .env
-    command: bash -c "npm install fastify@5 && npm install pg && npm install dotenv && npm install bcrypt && npm install nodemon && npm install @fastify/jwt && npm install @fastify/cookie && npm install @fastify/cors && npm install nodemailer && npm install @fastify/multipart && npm install @fastify/static && npm install @fastify/helmet && npm install @fastify/rate-limit && npm install isomorphic-dompurify && npm install node-vault && npm install validator && npm install axios && npx nodemon ./backend/src/server.js"
+    command: bash -c "cd backend && npm install && npx nodemon ./src/server-https.js"
     depends_on:
       - db
       - vault
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:8443/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   frontend:
     image: node:24
     working_dir: /home/node/app/frontend
     environment:
       - NODE_ENV=development
-      - VITE_BACKEND_HOST=node
     volumes:
       - ./:/home/node/app
       - ./ssl:/home/node/app/ssl:ro  # Monter les certificats SSL
@@ -77,6 +101,31 @@ services:
     depends_on:
       - node
     command: bash -c "npm install && npm run dev -- --host 0.0.0.0"
+
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  # Service d'initialisation automatique de la base de données
+  db-init:
+    image: postgres:${POSTGRES_VERSION}
+    depends_on:
+      db:
+        condition: service_started
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./scripts/init-database.sh:/init-database.sh
+      - ./backend/database/schema.sql:/app/database/schema.sql
+    command: ["/bin/sh", "/init-database.sh"]
+    profiles:
+      - init
 
 volumes:
   pgdata:

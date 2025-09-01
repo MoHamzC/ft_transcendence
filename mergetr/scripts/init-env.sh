@@ -1,7 +1,7 @@
 if [ ! -f ".env" ]; then
     cat > .env << EOF
 NODE_ENV=dev
-HTTPS_PORT=5001
+HTTPS_PORT=8443
 
 # Base de données
 POSTGRES_VERSION=14
@@ -124,12 +124,12 @@ services:
     working_dir: /home/sgoinfre
     environment:
       - NODE_ENV=dev
-      - HTTPS_PORT=5001
+  - HTTPS_PORT=8443
     volumes:
       - ./:/home/sgoinfre
       - ./ssl:/home/sgoinfre/backend/ssl:ro  # Monter les certificats SSL dans le bon répertoire
     ports:
-      - "5001:5001"
+  - "8443:8443"
     env_file:
       - .env
     command: bash -c "cd backend && npm install && npx nodemon ./src/server-https.js"
@@ -137,7 +137,7 @@ services:
       - db
       - vault
     healthcheck:
-      test: ["CMD", "curl", "-k", "-f", "https://localhost:5001/healthz"]
+  test: ["CMD", "curl", "-k", "-f", "https://localhost:8443/healthz"]
       interval: 10s
       timeout: 5s
       retries: 5

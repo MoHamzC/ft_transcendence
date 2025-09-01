@@ -53,7 +53,11 @@ export default async function gdprRoutes(app) {
             
             return exportData;
         } catch (error) {
+            console.error('[GDPR][EXPORT] ERROR', { message: error.message, stack: error.stack });
             app.log.error('GDPR export error:', error);
+            if (process.env.NODE_ENV !== 'production' || process.env.GDPR_DEBUG === '1') {
+                return reply.code(500).send({ error: 'Export failed', detail: error.message, stack: error.stack?.split('\\n').slice(0,5), debug: error.debug || error._gdprDebug });
+            }
             return reply.code(500).send({ error: 'Export failed' });
         }
     });
@@ -98,6 +102,9 @@ export default async function gdprRoutes(app) {
             return result;
         } catch (error) {
             app.log.error('GDPR anonymization error:', error);
+            if (process.env.NODE_ENV !== 'production') {
+                return reply.code(500).send({ error: 'Anonymization failed', detail: error.message, stack: error.stack?.split('\n').slice(0,3) });
+            }
             return reply.code(500).send({ error: 'Anonymization failed' });
         }
     });
@@ -147,7 +154,11 @@ export default async function gdprRoutes(app) {
             
             return result;
         } catch (error) {
+            console.error('[GDPR][DELETE] ERROR', { message: error.message, stack: error.stack });
             app.log.error('GDPR account deletion error:', error);
+            if (process.env.NODE_ENV !== 'production' || process.env.GDPR_DEBUG === '1') {
+                return reply.code(500).send(error && error.success === false ? error : { error: 'Account deletion failed', detail: error.message, debug: error._gdprDebug || error.debug, stack: error.stack?.split('\\n').slice(0,5) });
+            }
             return reply.code(500).send({ error: 'Account deletion failed' });
         }
     });

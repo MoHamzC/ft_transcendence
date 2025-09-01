@@ -1,5 +1,5 @@
 // services/tournamentService.ts
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://localhost:8443';
 
 export interface Tournament {
   id: string;

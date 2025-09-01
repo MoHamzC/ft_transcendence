@@ -13,8 +13,8 @@ COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
 # Étape 2: Build de l'application Node.js
 FROM node:18-alpine AS node_builder
 
-# Répertoire de travail
-WORKDIR /app
+# Répertoire de travail pour le backend
+WORKDIR /app/backend
 
 # Copie des fichiers package.json
 COPY backend/package*.json ./
@@ -39,7 +39,7 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 # Copie de l'application Node.js depuis le builder
-COPY --from=node_builder /app /app/backend
+COPY --from=node_builder /app/backend /app/backend
 
 # Copie du frontend buildé
 COPY frontend/dist /usr/share/nginx/html

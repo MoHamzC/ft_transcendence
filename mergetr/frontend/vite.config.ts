@@ -15,12 +15,12 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: `http://${backendHost}:5001`,
+  target: `https://${backendHost}:8443`,
         changeOrigin: true,
         secure: false
       },
       '/auth': {
-        target: `http://${backendHost}:5001`,
+  target: `https://${backendHost}:8443`,
         changeOrigin: true,
         secure: false
       }

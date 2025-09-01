@@ -31,7 +31,7 @@ function PongGame() {
   const [playerRight, setPlayerRight] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:5001/api/info_2d")
+  fetch("https://localhost:8443/api/info_2d")
       .then(res => res.json())
       .then(data => {
         setPlayerLeft(data.playerLeft);
