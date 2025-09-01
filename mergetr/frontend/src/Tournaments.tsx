@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import TournamentService, { type Tournament } from './services/tournamentService';
 import CreateTournamentModal from './components/CreateTournamentModal';
 import JoinTournamentModal from './components/JoinTournamentModal';
@@ -184,9 +184,7 @@ export default function Tournaments() {
                       </span>
                     </div>
 
-                    {tournament.description && (
-                      <p className="tournament-description">{tournament.description}</p>
-                    )}
+                    {/* tournament.description hidden per request */}
 
                     <div className="tournament-info">
                       <div className="tournament-mode">
