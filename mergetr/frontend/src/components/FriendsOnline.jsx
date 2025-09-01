@@ -3,7 +3,7 @@ import { useFriendsStatus } from '../hooks/useFriendsStatus';
 import './FriendsOnline.css';
 
 /**
- * Composant pour afficher le statut en ligne des amis
+ * Component to display friends' online status
  */
 const StatusBadge = ({ status, lastSeen, formatLastSeen }) => {
     const getStatusInfo = () => {
@@ -82,7 +82,7 @@ export const FriendsOnline = () => {
             <div className="friends-online-container">
                 <div className="loading-spinner">
                     <div className="spinner"></div>
-                    <p>Chargement des amis...</p>
+                    <p>Loading friends...</p>
                 </div>
             </div>
         );
@@ -92,10 +92,10 @@ export const FriendsOnline = () => {
         return (
             <div className="friends-online-container">
                 <div className="error-message">
-                    <h3>❌ Erreur</h3>
+                    <h3>❌ Error</h3>
                     <p>{error}</p>
                     <button onClick={refreshStatus} className="retry-button">
-                        Réessayer
+                        Retry
                     </button>
                 </div>
             </div>
@@ -110,16 +110,16 @@ export const FriendsOnline = () => {
         <div className="friends-online-container">
             <div className="friends-header">
                 <div className="header-title">
-                    <h2>Mes amis</h2>
+                    <h2>My Friends</h2>
                     <span className="friends-count">({friends.length})</span>
                 </div>
                 
                 <div className="header-actions">
                     <div className="monitoring-status">
                         {isMonitoring ? (
-                            <span className="monitoring-active">🔄 Actif</span>
+                            <span className="monitoring-active">🔄 Active</span>
                         ) : (
-                            <span className="monitoring-inactive">⏸️ Pausé</span>
+                            <span className="monitoring-inactive">⏸️ Paused</span>
                         )}
                     </div>
                     
@@ -135,17 +135,17 @@ export const FriendsOnline = () => {
 
             {friends.length === 0 ? (
                 <div className="no-friends">
-                    <h3>👥 Aucun ami</h3>
-                    <p>Vous n'avez pas encore d'amis. Commencez à ajouter des amis pour voir leur statut en ligne !</p>
+                    <h3>👥 No friends</h3>
+                    <p>You don't have any friends yet. Start adding friends to see their online status!</p>
                 </div>
             ) : (
                 <div className="friends-sections">
                     
-                    {/* Amis en ligne */}
+                    {/* Online friends */}
                     {onlineFriends.length > 0 && (
                         <div className="friends-section">
                             <h3 className="section-title">
-                                🟢 En ligne ({onlineFriends.length})
+                                🟢 Online ({onlineFriends.length})
                             </h3>
                             <div className="friends-list">
                                 {onlineFriends.map(friend => (
@@ -159,11 +159,11 @@ export const FriendsOnline = () => {
                         </div>
                     )}
 
-                    {/* Amis absents */}
+                    {/* Away friends */}
                     {awayFriends.length > 0 && (
                         <div className="friends-section">
                             <h3 className="section-title">
-                                🟠 Absents ({awayFriends.length})
+                                🟠 Away ({awayFriends.length})
                             </h3>
                             <div className="friends-list">
                                 {awayFriends.map(friend => (
@@ -177,11 +177,11 @@ export const FriendsOnline = () => {
                         </div>
                     )}
 
-                    {/* Amis hors ligne */}
+                    {/* Offline friends */}
                     {offlineFriends.length > 0 && (
                         <div className="friends-section">
                             <h3 className="section-title">
-                                ⚪ Hors ligne ({offlineFriends.length})
+                                ⚪ Offline ({offlineFriends.length})
                             </h3>
                             <div className="friends-list">
                                 {offlineFriends.map(friend => (
