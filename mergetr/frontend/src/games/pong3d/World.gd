@@ -49,7 +49,7 @@ func send_match_result(winner_name: String, winner_id: String, loser_name: Strin
 		return
 
 	var is_tournament: bool = Global.tournament_id != "" and Global.match_id != ""
-	var url = "http://localhost:8443/api/match"
+	var url = "https://localhost:8443/api/match"
 	var data := {
 		"playerWinner": winner_id,
 		"playerLoser": loser_id,
