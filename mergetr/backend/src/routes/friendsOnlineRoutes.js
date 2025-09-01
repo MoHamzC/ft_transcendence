@@ -7,7 +7,7 @@
 */
 
 const friendsOnlineRoutes = async (fastify, options) => {
-    
+
     // Heartbeat - signaler que l'utilisateur est actif
     fastify.post('/heartbeat', {
         schema: {
@@ -27,16 +27,17 @@ const friendsOnlineRoutes = async (fastify, options) => {
     }, async (request, reply) => {
         try {
             const userId = request.user.id;
-            
+
             const result = await fastify.pg.query(
                 'UPDATE users SET last_seen = CURRENT_TIMESTAMP, is_online = TRUE WHERE id = $1 RETURNING last_seen',
                 [userId]
             );
-            
-            return { 
-                status: 'online', 
-                timestamp: result.rows[0].last_seen 
-            };
+            const row = result.rows && result.rows[0];
+            if (!row || !row.last_seen) {
+                request.log.warn({ userId, row }, '[friendsOnlineRoutes]/heartbeat: no last_seen row returned');
+                return { status: 'online', timestamp: new Date().toISOString(), note: 'fallback_timestamp' };
+            }
+            return { status: 'online', timestamp: row.last_seen };
         } catch (error) {
             reply.code(500).send({ error: error.message });
         }
@@ -74,38 +75,38 @@ const friendsOnlineRoutes = async (fastify, options) => {
     }, async (request, reply) => {
         try {
             const userId = request.user.id;
-            
+
             const result = await fastify.pg.query(`
-                SELECT 
+                SELECT
                     u.id,
                     u.username,
                     u.email,
                     u.is_online,
                     u.last_seen,
-                    CASE 
+                    CASE
                         WHEN u.last_seen > NOW() - INTERVAL '3 minutes' THEN true
                         ELSE false
                     END as recently_active,
-                    CASE 
+                    CASE
                         WHEN u.last_seen > NOW() - INTERVAL '3 minutes' THEN 'online'
                         WHEN u.last_seen > NOW() - INTERVAL '1 hour' THEN 'away'
                         ELSE 'offline'
                     END as online_status,
                     f.status as friendship_status
                 FROM users u
-                INNER JOIN friendships f ON 
+                INNER JOIN friendships f ON
                     (f.requester_id = $1 AND f.addressee_id = u.id) OR
                     (f.addressee_id = $1 AND f.requester_id = u.id)
                 WHERE f.status = 'accepted'
-                ORDER BY 
-                    CASE 
+                ORDER BY
+                    CASE
                         WHEN u.last_seen > NOW() - INTERVAL '3 minutes' THEN 1
                         WHEN u.last_seen > NOW() - INTERVAL '1 hour' THEN 2
                         ELSE 3
                     END,
                     u.last_seen DESC
             `, [userId]);
-            
+
             return { friends: result.rows };
         } catch (error) {
             reply.code(500).send({ error: error.message });
@@ -122,12 +123,12 @@ const friendsOnlineRoutes = async (fastify, options) => {
     }, async (request, reply) => {
         try {
             const userId = request.user.id;
-            
+
             await fastify.pg.query(
                 'UPDATE users SET is_online = FALSE WHERE id = $1',
                 [userId]
             );
-            
+
             return { status: 'offline' };
         } catch (error) {
             reply.code(500).send({ error: error.message });
@@ -166,9 +167,9 @@ const friendsOnlineRoutes = async (fastify, options) => {
     }, async (request, reply) => {
         try {
             const userId = request.user.id;
-            
+
             const result = await fastify.pg.query(`
-                SELECT 
+                SELECT
                     u.id,
                     u.username,
                     u.email,
@@ -177,26 +178,26 @@ const friendsOnlineRoutes = async (fastify, options) => {
                     u.last_seen,
                     f.status,
                     f.created_at as friendship_created_at,
-                    CASE 
+                    CASE
                         WHEN u.last_seen > NOW() - INTERVAL '3 minutes' THEN 'online'
                         WHEN u.last_seen > NOW() - INTERVAL '1 hour' THEN 'away'
                         ELSE 'offline'
                     END as online_status
                 FROM users u
-                INNER JOIN friendships f ON 
+                INNER JOIN friendships f ON
                     (f.requester_id = $1 AND f.addressee_id = u.id) OR
                     (f.addressee_id = $1 AND f.requester_id = u.id)
                 WHERE f.status = 'accepted'
-                ORDER BY 
-                    CASE 
+                ORDER BY
+                    CASE
                         WHEN u.last_seen > NOW() - INTERVAL '3 minutes' THEN 1
                         WHEN u.last_seen > NOW() - INTERVAL '1 hour' THEN 2
                         ELSE 3
                     END,
                     u.username ASC
             `, [userId]);
-            
-            return { 
+
+            return {
                 friends: result.rows,
                 total: result.rows.length
             };
@@ -214,14 +215,14 @@ const friendsOnlineRoutes = async (fastify, options) => {
     }, async (request, reply) => {
         try {
             const result = await fastify.pg.query(`
-                UPDATE users 
-                SET is_online = FALSE 
-                WHERE last_seen < NOW() - INTERVAL '5 minutes' 
+                UPDATE users
+                SET is_online = FALSE
+                WHERE last_seen < NOW() - INTERVAL '5 minutes'
                 AND is_online = TRUE
                 RETURNING id, username
             `);
-            
-            return { 
+
+            return {
                 message: 'Cleanup completed',
                 updated_users: result.rows.length,
                 users: result.rows

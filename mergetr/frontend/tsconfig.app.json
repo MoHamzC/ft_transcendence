@@ -23,5 +23,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "../backend/src/routes/stats.js"]
+  "include": ["src", "../backend/src/routes/stats.js", "../backend/src/services/FriendService.js", "../backend/src/routes/friendsRoutes.js", "../backend/src/services/friendsService.ts"]
 }

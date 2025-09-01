@@ -34,6 +34,51 @@ export class FriendService
         return rows;
     }
 
+    // Lister tous les amis acceptés avec leur statut en ligne
+    static async listFriendsWithOnlineStatus(userId)
+    {
+        const { rows } = await pool.query(
+        {
+            text:
+                `SELECT
+                    u.id,
+                    u.email,
+                    u.username,
+                    f.status,
+                    f.created_at as friendship_date,
+                    u.is_online,
+                    u.last_seen,
+                    CASE
+                        WHEN u.last_seen > NOW() - INTERVAL '1 minute' THEN true
+                        ELSE false
+                    END as recently_active,
+                    CASE
+                        WHEN u.last_seen > NOW() - INTERVAL '1 minute' THEN 'online'
+                        WHEN u.last_seen > NOW() - INTERVAL '10 minutes' THEN 'away'
+                        ELSE 'offline'
+                    END as online_status
+                 FROM friendships f
+                 JOIN users u ON (
+                    CASE
+                        WHEN f.requester_id = $1 THEN u.id = f.addressee_id
+                        WHEN f.addressee_id = $1 THEN u.id = f.requester_id
+                    END
+                 )
+                 WHERE (f.requester_id = $1 OR f.addressee_id = $1)
+                   AND f.status = 'accepted'
+                 ORDER BY
+                    CASE
+                        WHEN u.last_seen > NOW() - INTERVAL '1 minute' THEN 1
+                        WHEN u.last_seen > NOW() - INTERVAL '10 minutes' THEN 2
+                        ELSE 3
+                    END,
+                    f.created_at DESC`,
+            values: [ userId ]
+        });
+
+        return rows;
+    }
+
     // Lister les demandes d'amis en attente reçues
     static async listPendingRequests(userId)
     {
@@ -294,5 +339,44 @@ export class FriendService
             isRequester: friendship.requester_id === userId1,
             isAddressee: friendship.addressee_id === userId1
         };
+    }
+
+    // Mettre à jour le heartbeat de l'utilisateur
+    static async updateHeartbeat(userId)
+    {
+        const { rows } = await pool.query({
+            text: 'UPDATE users SET last_seen = CURRENT_TIMESTAMP, is_online = TRUE WHERE id = $1 RETURNING last_seen',
+            values: [ userId ]
+        });
+        if (!rows || rows.length === 0) {
+            return null; // caller will fallback
+        }
+        return rows[0];
+    }
+
+    // Marquer l'utilisateur comme offline
+    static async setUserOffline(userId)
+    {
+        await pool.query(
+        {
+            text: 'UPDATE users SET is_online = FALSE WHERE id = $1',
+            values: [ userId ]
+        });
+    }
+
+    // Nettoyer les utilisateurs inactifs (marquer comme offline ceux inactifs depuis plus de 2 minutes)
+    static async cleanupInactiveUsers()
+    {
+        const { rows } = await pool.query(
+        {
+            text: `UPDATE users
+                   SET is_online = FALSE
+                   WHERE last_seen < NOW() - INTERVAL '2 minutes'
+                   AND is_online = TRUE
+                   RETURNING id, username, last_seen`,
+            values: []
+        });
+
+        return rows;
     }
 }
