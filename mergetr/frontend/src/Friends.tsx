@@ -174,7 +174,7 @@ export default function Friends() {
           <div>
             {friends.length === 0 ? (
               <div className="empty-state">
-                No friends yet.... yete
+                No friends yet...
                 <br />
                 <div className="flex justify-center items-center w-full mb-8 gap-4 mt-4">
 

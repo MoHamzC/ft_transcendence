@@ -270,7 +270,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 			console.log(request.user);
 
 			const userResult = await pool.query(
-				'SELECT id, username, email, created_at, providers, created_at FROM users WHERE id = $1',
+				'SELECT id, username, email, created_at, providers FROM users WHERE id = $1',
 				[userId]
 			);
 
@@ -300,7 +300,8 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 				id: user.id,
 				username: user.username,
 				email: user.email,
-				joinDate: user.created_at,
+				created_at: user.created_at, // compatibility for frontend expecting created_at
+				joinDate: user.created_at, // legacy key if needed elsewhere
 				providers: user.providers || [],
 				avatarUrl,
 				bio: settings?.bio || null,

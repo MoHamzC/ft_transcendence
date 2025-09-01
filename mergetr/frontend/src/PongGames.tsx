@@ -229,7 +229,8 @@ const navigate = useNavigate();
                     `&playerColor=${encodeURIComponent(playerColor)}` +
                     `&opponentId=${encodeURIComponent(opponentId)}` +
                     `&opponentName=${encodeURIComponent(opponentName)}` +
-                    `&opponentColor=${encodeURIComponent(opponentColor)}`;
+                    `&opponentColor=${encodeURIComponent(opponentColor)}` +
+                    `&tournamentId=false`;
                   console.log('[3D Redirect]', url);
                   window.location.href = url;
                 } catch (err: any) {

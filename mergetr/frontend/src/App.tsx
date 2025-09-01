@@ -9,6 +9,7 @@ import Leaderbord from './Leaderbord.tsx';
 import Friends from './Friends.tsx';
 import Settings from './Settings.tsx';
 import Profile from './Profile.tsx';
+import MyProfile from './MyProfile.tsx';
 import Stats from './Stats.tsx';
 import LoginView from './LoginView.tsx';
 import PongGames from './PongGames.tsx';
@@ -29,19 +30,9 @@ import Home from './Home.tsx';
 import ResetPassword from './ResetPassword.tsx';
 import DoubleAuth from './DoubleAuth.tsx';
 import SelectPlayers from './SelectPlayers.tsx';
-import Tournament from './Tournament.tsx';
+// import Tournament from './Tournament.tsx'; // (unused currently)
 
-function onRenderCallback(
-  id: string,
-  phase: 'mount' | 'update',
-  actualDuration: number,
-  baseDuration: number,
-  startTime: number,
-  commitTime: number,
-  interactions: Set<any>
-) {
-  console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
-}
+// Profiler callback removed (unused)
 
 // Profiler callback removed (unused)
 
@@ -110,7 +101,8 @@ function AppContent()
 							<Route path="/leaderbord" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Leaderbord/></div>} />
 							<Route path="/friends" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Friends /></div>} />
 							<Route path="/settings" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Settings /></div>} />
-							<Route path="/profile" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Profile /></div>} />
+							<Route path="/profile" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><MyProfile /></div>} />
+							<Route path="/profile/legacy" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Profile /></div>} />
 							<Route path="/stats" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Stats/></div>} />
 							<Route path="/match-history" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><MatchHistory /></div>} />
 							<Route path="/register" element={<div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh'}}><Register/></div>} />

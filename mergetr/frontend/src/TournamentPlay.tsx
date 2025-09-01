@@ -97,8 +97,8 @@ export default function TournamentPlay() {
 	  opponentName: pendingMatch.player2_alias,
 	  opponentColor: p2Color
     }).toString();
-  // Ouvrir dans un nouvel onglet pour garder l'écran tournoi visible
-  window.open(`/export_pong3D/index.html?${q}`, '_blank', 'noopener');
+  // Naviguer dans le même onglet (remplacement de l'onglet nouveau)
+  window.location.href = `/export_pong3D/index.html?${q}`;
   };
 
   return (

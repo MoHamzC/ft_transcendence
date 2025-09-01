@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://bo2ac27uy3mdn"]
+[gd_scene load_steps=3 format=3 uid="uid://bo2ac27uy3mdn"]
 
 [ext_resource type="Script" uid="uid://bx1lk3n3hn88p" path="res://script/quit_button.gd" id="1_fiwcc"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fiwcc"]
+bg_color = Color(0, 0, 0, 1)
 
 [node name="CanvasLayer" type="CanvasLayer"]
 
@@ -11,4 +14,5 @@ anchor_right = 1.0
 offset_left = -240.0
 offset_bottom = 118.0
 grow_horizontal = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_fiwcc")
 script = ExtResource("1_fiwcc")

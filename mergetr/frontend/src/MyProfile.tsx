@@ -49,6 +49,50 @@ export default function MyProfile() {
         );
     }
 
+    const handleAnonymize = async () => {
+        if (!confirm("Confirmer l'anonymisation de votre compte ? (Action irréversible)")) return;
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/gdpr/anonymize`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ confirmation: 'I_UNDERSTAND_THIS_IS_IRREVERSIBLE' })
+            });
+            if (res.ok) {
+                alert('Compte anonymisé.');
+                navigate('/', { replace: true });
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert('Erreur anonymisation: ' + (data.error || res.status));
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Erreur réseau anonymisation');
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!confirm('Supprimer définitivement votre compte ?')) return;
+        try {
+            const res = await fetch(`${BACKEND_URL}/api/gdpr/account`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ confirmation: 'DELETE_MY_ACCOUNT_PERMANENTLY', reason: 'other' })
+            });
+            if (res.ok) {
+                alert('Compte supprimé.');
+                navigate('/', { replace: true });
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert('Erreur suppression: ' + (data.error || res.status));
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Erreur réseau suppression');
+        }
+    };
+
     if (!isAuthenticated) {
         return (
             <div className="profile-container">
@@ -92,8 +136,37 @@ export default function MyProfile() {
 
     return (
         <ProfileErrorBoundary>
-            <div id="profile-root-wrapper">
+            <div id="profile-root-wrapper" style={{ position: 'relative', paddingTop: '90px', maxHeight: 'calc(100vh - 100px)', overflowY: 'auto', width: '100%', scrollbarWidth: 'thin' }}>
                 <ProfileSimple />
+                <div style={{
+                    marginTop: '2rem',
+                    display: 'flex',
+                    gap: '1rem',
+                    flexWrap: 'wrap'
+                }}>
+                    <button onClick={handleAnonymize} style={{
+                        background: 'linear-gradient(135deg,#f2c94c,#f2994a)',
+                        color: '#121212',
+                        border: 'none',
+                        padding: '0.75rem 1.25rem',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                    }}>
+                        Anonymiser mon compte (GDPR)
+                    </button>
+                    <button onClick={handleDelete} style={{
+                        background: 'linear-gradient(135deg,#ff416c,#ff4b2b)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '0.75rem 1.25rem',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                    }}>
+                        Supprimer mon compte (GDPR)
+                    </button>
+                </div>
             </div>
             {import.meta.env.DEV && <ProfileDebugOverlay />}
         </ProfileErrorBoundary>
