@@ -47,7 +47,7 @@ export default function Join({ isOpen, onClose, onStartMatch }: JoinProps) {
           setPlayer1(data.user.username);
         }
       } catch (err) {
-        if (mounted) setError('Error fetching user');
+        if (mounted) setError('Erreur récupération user');
       }
     }
     void fetchUser();
@@ -143,20 +143,10 @@ export default function Join({ isOpen, onClose, onStartMatch }: JoinProps) {
               value={player2}
               onChange={(e) => setPlayer2(e.target.value)}
               placeholder="player2"
-              className="px-4 py-3 rounded text-green-300 outline-none cursor-target"
+              className="px-4 py-3 rounded text-white outline-none cursor-target"
               style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
               disabled={loading}
             />
-
-            <div className="flex flex-col items-center">
-              <h4 className="mb-4 text-green-300">Controls</h4>
-              <div className="flex gap-2 mb-2 items-center">
-                <kbd className="px-2 py-1 bg-gray-800 rounded text-white hover:scale-150">W</kbd>
-                <span className="text-sm text-gray-300">up</span>
-                <kbd className="px-2 py-1 bg-gray-800 rounded text-white hover:scale-150">S</kbd>
-                <span className="text-sm text-gray-300">down</span>
-              </div>
-            </div>
 
             {error && (
               <div className="px-4 py-2 rounded text-sm" style={{ background: 'rgba(255,40,40,0.08)', color: '#ff6b6b' }}>

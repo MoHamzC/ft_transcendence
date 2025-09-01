@@ -79,12 +79,12 @@ export default function LoginView({ setIsLogged }: any)
             if (response.ok) {
                 const result = await response.json();
 
-                // Si la réponse contient step: "otp", rediriger vers la page 2FA
+                
                 if (result.step === 'otp') {
                     navigate('/doubleauth', { state: { email } });
                 } else {
-                    // Login réussi sans 2FA
-                    alert(result.message || 'Login successful');
+                 
+                    
                     setIsLogged(true);
                     navigate('/');
                 }
