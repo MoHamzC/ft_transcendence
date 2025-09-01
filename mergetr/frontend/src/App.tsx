@@ -25,17 +25,8 @@ import SelectPlayers from './SelectPlayers.tsx';
 import Tournament from './Tournament.tsx';
 import PongGame from './games/PongGame.jsx';
 import MatchHistory from './MatchHistory.tsx';
-function onRenderCallback(
-  id: string,
-  phase: 'mount' | 'update',
-  actualDuration: number,
-  baseDuration: number,
-  startTime: number,
-  commitTime: number,
-  interactions: Set<any>
-) {
-  console.log(`[Profiler] ${id} (${phase}) - actualDuration: ${actualDuration}ms`);
-}
+import JoinTournamentPage from './JoinTournamentPage.tsx';
+// profiler callback removed (unused)
 
 function App()
 {
@@ -103,6 +94,8 @@ function App()
 								<Route path="/ResetPassword" element={<ResetPassword />} />
 								<Route path="/selectplayers" element={<SelectPlayers />} />
 								<Route path="/tournament" element={<Tournament />} />
+								<Route path="/tournament/:tournamentId/join" element={<JoinTournamentPage />} />
+								<Route path="/tournament/:tournamentId/play" element={<PongGame />} />
 								<Route path="/matchhistory" element={<MatchHistory />} />
 							</Routes>
 						</div>

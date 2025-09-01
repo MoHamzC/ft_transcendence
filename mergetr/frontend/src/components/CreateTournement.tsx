@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import TargetCursor from '../TargetCursor';
 import TournamentService from '../services/tournamentService';
 
@@ -14,6 +15,7 @@ export default function Join({ isOpen, onClose, onTournamentCreated }: JoinProps
   const [mode, setMode] = useState<'4_players' | '8_players'>('4_players');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   if (!isOpen) return null;
 
@@ -26,12 +28,16 @@ export default function Join({ isOpen, onClose, onTournamentCreated }: JoinProps
     setLoading(true);
     setError('');
     try {
-      await TournamentService.createTournament(name.trim(), description.trim(), mode);
+      const res = await TournamentService.createTournament(name.trim(), description.trim(), mode);
+      const createdId = res?.tournament?.id;
       setName('');
       setDescription('');
       setMode('4_players');
       onTournamentCreated();
       onClose();
+      if (createdId) {
+        navigate(`/tournament/${createdId}/join`);
+      }
     } catch (err: any) {
       setError(err?.message || 'Error creating tournament');
     } finally {

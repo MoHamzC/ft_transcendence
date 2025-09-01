@@ -1,0 +1,52 @@
+/* Minimal styles for JoinTournamentPage - matches existing tournament aesthetic */
+.tournament-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #fff;
+}
+
+.loading {
+  color: #ccc;
+  font-size: 1.1rem;
+}
+
+.tournament-header h1 { margin: 0 0 8px 0; }
+.tournament-header p { color: #aaa; margin: 0 0 12px 0; }
+
+.message { padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; position: relative; }
+.error-message { background: rgba(255,40,40,0.08); color: #ff6b6b; }
+.success-message { background: rgba(0,200,0,0.06); color: #7ee787; }
+.close-btn { background: transparent; border: none; color: inherit; font-size: 1.1rem; margin-left: 12px; cursor: pointer; }
+
+.main-content { width: 100%; }
+.section { background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; }
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.status { padding: 6px 10px; border-radius: 14px; font-weight:600; text-transform: capitalize; }
+.status.registration { background: rgba(0,255,0,0.06); color: #aaffaa; }
+.status.in_progress { background: rgba(255,165,0,0.06); color: #ffcc88; }
+.status.finished { background: rgba(128,128,128,0.06); color: #ccc; }
+
+.tournament-details { margin-bottom: 14px; }
+.detail-item { color: #ddd; margin-bottom: 6px; }
+
+.aliases-form h3 { margin: 0 0 6px 0; color: #e6f6ff; }
+.aliases-form p { color: #aaa; margin: 0 0 10px 0; }
+
+.aliases-grid { width: 100%; }
+.form-group { display: flex; flex-direction: column; }
+.form-group label { font-size: 0.9rem; color: #cfe; margin-bottom: 6px; }
+.form-input { padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); color: #fff; }
+
+.form-actions { margin-top: 18px; }
+.action-btn { padding: 10px 16px; border-radius: 10px; cursor: pointer; border: none; }
+.join-btn { background: linear-gradient(45deg,#00f5ff,#ff00ff); color: white; }
+.join-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.cancel-btn { background: transparent; color: #ccc; border: 1px solid rgba(255,255,255,0.04); }
+
+@media (min-width: 800px) {
+  .tournament-container { padding: 4rem; }
+  .section { max-width: 720px; margin: 0 auto; }
+}
