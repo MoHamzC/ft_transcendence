@@ -46,7 +46,7 @@ const PongGames: React.FC = () => {
                     >
                     Play now
                     </Link>
-                    <div className="mt-2">
+                    {/* <div className="mt-2">
                     <Link
                       to="/selectplayers"
                       className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
@@ -54,7 +54,7 @@ const PongGames: React.FC = () => {
                     >
                       Play in tournament
                     </Link>
-                    </div>
+                    </div> */}
                 </div>
               </div>
             </div>

@@ -101,13 +101,13 @@
 }
 
 .tab-button.active {
-  border-bottom-color: #00d4ff;
-  color: #00d4ff;
+  border-bottom-color: #24e484;
+  color: #24e484;
 }
 
 .tab-button.pending.active {
-  border-bottom-color: #ffa502;
-  color: #ffa502;
+  border-bottom-color: #d04deb;
+  color: #9727ff;
 }
 
 .tab-button:not(.active) {

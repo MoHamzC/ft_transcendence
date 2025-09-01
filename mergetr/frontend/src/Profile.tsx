@@ -115,7 +115,7 @@ const Profile: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('✅ Avatar uploadé avec succès:', data);
+      console.log('uploaded with succes', data);
 
       if (user) {
         setUser({
@@ -133,7 +133,7 @@ const Profile: React.FC = () => {
       event.target.value = '';
 
     } catch (err) {
-      console.error('❌ Error while uploading avatar:', err);
+      console.error('error while uploading avatar', err);
       setError(err instanceof Error ? err.message : 'Error while uploading avatar');
     } finally {
       setUploadingAvatar(false);
@@ -154,13 +154,13 @@ const Profile: React.FC = () => {
         <div style={{
           width: '50px',
           height: '50px',
-          border: '3px solid #ff6b9d',
+          border: '3px solid #5b614aff',
           borderTop: '3px solid transparent',
           borderRadius: '50%',
           animation: 'spin 1s linear infinite',
           marginBottom: '20px'
         }}></div>
-        <h2>🔄 Chargement du profil...</h2>
+        <h2>Loading profile...</h2>
         <p style={{ color: 'rgba(255,255,255,0.7)' }}>Récupération de vos informations...</p>
       </div>
     );
@@ -196,7 +196,7 @@ const Profile: React.FC = () => {
               fontWeight: 'bold'
             }}
           >
-            🔄 Réessayer
+            Try again
           </button>
           <button
             onClick={() => navigate('/')}
@@ -231,7 +231,7 @@ const Profile: React.FC = () => {
       }}>
         <h2 style={{ color: '#ffa502' }}>❌ Aucune donnée</h2>
         <p style={{ color: 'rgba(255,255,255,0.8)' }}>
-          Impossible de charger vos données utilisateur.
+          Cant get your data
         </p>
       </div>
     );
@@ -259,11 +259,11 @@ const Profile: React.FC = () => {
         <FuzzyText fontSize="clamp(2rem, 4.5vw, 4.5rem)">Profile</FuzzyText>
       </div>
 
-      {/* Avatar et infos principales */}
+    
   <div className="grid grid-cols-[auto_1fr] active:scale-96 hover:scale-102 cursor-target gap-4 items-center bg-[#161b3d] border border-white/10 rounded-2xl p-6 mb-10 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_12px_32px_-12px_rgba(0,0,0,0.7)]">
-        {/* Avatar */}
+        
         <div className="relative flex flex-col items-center">
-          <div className="w-[120px] h-[120px] rounded-full overflow-hidden border-4 border-pink-400 shadow-[0_10px_30px_rgba(255,107,157,0.3)] relative">
+          <div className="w-[120px] h-[120px] rounded-full hover:scale-105 transition-transform  overflow-hidden border-4 border-blue-400  relative">
         <img
           src={user.settings?.avatar_url || getDefaultAvatar()}
           alt={`${user.username} avatar`}
@@ -273,14 +273,14 @@ const Profile: React.FC = () => {
             target.src = getDefaultAvatar();
           }}
         />
-        {/* Overlay de chargement */}
+        {/*loading overlay */}
         {uploadingAvatar && (
           <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-full">
             <div className="w-8 h-8 border-4 border-pink-400 border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
           </div>
-          {/* Bouton de changement d'avatar */}
+         
           <div className="mt-4 text-center">
         <input
           type="file"
@@ -293,7 +293,7 @@ const Profile: React.FC = () => {
           htmlFor="avatar-upload"
           className={`cursor-target px-6 py-3 rounded-xl font-semibold text-white shadow-md border border-purple-500/20 bg-[oklch(25.7%_0.09_281.288)] hover:scale-105 active:scale-105 transition flex items-center gap-2 text-sm ${uploadingAvatar ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
         >
-          {uploadingAvatar ? '📤 Upload...' : (
+          {uploadingAvatar ? ' Upload...' : (
             <span className="inline-flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg"
                viewBox="0 0 24 24"
@@ -310,9 +310,9 @@ const Profile: React.FC = () => {
         </label>
           </div>
         </div>
-        {/* Infos principales */}
+ 
         <div>
-          <h2 className="text-pink-400 text-3xl mb-1">{user.username}</h2>
+          <h2 className="text-blue-400 text-3xl mb-1">{user.username}</h2>
           <p className="text-white/90 text-lg mb-2 flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
               <path d="M19.5 22.5a3 3 0 0 0 3-3v-8.174l-6.879 4.022 3.485 1.876a.75.75 0 1 1-.712 1.321l-5.683-3.06a1.5 1.5 0 0 0-1.422 0l-5.683 3.06a.75.75 0 0 1-.712-1.32l3.485-1.877L1.5 11.326V19.5a3 3 0 0 0 3 3h15Z" />
@@ -337,22 +337,23 @@ const Profile: React.FC = () => {
         marginBottom: '30px'
       }}>
         {/* Informations générales */}
-  <div className="cursor-target bg-[#161b3d] active:scale-96 hover:scale-102 border border-white/10 rounded-[15px] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_8px_28px_-10px_rgba(0,0,0,0.65)] transition hover:shadow-[0_0_0_1px_rgba(255,255,255,0.07),0_10px_34px_-10px_rgba(0,0,0,0.7)]">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-              <svg xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-                stroke="currentColor" className="size-6">
-                <path strokeLinecap="round"
-                  strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-              </svg>
-              <h3 style={{
-                color: '#4c9aff',
-                fontSize: '1.3rem',
-                margin: 0
-              }}>
-                Infos
-              </h3>
-            </div>
+  <div className="cursor-target bg-[#161b3d] active:scale-96 hover:scale-102 border border-white/10 rounded-[15px] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_8px_28px_-10px_rgba(0,0,0,0.65)] transition hover:shadow-[0_0_0_1px_rgba(255,255,255,0.07),0_10px_34px_-10px_rgba(0,0,0,0.7)]"
+    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', justifyContent: 'center' }}>
+      <svg xmlns="http://www.w3.org/2000/svg"
+        fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+        stroke="currentColor" className="size-6">
+        <path strokeLinecap="round"
+          strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+      </svg>
+      <h3 style={{
+        color: '#4c9aff',
+        fontSize: '1.3rem',
+        margin: 0
+      }}>
+        Infos
+      </h3>
+    </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -376,26 +377,36 @@ const Profile: React.FC = () => {
           </div>
         </div>
 
-        {/* Paramètres */}
+        
         {(user.settings) ? (
-          <div className="cursor-target hover:scale-102 active:scale-96 bg-[#161b3d] border border-white/10 rounded-[15px] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_8px_28px_-10px_rgba(0,0,0,0.65)] transition hover:shadow-[0_0_0_1px_rgba(255,255,255,0.07),0_10px_34px_-10px_rgba(0,0,0,0.7)]">
+          <div className="cursor-target hover:scale-102 active:scale-96 bg-[#161b3d] border border-white/10 rounded-[15px] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_8px_28px_-10px_rgba(0,0,0,0.65)] transition hover:shadow-[0_0_0_1px_rgba(255,255,255,0.07),0_10px_34px_-10px_rgba(0,0,0,0.7)]"
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <h3 style={{
               color: '#4c9aff',
               marginBottom: '20px',
               fontSize: '1.3rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px'
+              gap: '10px',
+              justifyContent: 'center',
+              textAlign: 'center',
+              width: '100%'
             }}>
+               <h3 style={{
+        color: '#4c9aff',
+        fontSize: '1.3rem',
+        margin: 0
+      }}>
+        Settings
+      </h3>
               <svg xmlns="http://www.w3.org/2000/svg"
-                   viewBox="0 0 24 24"
-                   fill="currentColor"
-                   width="22"
-                   height="22"
-                   aria-hidden="true">
-                <path d="M6 12a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 1 1 1.5 0v7.5A.75.75 0 0 1 6 12ZM18 12a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 1.5 0v7.5A.75.75 0 0 1 18 12ZM6.75 20.25v-1.5a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0ZM18.75 18.75v1.5a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 1.5 0ZM12.75 5.25v-1.5a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0ZM12 21a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 1.5 0v7.5A.75.75 0 0 1 12 21ZM3.75 15a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0ZM12 11.25a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5ZM15.75 15a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0Z" />
+             viewBox="0 0 24 24"
+             fill="currentColor"
+             width="22"
+             height="22"
+             aria-hidden="true">
+                <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
               </svg>
-              Settings
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -465,7 +476,7 @@ const Profile: React.FC = () => {
             marginBottom: '20px',
             fontSize: '1.3rem'
           }}>
-            🔗 Linked account
+            Linked account
           </h3>
 
           <div style={{
@@ -491,7 +502,7 @@ const Profile: React.FC = () => {
                 {provider === '42' && '🎓'}
                 {provider === 'google' && '🔍'}
                 {provider === 'github' && '💻'}
-                {provider === '42' ? '42 École' :
+                {provider === '42' ? '42' :
                  provider === 'google' ? 'Google' :
                  provider === 'github' ? 'GitHub' : provider}
               </span>
@@ -500,17 +511,17 @@ const Profile: React.FC = () => {
         </div>
       )}
 
-      {/* Actions */}
+     
       <div style={{
         display: 'flex',
         gap: '15px',
         justifyContent: 'center',
         flexWrap: 'wrap'
       }}>
-        {/* Bouton Accueil supprimé – BackHome gère le retour */}
+       
         <button
           onClick={() => navigate('/settings')}
-          className="cursor-target bg-[oklch(25.7%_0.09_281.288)] text-white border-none px-6 py-3 rounded-[14px] active:scale-95 cursor-pointer text-[16px] font-bold transition-transform duration-200 shadow-[0_6px_18px_-4px_rgba(201,66,255,0.45)] hover:scale-105 flex items-center gap-2"
+          className="cursor-target bg-[oklch(25.7%_0.09_281.288)] text-white border-none px-6 py-3 rounded-[14px] active:scale-95 cursor-pointer text-[16px] font-bold transition-transform duration-200hover:scale-105 flex items-center gap-2"
         >
           <span style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
             <svg xmlns="http://www.w3.org/2000/svg"
@@ -521,13 +532,13 @@ const Profile: React.FC = () => {
                  aria-hidden="true">
               <path d="M6 12a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 1 1 1.5 0v7.5A.75.75 0 0 1 6 12ZM18 12a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 1.5 0v7.5A.75.75 0 0 1 18 12ZM6.75 20.25v-1.5a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0ZM18.75 18.75v1.5a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 1.5 0ZM12.75 5.25v-1.5a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0ZM12 21a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 1.5 0v7.5A.75.75 0 0 1 12 21ZM3.75 15a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0ZM12 11.25a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5ZM15.75 15a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0Z" />
             </svg>
-            Paramètres
+            Settings
           </span>
         </button>
 
         <button
           onClick={() => navigate('/stats')}
-          className="cursor-target bg-[oklch(25.7%_0.09_281.288)] text-white border-none hover:scale-105 active:scale-95 px-6 py-3 rounded-[14px] cursor-pointer text-[16px] font-bold transition-transform duration-200 shadow-[0_6px_18px_-4px_rgba(201,66,255,0.45)] hover:scale-105 flex items-center gap-2"
+          className="cursor-target bg-[oklch(25.7%_0.09_281.288)] text-white border-none hover:scale-105 active:scale-95 px-6 py-3 rounded-[14px] cursor-pointer text-[16px] font-bold transition-transform duration-200  hover:scale-105 flex items-center gap-2"
         >
           <span style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
             <svg xmlns="http://www.w3.org/2000/svg"
@@ -538,7 +549,7 @@ const Profile: React.FC = () => {
                  aria-hidden="true">
               <path fillRule="evenodd" d="M15.22 6.268a.75.75 0 0 1 .968-.431l5.942 2.28a.75.75 0 0 1 .431.97l-2.28 5.94a.75.75 0 1 1-1.4-.537l1.63-4.251-1.086.484a11.2 11.2 0 0 0-5.45 5.173.75.75 0 0 1-1.199.19L9 12.312l-6.22 6.22a.75.75 0 0 1-1.06-1.061l6.75-6.75a.75.75 0 0 1 1.06 0l3.606 3.606a12.695 12.695 0 0 1 5.68-4.974l1.086-.483-4.251-1.632a.75.75 0 0 1-.432-.97Z" clipRule="evenodd" />
             </svg>
-            Statistiques
+            Stats
           </span>
         </button>
       </div>

@@ -91,7 +91,7 @@ export default function Friends() {
            
           </div>
       <div className="friends-content">
-        {/* Tabs */}
+      
         <div className="friends-tabs">
           <button
             onClick={() => setActiveTab('friends')}
@@ -107,17 +107,17 @@ export default function Friends() {
           </button>
         </div>
 
-        {/* Centered action buttons under title */}
+    
         <div className="flex flex-col justify-center items-center w-full mt-8 mb-4">
-          {/* <FuzzyText>Friends</FuzzyText> */}
+          
         </div>
 
-        {/* Loading */}
+        
         {loading && (
           <div className="loading-message">Chargement...</div>
         )}
 
-        {/* Friends List */}
+      
         {!loading && activeTab === 'friends' && (
           <div>
             {friends.length === 0 ? (
@@ -143,7 +143,6 @@ export default function Friends() {
           </div>
         )}
 
-        {/* Pending Requests */}
         {!loading && activeTab === 'pending' && (
           <div>
             {pendingRequests.length === 0 ? (

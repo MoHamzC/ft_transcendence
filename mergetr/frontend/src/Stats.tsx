@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FuzzyText from "./FuzzyText";
 import MyPieChart from "./PieChart";
-
+import TargetCursor from "./TargetCursor";
 const BACKEND_URL = 'http://localhost:5001';
 
 type StatsData = {
@@ -18,17 +18,42 @@ type StatsData = {
 
 function UserStats({ stats }: { stats?: StatsData | null }) {
   if (!stats) return null;
+
   return (
-    <div className="user-stats" style={{ marginBottom: '2rem', textAlign: 'center' }}>
-      <h2>Stats of {stats.username}</h2>
-      <div>Games Played: {stats.gamesPlayed}</div>
-      <div>Wins: {stats.gamesWon}</div>
-      <div>Losses: {stats.gamesLost}</div>
-      <div>Draws: {stats.draws ?? 0}</div>
-      <div>Win Rate: {stats.winRate ?? 0}%</div>
-      <div style={{ fontSize: '0.9em', color: '#aaa' }}>
-        Created At: {stats.createdAt ? new Date(stats.createdAt).toLocaleDateString() : '—'}<br />
-        Updated At: {stats.updatedAt ? new Date(stats.updatedAt).toLocaleDateString() : '—'}
+    <div
+      className="cursor-target bg-[#161b3d] hover:scale-101 active:scale-99 transition-transform duration-200 border border-white/10 rounded-[15px] p-6 mb-6"
+      style={{
+        maxWidth: 640,
+        margin: '0 auto 1rem',
+        boxShadow: '0 8px 28px -10px rgba(0,0,0,0.65)',
+      }}
+    >
+      <TargetCursor spinDuration={2} hideDefaultCursor={true} />
+      <h3 style={{ color: '#c084fc', fontSize: '1.25rem', margin: '0 0 12px', textAlign: 'center' }}>
+        User stats
+      </h3>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'center' }}>
+        <div style={{ color: '#c084fc', fontWeight: 600 }}>Username</div>
+        <div style={{ color: '#ffffff' }}>{stats.username}</div>
+
+        <div style={{ color: '#c084fc', fontWeight: 600 }}>Games Played</div>
+        <div style={{ color: '#ffffff' }}>{stats.gamesPlayed}</div>
+
+        <div style={{ color: '#c084fc', fontWeight: 600 }}>Wins</div>
+        <div style={{ color: '#ffffff' }}>{stats.gamesWon}</div>
+
+        <div style={{ color: '#c084fc', fontWeight: 600 }}>Losses</div>
+        <div style={{ color: '#ffffff' }}>{stats.gamesLost}</div>
+
+        <div style={{ color: '#c084fc', fontWeight: 600 }}>Draws</div>
+        <div style={{ color: '#ffffff' }}>{stats.draws ?? 0}</div>
+
+        <div style={{ color: '#c084fc', fontWeight: 600 }}>Win Rate</div>
+        <div style={{ color: '#ffffff' }}>{stats.winRate ?? '—'}%</div>
+
+        <div style={{ color: '#c084fc', fontWeight: 600 }}>Created</div>
+        <div style={{ color: '#ffffff' }}>{stats.createdAt ? new Date(stats.createdAt).toLocaleDateString() : '—'}</div>
       </div>
     </div>
   );
@@ -41,7 +66,7 @@ export default function Stats() {
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // récupérer l'utilisateur connecté (inspiré de Profile.tsx)
+
   useEffect(() => {
     let mounted = true;
 
@@ -82,7 +107,7 @@ export default function Stats() {
     return () => { mounted = false; };
   }, [navigate]);
 
-  // init + fetch des stats quand userId est disponible
+  
   useEffect(() => {
     if (!userId) return;
     let mounted = true;
@@ -116,7 +141,7 @@ export default function Stats() {
           }
         }
       } catch (err) {
-        console.error('Erreur init/fetch stats:', err);
+        console.error('Error init/fetch stats:', err);
         if (mounted) setError('Network error');
       } finally {
         if (mounted) setLoading(false);
@@ -146,6 +171,15 @@ export default function Stats() {
     ];
   })();
 
+  const totalGames = (() => {
+    if (!stats) return 0;
+    if (typeof stats.gamesPlayed === 'number' && stats.gamesPlayed > 0) return stats.gamesPlayed;
+    const wins = stats.gamesWon ?? 0;
+    const losses = stats.gamesLost ?? 0;
+    const draws = stats.draws ?? 0;
+    return wins + losses + draws;
+  })();
+  
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -155,26 +189,26 @@ export default function Stats() {
       {loading && <div style={{ textAlign: 'center' }}>Loading stats...</div>}
       {error && <div style={{ textAlign: 'center', color: '#aa0000' }}>{error}</div>}
 
-      <UserStats stats={stats} />
-
+      
       <div
-        className="stats"
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: "2rem",
-          padding: "2rem",
-          flexWrap: "wrap",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          gap: '2rem',
+          padding: '2rem',
+          flexWrap: 'wrap',
         }}
       >
-        {(stats?.gamesWon || stats?.gamesLost || stats?.draws) ? (
+        <div style={{ flex: '1 1 420px', minWidth: 320, maxWidth: 640 }}>
+          <UserStats stats={stats} />
+        </div>
+
+        {totalGames > 0 ? (
           <div style={{ width: 320, height: 320 }} className="chart hover:scale-105 active:scale-95">
             <MyPieChart data={chartData} />
           </div>
         ) : null}
-
-        
       </div>
     </div>
   );
