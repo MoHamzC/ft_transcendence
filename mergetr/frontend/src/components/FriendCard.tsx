@@ -13,11 +13,11 @@ export default function FriendCard({ friend, onRemove, type, onAccept, onReject 
   const getStatusText = () => {
     switch (type) {
       case 'friend':
-        return 'Ami';
+        return 'Friend';
       case 'pending':
-        return 'Demande reçue';
+        return 'Request received';
       case 'sent':
-        return 'Demande envoyée';
+        return 'Request sent';
       default:
         return '';
     }
@@ -44,12 +44,14 @@ export default function FriendCard({ friend, onRemove, type, onAccept, onReject 
             </div>
 
             <div className="friend-status mt-2 flex items-center gap-3">
-              <span
-                className={`status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusClasses[type]}`}
-                aria-hidden
-              >
-                {getStatusText()}
-              </span>
+              {type !== 'friend' && (
+                <span
+                  className={`status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusClasses[type]}`}
+                  aria-hidden
+                >
+                  {getStatusText()}
+                </span>
+              )}
 
               {(friend.friendship_date || friend.request_date) && (
                 <span className="friend-date text-xs text-[#7f8596]">
@@ -65,19 +67,19 @@ export default function FriendCard({ friend, onRemove, type, onAccept, onReject 
             <>
               <button
                 onClick={() => onAccept(friend.id)}
-                className="btn-small px-3 py-1 rounded-lg bg-[#7eeaff] text-[#060010] text-sm font-semibold shadow-sm hover:brightness-95"
-                aria-label={`Accepter ${friend.username}`}
+                className="btn-small px-3 py-1 rounded-lg bg-[#7eeaff] text-[#060010] text-sm font-semibold shadow-sm hover:scale-105 active:scale-95"
+                aria-label={`Accept ${friend.username}`}
                 type="button"
               >
-                Accepter
+                Accept
               </button>
               <button
                 onClick={() => onReject(friend.id)}
-                className="btn-small px-3 py-1 rounded-lg bg-[#ffd1dc] text-[#231f2b] text-sm font-semibold shadow-sm hover:brightness-95"
-                aria-label={`Rejeter ${friend.username}`}
+                className="btn-small px-3 py-1 rounded-lg bg-[#7eeaff] text-[#060010] text-sm font-semibold shadow-sm hover:scale-105 active:scale-95"
+                aria-label={`Reject ${friend.username}`}
                 type="button"
               >
-                Rejeter
+                Reject
               </button>
             </>
           )}
@@ -85,16 +87,16 @@ export default function FriendCard({ friend, onRemove, type, onAccept, onReject 
           {type === 'friend' && (
             <button
               onClick={() => onRemove(friend.id)}
-              className="btn-small px-3 py-1 rounded-lg bg-[#ffd1dc] text-[#231f2b] text-sm font-semibold shadow-sm hover:brightness-95"
-              aria-label={`Supprimer ${friend.username}`}
+              className="btn-small px-3 py-1 rounded-lg bg-[#7eeaff] text-[#060010] text-sm hover:scale-105 active:scale-95"
+              aria-label={`Remove ${friend.username}`}
               type="button"
             >
-              Supprimer
+              Remove
             </button>
           )}
 
           {type === 'sent' && (
-            <span className="text-xs text-[#7f8596] py-1 px-2">En attente</span>
+            <span className="text-xs text-[#7f8596] py-1 px-2">Pending</span>
           )}
         </div>
       </div>
