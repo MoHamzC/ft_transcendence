@@ -28,7 +28,7 @@ func decode_param(s: String) -> String:
 
 
 func _ready():
-	var url = ""  # définir une valeur par défaut
+	var url = "?ia=true&playerId=94248ffe-d0dd-42de-8a9b-f4b3d8af160e&playerName=lomont&playerColor=white&opponentId=1815a77b-e5a1-46f6-8886-f1a979dd9f7b&opponentName=Intelligence Artificielle&opponentColor=pink"  # définir une valeur par défaut
 	if Engine.has_singleton("JavaScriptBridge"):
 		var js = JavaScriptBridge.get_interface("window")
 		if js:

@@ -1,14 +1,66 @@
 // PongGames.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import TargetCursor from './TargetCursor.tsx';
 import FuzzyText from './FuzzyText.tsx';
 import logo from './assets/logo.png';
 import ElasticSlider from './ElasticSlider'
 import MyToggle from './MyToggle';
+import axios from 'axios';
 
 const PongGames: React.FC = () => {
-  const [AIopponent, setAIopponent] = useState(false);
+	const [AIopponent, setAIopponent] = useState(false);
+	const [playerData, setPlayerData] = useState(null);
+	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => {
+    // Fetch player data when component mounts
+    const fetchPlayerData = async () => {
+      try {
+        const response = await axios.get('/api/me', {
+          withCredentials: true, // Important for auth cookies
+        });
+        setPlayerData(response.data);
+      } catch (error) {
+        console.error('Failed to fetch player data:', error);
+      }
+    };
+
+    fetchPlayerData();
+  }, []);
+
+  const handlePlay3D = async () => {
+  setIsLoading(true);
+
+  let opponentId = null;
+  let opponentName = null;
+  let opponentColor = null;
+
+    if (AIopponent) {
+      try {
+        // Récupérer l'utilisateur IA depuis la DB
+        const aiResponse = await axios.get('/api/ia', {
+          withCredentials: true,
+        });
+
+        opponentId = aiResponse.data.id;
+        opponentName = aiResponse.data.name;
+        opponentColor = aiResponse.data.pong_color;
+      } catch (error) {
+        console.error('Failed to fetch AI user:', error);
+        // Fallback avec des valeurs par défaut
+      }
+
+    // Build URL avec les données des deux joueurs
+    const url = `/export_pong3D/index.html?ia=${AIopponent}&playerId=${playerData.id}&playerName=${encodeURIComponent(playerData.name)}&playerColor=${encodeURIComponent(playerData.pong_color)}&opponentId=${opponentId}&opponentName=${encodeURIComponent(opponentName)}&opponentColor=${encodeURIComponent(opponentColor)}`;
+    window.location.href = url;
+  } else {
+    // Fallback if player data isn't available
+    window.location.href = `/export_pong3D/index.html?ia=${AIopponent}`;
+  }
+
+  setIsLoading(false);
+};
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -77,11 +129,12 @@ const PongGames: React.FC = () => {
               <div className="flex flex-col gap-4">
                 <div className="relative w-full">
                   <button
-                    onClick={() => window.location.href = `/export_pong3D/index.html?ia=${AIopponent}`}
+                     onClick={handlePlay3D}
                     className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
                     style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
+					disabled={isLoading}
                   >
-                    Play NOW
+					{isLoading ? 'Loading...' : 'Play NOW'}
                   </button>
                 </div>
                 <div className="flex items-center justify-center gap-2 mt-2">

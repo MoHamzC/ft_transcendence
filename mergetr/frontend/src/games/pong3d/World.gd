@@ -35,7 +35,7 @@ func on_goal_scored():
 			score_loser = Global.score_left
 
 		# Envoyer le résultat au backend
-		send_match_result(winner_name, winner_id, loser_name, loser_id, score_winner, score_loser)
+		send_match_result(winner_id, loser_id, score_winner, score_loser)
 
 		# Jouer le son et changer de scène
 		await get_tree().create_timer(5.8).timeout
@@ -43,7 +43,7 @@ func on_goal_scored():
 		await get_tree().create_timer(0.3).timeout
 		get_tree().change_scene_to_file("res://scene/victory_scene.tscn")
 
-func send_match_result(winner_name: String, winner_id: String, loser_name: String, loser_id: String, score_winner: int, score_loser: int) -> void:
+func send_match_result(winner_id: String, loser_id: String, score_winner: int, score_loser: int) -> void:
 	var url = "http://localhost:5001/api/match"
 	var data := {
 		"playerWinner": winner_id,
