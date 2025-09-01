@@ -67,8 +67,8 @@ services:
     image: node:24
     working_dir: /home/node/app/frontend
     environment:
-  - NODE_ENV=development
-  - VITE_BACKEND_HOST=node
+      - NODE_ENV=development
+      - VITE_BACKEND_HOST=node
     volumes:
       - ./:/home/node/app
       - ./ssl:/home/node/app/ssl:ro  # Monter les certificats SSL

@@ -241,11 +241,22 @@ export default function JoinTournamentPage() {
                   <input
                     type="text"
                     value={alias}
-                    onChange={(e) => handleAliasChange(index, e.target.value)}
+                    onChange={(e) => {
+                      // Empêcher modification du pseudo de l'utilisateur connecté (slot 1)
+                      if (currentUser && index === 0) return;
+                      handleAliasChange(index, e.target.value);
+                    }}
                     placeholder={`Alias for player ${index + 1}`}
                     className="form-input"
                     maxLength={50}
+                    disabled={!!currentUser && index === 0}
+                    style={currentUser && index === 0 ? { background:'#2a2a2a', color:'#888', cursor:'not-allowed' } : undefined}
                   />
+                  {currentUser && index === 0 && (
+                    <div style={{ fontSize:'0.65rem', opacity:0.6, marginTop:'4px' }}>
+                      Connected username locked
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

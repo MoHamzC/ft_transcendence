@@ -131,7 +131,6 @@ fastify.register(import('./routes/auth/oauth/githubOauth.js'), { prefix: '/auth'
 fastify.register(import('./routes/users/user_route.js'), { prefix: '/api/users' });
 fastify.register(import('./routes/users/user_settings.js'), { prefix: '/api/users' });
 // Routes joueurs / profils de jeu (pour /api/players/me)
-fastify.register(import('./routes/game_route.js'), { prefix: '/api/players' });
 // Tournoi routes (new prefix)
 fastify.register(import('./routes/tournamentTemp.js'), { prefix: '/api/tournament-temp' });
 // Backward compatibility old prefix (will be removed later)

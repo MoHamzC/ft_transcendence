@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
+// React import removed (unused in JSX runtime with TypeScript)
 import SplashCursor from './SplashCursor.tsx';
 import FuzzyText from './FuzzyText';
 import { useNavigate } from 'react-router-dom';
-import Join from './components/Join';
 
 export default function Home()
 {
     const navigate = useNavigate();
-	const [showJoin, setShowJoin] = useState(false);
-    
     return (
         <>
         <FuzzyText>transcendence</FuzzyText>
 
             <div className='mt-3'>
-                <button 
+                <button
                     className="px-4 py-2 active:scale-90 hover:scale-105 transition-transform text-white mx-2 hover:cursor-pointer hover:bg-gray-500 shadow-xl"
                     style={{ borderRadius: '8px', backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
                     onClick={() => navigate('/pong')}
@@ -24,10 +21,10 @@ export default function Home()
                     </svg>
                     1
                 </button>
-                <button 
+                <button
                     className="px-4 py-2 active:scale-90 hover:scale-105 transition-transform text-white mx-2 hover:cursor-pointer hover:bg-gray-500 shadow-xl"
                     style={{ borderRadius: '8px', backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
-					onClick={() => setShowJoin(true)}
+                    onClick={() => navigate('/tournament')}
                 >
                     TOURNAMENT
                 </button>
@@ -35,15 +32,6 @@ export default function Home()
 
             </div>
 
-			
-			<Join
-				isOpen={showJoin}
-				onClose={() => setShowJoin(false)}
-				onStartMatch={(p1, p2) => {
-					
-					navigate('/pong');
-				}}
-			/>
         </>
     )
 }

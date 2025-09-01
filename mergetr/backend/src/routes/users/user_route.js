@@ -439,4 +439,6 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 	})
 }
 
+// Named export so other route modules (e.g., matchService) can reuse the auth preHandler
+export { verifyUser };
 export default userRoutes;

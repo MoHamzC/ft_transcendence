@@ -141,16 +141,7 @@ const navigate = useNavigate();
           </div>
         </div>
 
-        {/* Standalone tournament button */}
         <div className="mt-12 flex flex-col items-center gap-10">
-          <Link
-            to="/tournament"
-            className="px-10 py-5 rounded-2xl cursor-target text-lg font-semibold shadow-lg active:scale-95 hover:scale-105 transition-all border border-purple-500/30"
-            style={{ background: 'linear-gradient(135deg,#00ff88,#00cc6a)', color:'#1a1a2e' }}
-          >
-            🏆 Play in Tournament
-          </Link>
-
           <div className="grid md:grid-cols-2 gap-8 text-gray-400 w-full">
 
           <div className="flex flex-col items-center">

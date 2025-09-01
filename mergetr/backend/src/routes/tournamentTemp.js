@@ -226,8 +226,6 @@ export default async function tournamentTempRoutes(fastify, options) {
         try {
             const { tournamentId, matchId, playerWinner, playerLoser, playerWinnerScore, playerLoserScore } = request.body || {};
 
-            fastify.log.info({ route: '/api/tournament-temp/match', body: request.body, note: 'Incoming tournament match result' });
-
             if (!tournamentId || !matchId || !playerWinner || !playerLoser) {
                 return reply.code(400).send({ success: false, error: 'Missing required fields' });
             }
@@ -241,7 +239,7 @@ export default async function tournamentTempRoutes(fastify, options) {
                 playerLoserScore: playerLoserScore ?? 0
             });
 
-            fastify.log.info({ route: '/api/tournament-temp/match', matchId, tournamentId, result, note: 'Result after recordMatchResult' });
+            if (debug) fastify.log.info({ route: '/api/tournament-temp/match', matchId, tournamentId, result, note: 'Result after recordMatchResult' });
 
             return reply.send(result);
         } catch (error) {

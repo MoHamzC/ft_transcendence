@@ -1,5 +1,5 @@
 import pool from '../config/db.js';
-import { verifyUser } from '../routes/users/user_route.js'
+import { verifyUser } from '../routes/users/user_route.js';
 import TournamentTempService from './TournamentTempService.js';
 
 export default async function matchRoutes(fastify, options) {
@@ -96,41 +96,6 @@ export default async function matchRoutes(fastify, options) {
     }
   );
 
-  // Route pour enregistrer les résultats de match
-//   fastify.post('/match', async (request, reply) => {
-//     const { playerWinner, playerLoser, playerWinnerScore, playerLoserScore } = request.body;
-
-//     // Valider les données d'entrée
-//     if (!playerWinner || !playerLoser) {
-//       return reply.status(400).send({ error: 'Invalid input' });
-//     }
-
-//     try {
-//       // Enregistrer le résultat du match dans la base de données
-//       const result = await pool.query(
-//         'INSERT INTO games (player1_id, player2_id, winner_id, player1_score, player2_score) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-//         [playerLoser, playerWinner, playerWinner, playerWinnerScore, playerLoserScore]
-//       );
-
-//       console.log('Match result saved:', result.rows[0]);
-
-// 	  // Enregistrer le résultat personnelle dans les stats du joueur dans la base de données
-//       await pool.query(
-//         'UPDATE stats SET games_won = games_won + 1, games_played = games_played + 1 WHERE user_id = $1',
-//         [playerWinner]
-//       );
-// 	  await pool.query(
-//         'UPDATE stats SET games_lost = games_lost + 1, games_played = games_played + 1 WHERE user_id = $1',
-//         [playerLoser]
-//       );
-
-//       return reply.status(201).send(result.rows[0]);
-//     } catch (error) {
-//       console.error('Error saving match result:', error);
-//       return reply.status(500).send({ error: 'Internal Server Error' });
-//     }
-//   });
-
 fastify.get('/ia', async (request, reply) => {
   try {
     // Récupérer l'utilisateur IA avec ses settings
@@ -161,27 +126,44 @@ fastify.get('/ia', async (request, reply) => {
 });
 
 	// API générique de match hors tournoi (si besoin)
-	fastify.post('/match-classic', async (request, reply) => {
-		const { player1_id, player2_id, winner_id, player1_score = 0, player2_score = 0 } = request.body;
-		if (!player1_id || !player2_id || !winner_id) {
-			return reply.code(400).send({ error: 'Missing required fields' });
-		}
-		try {
-			const result = await db.query(
-				'INSERT INTO games (player1_id, player2_id, winner_id, player1_score, player2_score, status, started_at, finished_at) VALUES ($1,$2,$3,$4,$5,\'finished\',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP) RETURNING *',
-				[player1_id, player2_id, winner_id, player1_score, player2_score]
-			);
-			return reply.code(201).send(result.rows[0]);
-		} catch (error) {
-			fastify.log.error('Error saving classic match:', error);
-			return reply.code(500).send({ error: 'Internal Server Error' });
-		}
-	});
+  fastify.post('/match', async (request, reply) => {
+    const { playerWinner, playerLoser, playerWinnerScore, playerLoserScore } = request.body;
+
+    // Valider les données d'entrée
+    if (!playerWinner || !playerLoser) {
+      return reply.status(400).send({ error: 'Invalid input' });
+    }
+
+    try {
+      // Enregistrer le résultat du match dans la base de données
+      const result = await pool.query(
+        'INSERT INTO games (player1_id, player2_id, winner_id, player1_score, player2_score) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+        [playerLoser, playerWinner, playerWinner, playerWinnerScore, playerLoserScore]
+      );
+
+      console.log('Match result saved:', result.rows[0]);
+
+	  // Enregistrer le résultat personnelle dans les stats du joueur dans la base de données
+      await pool.query(
+        'UPDATE stats SET games_won = games_won + 1, games_played = games_played + 1 WHERE user_id = $1',
+        [playerWinner]
+      );
+	  await pool.query(
+        'UPDATE stats SET games_lost = games_lost + 1, games_played = games_played + 1 WHERE user_id = $1',
+        [playerLoser]
+      );
+
+      return reply.status(201).send(result.rows[0]);
+    } catch (error) {
+      console.error('Error saving match result:', error);
+      return reply.status(500).send({ error: 'Internal Server Error' });
+    }
+  });
 
 	// API simplifiée pour le moteur de jeu: enregistre résultat d'un match de tournoi automatiquement
-	fastify.post('/match', async (request, reply) => {
+	fastify.post('/match-tournoi', async (request, reply) => {
 		const { playerWinner, playerLoser, playerWinnerScore, playerLoserScore } = request.body || {};
-		fastify.log.info({ route: '/api/match', body: request.body, note: 'Incoming generic match result' });
+		fastify.log.info({ route: '/api/match-tournoi', body: request.body, note: 'Incoming generic match result' });
 		if (!playerWinner || !playerLoser) {
 			return reply.code(400).send({ success: false, error: 'playerWinner & playerLoser required' });
 		}
@@ -191,7 +173,7 @@ fastify.get('/ia', async (request, reply) => {
 
 		// Vérifier d'abord si c'est un match de tournoi en cherchant par participant IDs
 		try {
-			const tournamentMatchRes = await db.query(
+			const tournamentMatchRes = await pool.query(
 				`SELECT tm.id as match_id, tm.tournament_id, tm.round_number, tm.status as match_status,
 						p1.id as p1_participant_id, p2.id as p2_participant_id
 				 FROM tournament_matches tm
@@ -204,6 +186,8 @@ fastify.get('/ia', async (request, reply) => {
 				   AND (p1.id = $2 OR p2.id = $2)`,
 				[playerWinner, playerLoser]
 			);
+
+			console.log('Tournament match found:', tournamentMatchRes.rows);
 
 			if (tournamentMatchRes.rows.length === 1) {
 				// C'est un match de tournoi - utiliser la logique tournoi
@@ -238,7 +222,7 @@ fastify.get('/ia', async (request, reply) => {
 
 		// Si ce n'est pas un match de tournoi, essayer l'ancienne logique avec user IDs
 		try {
-			const matchRes = await db.query(
+			const matchRes = await pool.query(
 				`SELECT tm.id as match_id, tm.tournament_id, tm.round_number, tm.status as match_status,
 						p1.id as p1_participant_id, p2.id as p2_participant_id,
 						p1.user_id as p1_user_id, p2.user_id as p2_user_id
@@ -287,10 +271,10 @@ fastify.get('/ia', async (request, reply) => {
 				updated: true,
 				matches: matchesAfter.success ? matchesAfter.matches : undefined
 			};
-			fastify.log.info({ route: '/api/match', response: responsePayload, note: 'Response after generic match record' });
+			fastify.log.info({ route: '/api/match-tournoi', response: responsePayload, note: 'Response after generic match record' });
 			return reply.send(responsePayload);
 		} catch (error) {
-			fastify.log.error('Error in /match route:', error);
+			fastify.log.error('Error in /match-tournoi route:', error);
 			return reply.code(500).send({ success: false, error: 'Internal Server Error' });
 		}
 	});

@@ -14,6 +14,10 @@ interface MatchRow {
   player1_alias: string;
   player2_alias: string;
   status: string; // pending, finished, etc
+  player1_color?: string | null;
+  player2_color?: string | null;
+  player1_skin_type?: string | null;
+  player2_skin_type?: string | null;
 }
 
 export default function TournamentPlay() {
@@ -66,13 +70,19 @@ export default function TournamentPlay() {
 
   const launchMatch = () => {
     if (!pendingMatch) return;
+  // Utiliser exactement la valeur stockée en DB (ex: 'brown', 'red', '#00A2FF').
+  // Fallback léger seulement si null/undefined.
+  const p1Color = pendingMatch.player1_color ?? 'red';
+  const p2Color = pendingMatch.player2_color ?? 'blue';
     const ctx = {
       tournamentId,
       matchId: pendingMatch.id,
       player1_id: pendingMatch.player1_id,
       player2_id: pendingMatch.player2_id,
       player1_alias: pendingMatch.player1_alias,
-      player2_alias: pendingMatch.player2_alias
+      player2_alias: pendingMatch.player2_alias,
+      player1_color: p1Color,
+      player2_color: p2Color
     };
     localStorage.setItem('currentTournamentMatch', JSON.stringify(ctx));
     // Lancer la version 3D exportée (pas d'IA pour un match tournoi => ia=false)
@@ -80,11 +90,12 @@ export default function TournamentPlay() {
       ia: 'false',
       tournamentId: String(tournamentId || ''),
       matchId: String(pendingMatch.id),
-  p1: pendingMatch.player1_alias,
-  p2: pendingMatch.player2_alias,
-  // Exposer les participant IDs pour le moteur Godot (ils seront interprétés comme PL_id / PR_id)
-  PL_id: String(pendingMatch.player1_id),
-  PR_id: String(pendingMatch.player2_id)
+	  playerId: String(pendingMatch.player1_id), // ID du joueur courant (sera utilisé pour le score)
+	  playerName: pendingMatch.player1_alias,
+	  playerColor: p1Color,
+	  opponentId: String(pendingMatch.player2_id),
+	  opponentName: pendingMatch.player2_alias,
+	  opponentColor: p2Color
     }).toString();
   // Ouvrir dans un nouvel onglet pour garder l'écran tournoi visible
   window.open(`/export_pong3D/index.html?${q}`, '_blank', 'noopener');

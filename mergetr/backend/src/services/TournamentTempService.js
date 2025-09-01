@@ -5,6 +5,10 @@ class TournamentTempService {
         this.tempUsers = new Map(); // Stockage temporaire des utilisateurs
     }
 
+    debugEnabled() {
+        return process.env.DEBUG_TOURNAMENT === 'true';
+    }
+
     // Créer un tournoi avec utilisateurs temporaires
     async createTournament({ name, mode, createdBy }) {
 	try {
@@ -329,11 +333,17 @@ class TournamentTempService {
                 `SELECT tm.*,
                  p1.alias as player1_alias, p1.is_authenticated as player1_auth,
                  p2.alias as player2_alias, p2.is_authenticated as player2_auth,
-                 w.alias as winner_alias
+                 w.alias as winner_alias,
+                 us1.pong_color  as player1_color,
+                 us1.pong_skin_type as player1_skin_type,
+                 us2.pong_color  as player2_color,
+                 us2.pong_skin_type as player2_skin_type
                  FROM tournament_matches tm
                  LEFT JOIN tournament_participants p1 ON tm.player1_id = p1.id
                  LEFT JOIN tournament_participants p2 ON tm.player2_id = p2.id
                  LEFT JOIN tournament_participants w ON tm.winner_id = w.id
+                 LEFT JOIN user_settings us1 ON p1.user_id = us1.user_id
+                 LEFT JOIN user_settings us2 ON p2.user_id = us2.user_id
                  WHERE tm.tournament_id = $1
                  ORDER BY tm.round_number, tm.match_number`,
                 [tournamentId]
@@ -410,6 +420,11 @@ class TournamentTempService {
         try {
             await client.query('BEGIN');
 
+            const debug = this.debugEnabled();
+            if (debug) {
+                console.log('[TournamentMatch][INPUT]', { tournamentId, matchId, playerWinner, playerLoser, playerWinnerScore, playerLoserScore, typeofWinner: typeof playerWinner, typeofLoser: typeof playerLoser });
+            }
+
             // Forcer types numériques pour éviter les problèmes de type (text vs integer)
             const winScore = parseInt(playerWinnerScore, 10) || 0;
             const loseScore = parseInt(playerLoserScore, 10) || 0;
@@ -420,35 +435,55 @@ class TournamentTempService {
                 [matchId, tournamentId]
             );
             if (matchRes.rows.length === 0) {
+                if (debug) console.log('[TournamentMatch][ERROR] Match not found', { tournamentId, matchId });
                 await client.query('ROLLBACK');
                 return { success: false, error: 'Match not found' };
             }
             const match = matchRes.rows[0];
             if (match.status === 'finished') {
+                if (debug) console.log('[TournamentMatch][ALREADY_FINISHED]', { matchId });
                 await client.query('ROLLBACK');
                 return { success: false, error: 'Match already finished' };
             }
 
+            // Normaliser types d'ID (participant IDs peuvent arriver en string depuis le client)
+            const p1Raw = match.player1_id;
+            const p2Raw = match.player2_id;
+            const normalize = (incoming) => {
+                if (typeof p1Raw === 'number') {
+                    const num = Number(incoming);
+                    return Number.isNaN(num) ? incoming : num;
+                }
+                // UUID / texte
+                return String(incoming);
+            };
+            const winnerNorm = normalize(playerWinner);
+            const loserNorm  = normalize(playerLoser);
+
             // Validation de cohérence
-            if (![match.player1_id, match.player2_id].includes(playerWinner) || ![match.player1_id, match.player2_id].includes(playerLoser)) {
+            if (debug) console.log('[TournamentMatch][MATCH_ROW]', { matchId, p1Raw, p2Raw, winnerNorm, loserNorm, round: match.round_number });
+
+            if (![p1Raw, p2Raw].includes(winnerNorm) || ![p1Raw, p2Raw].includes(loserNorm)) {
                 await client.query('ROLLBACK');
+                console.warn('recordMatchResult validation failed', { p1Raw, p2Raw, winnerNorm, loserNorm, matchId, tournamentId });
                 return { success: false, error: 'Players do not belong to this match' };
             }
-            if (playerWinner === playerLoser) {
+            if (winnerNorm === loserNorm) {
                 await client.query('ROLLBACK');
                 return { success: false, error: 'Winner and loser must be different' };
             }
 
             // Mettre à jour le match
-            await client.query(
+            const updateRes = await client.query(
                 `UPDATE tournament_matches
                  SET winner_id = $1,
                      player1_score = CASE WHEN player1_id = $1 THEN $2::int ELSE $3::int END,
                      player2_score = CASE WHEN player2_id = $1 THEN $2::int ELSE $3::int END,
                      status = 'finished', finished_at = CURRENT_TIMESTAMP
                  WHERE id = $4`,
-                [playerWinner, winScore, loseScore, matchId]
+                [winnerNorm, winScore, loseScore, matchId]
             );
+            if (debug) console.log('[TournamentMatch][UPDATED]', { rowCount: updateRes.rowCount, matchId, winner: winnerNorm, winScore, loseScore });
 
             // Vérifier si tous les matchs de ce round sont terminés
             const roundMatchesRes = await client.query(
@@ -508,6 +543,7 @@ class TournamentTempService {
             }
 
             await client.query('COMMIT');
+            if (debug) console.log('[TournamentMatch][SUCCESS]', { tournamentId, matchId });
             return { success: true };
         } catch (error) {
             await client.query('ROLLBACK');
