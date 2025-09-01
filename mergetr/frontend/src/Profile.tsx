@@ -14,6 +14,7 @@ interface UserData {
     language: string;
     profile_private: boolean;
     avatar_url?: string;
+  pong_color?: string;
   };
 }
 
@@ -24,6 +25,35 @@ const Profile: React.FC = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const navigate = useNavigate();
   const BACKEND_URL = 'http://localhost:5001';
+  const PONG_COLORS = ['blue','red','green','yellow','brown','black','white','pink','orange','purple','gray'];
+  const [savingColor, setSavingColor] = useState(false);
+  const [colorMsg, setColorMsg] = useState<string | null>(null);
+
+  const updatePongColor = async (newColor: string) => {
+    if (!user || savingColor) return;
+    setSavingColor(true);
+    setColorMsg(null);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/users/settings`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ pong_color: newColor })
+      });
+      if (!res.ok){
+        const data = await res.json().catch(()=>({}));
+        throw new Error(data.error || 'Update error');
+      }
+      const data = await res.json();
+      setUser(prev => prev ? ({ ...prev, settings: { ...prev.settings, ...(data.settings || {}), pong_color: data.settings?.pong_color || newColor }}) : prev);
+      setColorMsg('Color saved');
+      setTimeout(()=> setColorMsg(null), 2500);
+    } catch(e:any){
+      setColorMsg(e.message || 'Error');
+    } finally {
+      setSavingColor(false);
+    }
+  };
   useEffect(() => {
     const loadUserData = async () => {
       try {
@@ -332,226 +362,198 @@ const Profile: React.FC = () => {
       {/* Détails du profil */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gridTemplateColumns: '1fr 220px',
         gap: '20px',
-        marginBottom: '30px'
+        marginBottom: '30px',
+        alignItems: 'start'
       }}>
-        {/* Informations générales */}
-  <div className="cursor-target bg-[#161b3d] active:scale-96 hover:scale-102 border border-white/10 rounded-[15px] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_8px_28px_-10px_rgba(0,0,0,0.65)] transition hover:shadow-[0_0_0_1px_rgba(255,255,255,0.07),0_10px_34px_-10px_rgba(0,0,0,0.7)]"
-    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', justifyContent: 'center' }}>
-      <svg xmlns="http://www.w3.org/2000/svg"
-        fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-        stroke="currentColor" className="size-6">
-        <path strokeLinecap="round"
-          strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-      </svg>
-      <h3 style={{
-        color: '#4c9aff',
-        fontSize: '1.3rem',
-        margin: 0
-      }}>
-        Infos
-      </h3>
-    </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ color: '#ff6b9d', fontSize: '1.1rem' }}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-</svg>
-</span>
-              <span style={{ color: 'rgba(255,255,255,0.9)' }}>
-                ID: {user.id}
-              </span>
-            </div>
-
-            {user.bio && (
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                <span style={{ color: '#ff6b9d', fontSize: '1.1rem' }}>📝</span>
-                <span style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  {user.bio}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        
-        {(user.settings) ? (
-          <div className="cursor-target hover:scale-102 active:scale-96 bg-[#161b3d] border border-white/10 rounded-[15px] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_8px_28px_-10px_rgba(0,0,0,0.65)] transition hover:shadow-[0_0_0_1px_rgba(255,255,255,0.07),0_10px_34px_-10px_rgba(0,0,0,0.7)]"
+        {/* Left column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Informations générales */}
+          <div className="cursor-target bg-[#161b3d] active:scale-96 hover:scale-102 border border-white/10 rounded-[15px] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_8px_28px_-10px_rgba(0,0,0,0.65)] transition hover:shadow-[0_0_0_1px_rgba(255,255,255,0.07),0_10px_34px_-10px_rgba(0,0,0,0.7)]"
             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <h3 style={{
-              color: '#4c9aff',
-              marginBottom: '20px',
-              fontSize: '1.3rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              justifyContent: 'center',
-              textAlign: 'center',
-              width: '100%'
-            }}>
-               <h3 style={{
-        color: '#4c9aff',
-        fontSize: '1.3rem',
-        margin: 0
-      }}>
-        Settings
-      </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', justifyContent: 'center' }}>
               <svg xmlns="http://www.w3.org/2000/svg"
-             viewBox="0 0 24 24"
-             fill="currentColor"
-             width="22"
-             height="22"
-             aria-hidden="true">
-                <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                stroke="currentColor" className="size-6">
+                <path strokeLinecap="round"
+                  strokeLinejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
               </svg>
-            </h3>
+              <h3 style={{ color: '#4c9aff', fontSize: '1.3rem', margin: 0 }}>Infos</h3>
+            </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{
-                  color: user.settings.two_factor_enabled ? '#2ed573' : '#ff4757',
-                  fontSize: '1.1rem'
-                }}>
-                  {user.settings.two_factor_enabled ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
-                    </svg>
-                  )}
+                <span style={{ color: '#ff6b9d', fontSize: '1.1rem' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
                 </span>
-                <span style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  Double Auth
-                </span>
+                <span style={{ color: 'rgba(255,255,255,0.9)' }}>ID: {user.id}</span>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{
-                  color: user.settings.profile_private ? '#ff6b9d' : '#4c9aff',
-                  fontSize: '1.1rem'
-                }}>
-                  {user.settings.profile_private ? '🔒' : (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" style={{ display: 'inline', verticalAlign: 'middle', color: '#4c9aff', width: '1.3em', height: '1.3em' }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m6.115 5.19.319 1.913A6 6 0 0 0 8.11 10.36L9.75 12l-.387.775c-.217.433-.132.956.21 1.298l1.348 1.348c.21.21.329.497.329.795v1.089c0 .426.24.815.622 1.006l.153.076c.433.217.956.132 1.298-.21l.723-.723a8.7 8.7 0 0 0 2.288-4.042 1.087 1.087 0 0 0-.358-1.099l-1.33-1.108c-.251-.21-.582-.299-.905-.245l-1.17.195a1.125 1.125 0 0 1-.98-.314l-.295-.295a1.125 1.125 0 0 1 0-1.591l.13-.132a1.125 1.125 0 0 1 1.3-.21l.603.302a.809.809 0 0 0 1.086-1.086L14.25 7.5l1.256-.837a4.5 4.5 0 0 0 1.528-1.732l.146-.292M6.115 5.19A9 9 0 1 0 17.18 4.64M6.115 5.19A8.965 8.965 0 0 1 12 3c1.929 0 3.716.607 5.18 1.64" />
-                    </svg>
-                  )}
-                </span>
-                <span style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  Profil {user.settings.profile_private ? 'privé' : 'public'}
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" style={{ color: '#ff6b9d', width: '1.3em', height: '1.3em' }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
-                </svg>
-                <span style={{ color: 'rgba(255,255,255,0.9)' }}>
-                  Language : {user.settings.language || 'Non définie'}
-                </span>
-              </div>
+              {user.bio && (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <span style={{ color: '#ff6b9d', fontSize: '1.1rem' }}>📝</span>
+                  <span style={{ color: 'rgba(255,255,255,0.9)' }}>{user.bio}</span>
+                </div>
+              )}
             </div>
           </div>
-        ) : (
-          <div className="bg-white/5 border border-white/10 rounded-[15px] p-6 text-sm text-white/70 italic">Paramètres indisponibles</div>
-        )}
-      </div>
 
-      {/* linked accounts */}
-      {user.providers && user.providers.length > 0 && (
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.05)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '15px',
-          padding: '25px',
-          marginBottom: '30px'
-        }}>
-          <h3 style={{
-            color: '#4c9aff',
-            marginBottom: '20px',
-            fontSize: '1.3rem'
-          }}>
-            Linked account
-          </h3>
+          {/* Settings card */}
+          {user.settings ? (
+            <div className="cursor-target hover:scale-102 active:scale-96 bg-[#161b3d] border border-white/10 rounded-[15px] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_8px_28px_-10px_rgba(0,0,0,0.65)] transition hover:shadow-[0_0_0_1px_rgba(255,255,255,0.07),0_10px_34px_-10px_rgba(0,0,0,0.7)]"
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center', width: '100%', marginBottom: '20px' }}>
+                <h3 style={{ color: '#4c9aff', fontSize: '1.3rem', margin: 0 }}>Settings</h3>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
+                  <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                </svg>
+              </div>
 
-          <div style={{
-            display: 'flex',
-            gap: '10px',
-            flexWrap: 'wrap'
-          }}>
-            {user.providers.map((provider: string, index: number) => (
-              <span
-                key={index}
-                style={{
-                  background: 'linear-gradient(135deg, #4c9aff, #ff6b9d)',
-                  color: 'white',
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                {provider === '42' && '🎓'}
-                {provider === 'google' && '🔍'}
-                {provider === 'github' && '💻'}
-                {provider === '42' ? '42' :
-                 provider === 'google' ? 'Google' :
-                 provider === 'github' ? 'GitHub' : provider}
-              </span>
-            ))}
-          </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ color: user.settings.two_factor_enabled ? '#2ed573' : '#ff4757', fontSize: '1.1rem' }}>
+                    {user.settings.two_factor_enabled ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                      </svg>
+                    )}
+                  </span>
+                  <span style={{ color: 'rgba(255,255,255,0.9)' }}>Double Auth</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ color: user.settings.profile_private ? '#ff6b9d' : '#4c9aff', fontSize: '1.1rem' }}>
+                    {user.settings.profile_private ? '🔒' : (
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" style={{ display: 'inline', verticalAlign: 'middle', color: '#4c9aff', width: '1.3em', height: '1.3em' }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m6.115 5.19.319 1.913A6 6 0 0 0 8.11 10.36L9.75 12l-.387.775c-.217.433-.132.956.21 1.298l1.348 1.348c.21.21.329.497.329.795v1.089c0 .426.24.815.622 1.006l.153.076c.433.217.956.132 1.298-.21l.723-.723a8.7 8.7 0 0 0 2.288-4.042 1.087 1.087 0 0 0-.358-1.099l-1.33-1.108c-.251-.21-.582-.299-.905-.245l-1.17.195a1.125 1.125 0 0 1-.98-.314l-.295-.295a1.125 1.125 0 0 1 0-1.591l.13-.132a1.125 1.125 0 0 1 1.3-.21l.603.302a.809.809 0 0 0 1.086-1.086L14.25 7.5l1.256-.837a4.5 4.5 0 0 0 1.528-1.732l.146-.292M6.115 5.19A9 9 0 1 0 17.18 4.64M6.115 5.19A8.965 8.965 0 0 1 12 3c1.929 0 3.716.607 5.18 1.64" />
+                      </svg>
+                    )}
+                  </span>
+                  <span style={{ color: 'rgba(255,255,255,0.9)' }}>Profil {user.settings.profile_private ? 'privé' : 'public'}</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" style={{ color: '#ff6b9d', width: '1.3em', height: '1.3em' }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+                  </svg>
+                  <span style={{ color: 'rgba(255,255,255,0.9)' }}>Language : {user.settings.language || 'Non définie'}</span>
+                </div>
+
+                <div style={{ marginTop: 12, width: '100%' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.9)', marginBottom: 8, fontWeight: 600 }}>Pong color</div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {PONG_COLORS.map(c => {
+                      const isActive = (user.settings?.pong_color || '') === c;
+                      return (
+                        <button
+                          key={c}
+                          onClick={() => updatePongColor(c)}
+                          disabled={savingColor}
+                          style={{
+                            width: 34,
+                            height: 34,
+                            borderRadius: 18,
+                            border: isActive ? '3px solid #7c3aed' : '2px solid rgba(255,255,255,0.08)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: 'transparent',
+                            cursor: savingColor ? 'not-allowed' : 'pointer'
+                          }}
+                          aria-label={`Set pong color ${c}`}
+                        >
+                          <div style={{ width: 20, height: 20, borderRadius: 10, background: c }} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {savingColor && <div style={{ color: 'rgba(255,255,255,0.6)', marginTop: 8, fontSize: 12 }}>Saving...</div>}
+                  {colorMsg && <div style={{ color: '#34d399', marginTop: 8, fontSize: 12 }}>{colorMsg}</div>}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white/5 border border-white/10 rounded-[15px] p-6 text-sm text-white/70 italic">Paramètres indisponibles</div>
+          )}
+
+          {/* linked accounts */}
+          {user && user.providers && user.providers.length > 0 && (
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '15px',
+              padding: '25px',
+              marginBottom: '30px'
+            }}>
+              <h3 style={{ color: '#4c9aff', marginBottom: '20px', fontSize: '1.3rem' }}>Linked account</h3>
+
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {user?.providers?.map((provider: string, index: number) => (
+                  <span key={index} style={{
+                    background: 'linear-gradient(135deg, #4c9aff, #ff6b9d)',
+                    color: 'white',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontSize: '0.9rem',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    {provider === '42' && '🎓'}
+                    {provider === 'google' && '🔍'}
+                    {provider === 'github' && '💻'}
+                    {provider === '42' ? '42' : provider === 'google' ? 'Google' : provider === 'github' ? 'GitHub' : provider}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      )}
 
-     
-      <div style={{
-        display: 'flex',
-        gap: '15px',
-        justifyContent: 'center',
-        flexWrap: 'wrap'
-      }}>
-       
-        <button
-          onClick={() => navigate('/settings')}
-          className="cursor-target bg-[oklch(25.7%_0.09_281.288)] text-white border-none px-6 py-3 rounded-[14px] active:scale-95 cursor-pointer text-[16px] font-bold transition-transform duration-200hover:scale-105 flex items-center gap-2"
-        >
-          <span style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 viewBox="0 0 24 24"
-                 fill="currentColor"
-                 width="22"
-                 height="22"
-                 aria-hidden="true">
-              <path d="M6 12a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 1 1 1.5 0v7.5A.75.75 0 0 1 6 12ZM18 12a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 1.5 0v7.5A.75.75 0 0 1 18 12ZM6.75 20.25v-1.5a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0ZM18.75 18.75v1.5a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 1.5 0ZM12.75 5.25v-1.5a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0ZM12 21a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 1.5 0v7.5A.75.75 0 0 1 12 21ZM3.75 15a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0ZM12 11.25a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5ZM15.75 15a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0Z" />
-            </svg>
-            Settings
-          </span>
-        </button>
+        {/* right column: vertical buttons */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
+          <button
+            onClick={() => navigate('/settings')}
+            className="cursor-target bg-[oklch(25.7%_0.09_281.288)] text-white border-none px-6 py-3 rounded-[14px] active:scale-95 cursor-pointer text-[16px] font-bold transition-transform duration-200 hover:scale-105 flex items-center gap-2"
+            style={{ width: '100%' }}
+          >
+            <span style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true"><path d="M6 12a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 1 1 1.5 0v7.5A.75.75 0 0 1 6 12ZM18 12a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 1.5 0v7.5A.75.75 0 0 1 18 12ZM6.75 20.25v-1.5a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0ZM18.75 18.75v1.5a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 1.5 0ZM12.75 5.25v-1.5a.75.75 0 0 0-1.5 0v1.5a.75.75 0 0 0 1.5 0ZM12 21a.75.75 0 0 1-.75-.75v-7.5a.75.75 0 0 1 1.5 0v7.5A.75.75 0 0 1 12 21ZM3.75 15a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0ZM12 11.25a2.25 2.25 0 1 1 0-4.5 2.25 2.25 0 0 1 0 4.5ZM15.75 15a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0Z"/></svg>
+              Settings
+            </span>
+          </button>
 
-        <button
-          onClick={() => navigate('/stats')}
-          className="cursor-target bg-[oklch(25.7%_0.09_281.288)] text-white border-none hover:scale-105 active:scale-95 px-6 py-3 rounded-[14px] cursor-pointer text-[16px] font-bold transition-transform duration-200  hover:scale-105 flex items-center gap-2"
-        >
-          <span style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 viewBox="0 0 24 24"
-                 fill="currentColor"
-                 width="22"
-                 height="22"
-                 aria-hidden="true">
-              <path fillRule="evenodd" d="M15.22 6.268a.75.75 0 0 1 .968-.431l5.942 2.28a.75.75 0 0 1 .431.97l-2.28 5.94a.75.75 0 1 1-1.4-.537l1.63-4.251-1.086.484a11.2 11.2 0 0 0-5.45 5.173.75.75 0 0 1-1.199.19L9 12.312l-6.22 6.22a.75.75 0 0 1-1.06-1.061l6.75-6.75a.75.75 0 0 1 1.06 0l3.606 3.606a12.695 12.695 0 0 1 5.68-4.974l1.086-.483-4.251-1.632a.75.75 0 0 1-.432-.97Z" clipRule="evenodd" />
-            </svg>
-            Stats
-          </span>
-        </button>
+          <button
+            onClick={() => navigate('/stats')}
+            className="cursor-target bg-[oklch(25.7%_0.09_281.288)] text-white border-none hover:scale-105 active:scale-95 px-6 py-3 rounded-[14px] cursor-pointer text-[16px] font-bold transition-transform duration-200 hover:scale-105 flex items-center gap-2"
+            style={{ width: '100%' }}
+          >
+            <span style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true"><path fillRule="evenodd" d="M15.22 6.268a.75.75 0 0 1 .968-.431l5.942 2.28a.75.75 0 0 1 .431.97l-2.28 5.94a.75.75 0 1 1-1.4-.537l1.63-4.251-1.086.484a11.2 11.2 0 0 0-5.45 5.173.75.75 0 0 1-1.199.19L9 12.312l-6.22 6.22a.75.75 0 0 1-1.06-1.061l6.75-6.75a.75.75 0 0 1 1.06 0l3.606 3.606a12.695 12.695 0 0 1 5.68-4.974l1.086-.483-4.251-1.632a.75.75 0 0 1-.432-.97Z" clipRule="evenodd"/></svg>
+              Stats
+            </span>
+          </button>
+
+          <button
+            onClick={() => navigate('/matchhistory')}
+            className="cursor-target bg-[oklch(25.7%_0.09_281.288)] text-white border-none hover:scale-105 active:scale-95 px-6 py-3 rounded-[14px] cursor-pointer text-[16px] font-bold transition-transform duration-200 hover:scale-105 flex items-center gap-2"
+            style={{ width: '100%' }}
+          >
+            <span style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5A3.375 3.375 0 0 0 6.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0 0 15 2.25h-1.5a2.251 2.251 0 0 0-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 0 0-9-9Z"/></svg>
+              Match History
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Animation CSS pour le spinner */}

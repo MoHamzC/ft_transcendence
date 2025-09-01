@@ -24,6 +24,7 @@ import DoubleAuth from './DoubleAuth.tsx';
 import SelectPlayers from './SelectPlayers.tsx';
 import Tournament from './Tournament.tsx';
 import PongGame from './games/PongGame.jsx';
+import MatchHistory from './MatchHistory.tsx';
 function onRenderCallback(
   id: string,
   phase: 'mount' | 'update',
@@ -102,6 +103,7 @@ function App()
 								<Route path="/ResetPassword" element={<ResetPassword />} />
 								<Route path="/selectplayers" element={<SelectPlayers />} />
 								<Route path="/tournament" element={<Tournament />} />
+								<Route path="/matchhistory" element={<MatchHistory />} />
 							</Routes>
 						</div>
 					{/* </Profiler> */}
