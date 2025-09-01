@@ -63,6 +63,19 @@ func _ready():
 			# Tournament
 			tournament_id = params.get("tournamentId", tournament_id)
 
+
+	var file = FileAccess.open("res://gamecontrollerdb.txt", FileAccess.READ)
+	if file:
+		while not file.eof_reached():
+			var line = file.get_line()
+			if line.strip_edges() != "":
+				Input.add_joy_mapping(line, true)
+		print("✅ Base de données manettes chargée")
+	else:
+		print("⚠️ Impossible de charger gamecontrollerdb.txt")
+
+
+
 	# Debug
 	print("Right IA activé :", right_ia)
 	print("Player Left :", skin_PL_name, " ", skin_PL_color, " ", skin_PL_id)
