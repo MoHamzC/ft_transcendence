@@ -51,8 +51,8 @@ export default function DoubleAuth() {
 
         try {
             await verifyOTP(email, otpCode);
-            // Redirection avec paramètre de succès
-            window.location.href = '/selectplayers?login=success';
+            // Redirection vers la page d'accueil après succès 2FA
+            window.location.href = '/?login=success';
         } catch (err) {
             // L'erreur est déjà gérée par le hook
             console.error('OTP verification error:', err);

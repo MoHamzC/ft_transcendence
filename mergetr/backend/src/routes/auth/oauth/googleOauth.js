@@ -2,11 +2,32 @@ import pool from '../../../config/db.js'
 import { jwtTokenOauth } from './oauth.js';
 import { generateUniqueUsername } from '../../../utils/usernameGenerator.js';
 
+// Helper to guarantee a provider is present exactly once in users.providers
+async function ensureProvider(userId, provider){
+	try {
+		await pool.query(
+			`UPDATE users
+			 SET providers = (
+				 CASE WHEN providers IS NULL OR NOT ($2 = ANY(providers))
+							THEN array_append(COALESCE(providers, ARRAY[]::text[]), $2)
+							ELSE providers END
+			 )
+			 WHERE id = $1`,
+			[userId, provider]
+		);
+	} catch (e) {
+		console.error(`❌ Failed to ensure provider '${provider}' for user ${userId}:`, e.message);
+	}
+}
+
 async function linkGoogleAccount(user, googleUserData){
-	const addGoogleDataInDb = await pool.query(
+	await pool.query(
 		'UPDATE users SET google_id = $1 WHERE id = $2',
 		[googleUserData.id, user.rows[0].id]
 	)
+
+	// Always ensure 'google' provider is set after linking
+	await ensureProvider(user.rows[0].id, 'google');
 
 	// Vérifier s'il y a déjà un avatar avant de le remplacer
 	if (googleUserData.picture) {
@@ -59,32 +80,8 @@ async function handleGoogleLogin(request, reply, googleUserData){
 				console.log('✅ user_settings créé pour utilisateur existant');
 			}
 
-			const result = await pool.query(
-				'SELECT providers FROM users WHERE id = $1',
-				[existingUser.rows[0].id]
-			)
-
-			if (!result) {
-				console.error('Erreur pendant l\'ajout des données utilisateur dans la base de données')
-				return reply.code(400).send({ error: 'Erreur lors de la création de l\'utilisateur' })
-			}
-
-			if (!result.rows[0].providers){
-				const addProvider = await pool.query (
-					"UPDATE users SET providers = COALESCE(providers, ARRAY[]::text[]) || ARRAY['google'] WHERE id = $1",
-					[existingUser.rows[0].id]
-				)
-			}
-			else{
-				const currentProviders = result.rows[0].providers || [];
-				if (!currentProviders.includes('google')) {
-					const addProvider = await pool.query(
-						"UPDATE users SET providers = array_append(providers, 'google') WHERE id = $1",
-						[existingUser.rows[0].id]
-					)
-					console.log("✅ Google ajouté en tant que provider")
-				}
-			}
+			// Ensure provider present (handles empty array case)
+			await ensureProvider(existingUser.rows[0].id, 'google');
 		}
 		const dbUser = existingUser.rows[0];
 		return jwtTokenOauth(request, reply, dbUser);
@@ -106,12 +103,8 @@ async function handleGoogleLogin(request, reply, googleUserData){
 		return reply.code(400).send({ error: 'Erreur lors de la création de l\'utilisateur' })
 	}
 
-	if (!result.rows[0].providers){
-		const addProvider = await pool.query (
-			'UPDATE users SET providers = COALESCE(providers, ARRAY[]::text[]) || ARRAY[\'google\'] WHERE id = $1',
-			[result.rows[0].id]
-		)
-	}
+	// Guarantee provider for newly created user (previous logic skipped when array was empty)
+	await ensureProvider(result.rows[0].id, 'google');
 
 	// Créer les paramètres utilisateur
 	await pool.query(

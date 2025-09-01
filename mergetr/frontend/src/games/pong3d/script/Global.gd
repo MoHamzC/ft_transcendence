@@ -20,6 +20,9 @@ var skin_PR_color: String = "red"
 var skin_PR_id: String = ""
 var skin_PR_name: String = "Player Right"
 
+# --- tournament ---
+var tournament_id: String = "false"
+
 # --- fonction pour décoder les paramètres URL ---
 func decode_param(s: String) -> String:
 	s = s.replace("%20", " ")
@@ -28,16 +31,13 @@ func decode_param(s: String) -> String:
 
 
 func _ready():
-	var url = "?ia=true&playerId=94248ffe-d0dd-42de-8a9b-f4b3d8af160e&playerName=lomont&playerColor=white&opponentId=1815a77b-e5a1-46f6-8886-f1a979dd9f7b&opponentName=Intelligence Artificielle&opponentColor=pink"  # définir une valeur par défaut
+	var url = ""  # valeur par défaut
 	if Engine.has_singleton("JavaScriptBridge"):
 		var js = JavaScriptBridge.get_interface("window")
 		if js:
-			url = str(js.location.href)  # récupérer l'URL complète
-
-#	var url = "http://localhost:5173/export_pong3D/index.html?ia=true&playerId=0a74c824-67e1-4afc-8f6e-127c235378cd&playerName=lomont&playerColor=blue&opponentId=07097919-dd36-4055-a6ed-acb7b18d7796&opponentName=Intelligence%20Artificielle&opponentColor=yellow"
+			url = str(js.location.href)
 
 	if url != "":
-		# récupérer la partie après le "?"
 		var search_index = url.find("?")
 		if search_index != -1:
 			var search = url.substr(search_index + 1, url.length() - search_index - 1)
@@ -60,7 +60,24 @@ func _ready():
 			skin_PR_id    = params.get("opponentId", skin_PR_id)
 			skin_PR_name  = params.get("opponentName", skin_PR_name)
 
+			# Tournament
+			tournament_id = params.get("tournamentId", tournament_id)
+
+
+	var file = FileAccess.open("res://gamecontrollerdb.txt", FileAccess.READ)
+	if file:
+		while not file.eof_reached():
+			var line = file.get_line()
+			if line.strip_edges() != "":
+				Input.add_joy_mapping(line, true)
+		print("✅ Base de données manettes chargée")
+	else:
+		print("⚠️ Impossible de charger gamecontrollerdb.txt")
+
+
+
 	# Debug
 	print("Right IA activé :", right_ia)
 	print("Player Left :", skin_PL_name, " ", skin_PL_color, " ", skin_PL_id)
 	print("Player Right :", skin_PR_name, " ", skin_PR_color, " ", skin_PR_id)
+	print("Tournament ID :", tournament_id)

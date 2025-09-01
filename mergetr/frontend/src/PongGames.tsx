@@ -8,61 +8,59 @@ import Join1v13d from './components/Join1v13d';
 import MyToggle from './MyToggle';
 import axios from 'axios';
 
+interface PlayerData {
+  id: string;
+  name: string;
+  pong_color: string;
+}
+
 const PongGames: React.FC = () => {
 	const [AIopponent, setAIopponent] = useState(false);
-	const [playerData, setPlayerData] = useState(null);
+  const [playerData, setPlayerData] = useState<PlayerData | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [showJoin1v1, setShowJoin1v1] = useState(false);
 	const [showJoin1v13d, setShowJoin1v13d] = useState(false);
 
-	useEffect(() => {
-    // Fetch player data when component mounts
+  useEffect(() => {
     const fetchPlayerData = async () => {
       try {
-        const response = await axios.get('/api/me', {
-          withCredentials: true, // Important for auth cookies
-        });
-        setPlayerData(response.data);
-      } catch (error) {
-        console.error('Failed to fetch player data:', error);
+        // Backend route is /api/users/me returning { message, user: { ... } }
+        const response = await axios.get('/api/users/me', { withCredentials: true });
+        const user = response.data?.user;
+        if (user) {
+          setPlayerData({
+            id: user.id,
+            name: user.username || '',
+            pong_color: user.settings?.pong_color || user.pong_color || 'white'
+          });
+        }
+      } catch (e) {
+        // Not logged in => keep null
       }
     };
-
     fetchPlayerData();
   }, []);
 
-  const handlePlay3D = async () => {
-  setIsLoading(true);
+  const sanitizeUsername = (raw: string) => raw.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\-]/g, '');
 
-  let opponentId = null;
-  let opponentName = null;
-  let opponentColor = null;
+  const createGuest = async (username: string) => {
+    const clean = sanitizeUsername(username);
+    if (!clean || clean.length < 3) throw new Error('Username trop court');
+    const res = await fetch('/api/users/guest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ username: clean })
+    });
+    if (!res.ok) {
+      let detail: any = null;
+      try { detail = await res.json(); } catch {}
+      throw new Error(detail?.error || 'Guest creation failed');
+    }
+    return await res.json(); // { id, username }
+  };
 
-    if (AIopponent) {
-      try {
-        // Récupérer l'utilisateur IA depuis la DB
-        const aiResponse = await axios.get('/api/ia', {
-          withCredentials: true,
-        });
-
-        opponentId = aiResponse.data.id;
-        opponentName = aiResponse.data.name;
-        opponentColor = aiResponse.data.pong_color;
-      } catch (error) {
-        console.error('Failed to fetch AI user:', error);
-        // Fallback avec des valeurs par défaut
-      }
-
-    // Build URL avec les données des deux joueurs
-    const url = `/export_pong3D/index.html?ia=${AIopponent}&playerId=${playerData.id}&playerName=${encodeURIComponent(playerData.name)}&playerColor=${encodeURIComponent(playerData.pong_color)}&opponentId=${opponentId}&opponentName=${encodeURIComponent(opponentName)}&opponentColor=${encodeURIComponent(opponentColor)}`;
-    window.location.href = url;
-  } else {
-    // Fallback if player data isn't available
-    window.location.href = `/export_pong3D/index.html?ia=${AIopponent}`;
-  }
-
-  setIsLoading(false);
-};
+  // (Ancienne fonction handlePlay3D remplacée par logique dans Join1v13d onStartMatch)
 
 const navigate = useNavigate();
   return (
@@ -191,10 +189,60 @@ const navigate = useNavigate();
           <Join1v13d
             isOpen={showJoin1v13d}
             onClose={() => setShowJoin1v13d(false)}
+            ai={AIopponent}
             onStartMatch={(p1: string, p2: string) => {
-              setShowJoin1v13d(false);
-              const url = `/export_pong3D/index.html?ia=${AIopponent}&p1=${encodeURIComponent(p1)}&p2=${encodeURIComponent(p2)}`;
-              window.location.href = url;
+              // Asynchronous creation & redirect
+              (async () => {
+                try {
+                  setIsLoading(true);
+                  let playerId: string; let playerName: string; let playerColor: string;
+                  if (playerData) {
+                    playerId = playerData.id;
+                    playerName = playerData.name;
+                    playerColor = playerData.pong_color || 'white';
+                  } else {
+                    const g1 = await createGuest(p1);
+                    playerId = g1.id;
+                    playerName = g1.username;
+                    playerColor = 'white';
+                  }
+
+                  // Opponent (guest or AI)
+                  let opponentId = '';
+                  let opponentName = '';
+                  let opponentColor = 'white';
+                  if (AIopponent) {
+                    try {
+                      const aiRes = await axios.get('/api/ia', { withCredentials: true });
+                      opponentId = aiRes.data.id;
+                      opponentName = aiRes.data.name;
+                      opponentColor = aiRes.data.pong_color || 'white';
+                    } catch (e) {
+                      console.error('Erreur récupération IA', e);
+                    }
+                  } else {
+                    const g2 = await createGuest(p2);
+                    opponentId = g2.id;
+                    opponentName = g2.username;
+                  }
+
+                  const url = `/export_pong3D/index.html?ia=${AIopponent}` +
+                    `&playerId=${encodeURIComponent(playerId)}` +
+                    `&playerName=${encodeURIComponent(playerName)}` +
+                    `&playerColor=${encodeURIComponent(playerColor)}` +
+                    `&opponentId=${encodeURIComponent(opponentId)}` +
+                    `&opponentName=${encodeURIComponent(opponentName)}` +
+                    `&opponentColor=${encodeURIComponent(opponentColor)}`;
+                  console.log('[3D Redirect]', url);
+                  window.location.href = url;
+                } catch (err: any) {
+                  console.error('Erreur préparation match 3D', err);
+                  alert(err?.message || 'Erreur préparation match 3D');
+                } finally {
+                  setIsLoading(false);
+                  setShowJoin1v13d(false);
+                }
+              })();
             }}
           />
         )}

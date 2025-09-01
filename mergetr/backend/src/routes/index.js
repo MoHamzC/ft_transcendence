@@ -53,5 +53,9 @@ export async function registerRoutes(fastify) {
 	const statsRoutes = (await import('./stats.js')).default
     await fastify.register(statsRoutes, { prefix: '/api/stats' })
 
+    // Match history
+    const matchHistoryRoutes = (await import('./matchHistory.js')).default
+    await fastify.register(matchHistoryRoutes, { prefix: '/api' })
+
     fastify.log.info('✅ All routes registered')
 }

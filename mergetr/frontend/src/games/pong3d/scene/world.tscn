@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://c2bec77ybm64d"]
+[gd_scene load_steps=28 format=3 uid="uid://c2bec77ybm64d"]
 
 [ext_resource type="Script" uid="uid://dsxcyf5pikbje" path="res://World.gd" id="1_jsnws"]
 [ext_resource type="PackedScene" uid="uid://dppsyvbwy6q8v" path="res://scene/All_Wall.tscn" id="1_yur6x"]
@@ -16,7 +16,6 @@
 [ext_resource type="PackedScene" uid="uid://bup5fgtfcpv2e" path="res://scene/meteorite.tscn" id="13_f345f"]
 [ext_resource type="Script" uid="uid://bcv37aykddyg5" path="res://script/meteorite.gd" id="14_bqa5m"]
 [ext_resource type="PackedScene" uid="uid://dg7cf4i8r6g0w" path="res://scene/alert_texte.tscn" id="15_a0bac"]
-[ext_resource type="PackedScene" uid="uid://bo2ac27uy3mdn" path="res://scene/quitButton.tscn" id="18_e4vd1"]
 [ext_resource type="Script" uid="uid://bci0i0eqjqnyh" path="res://script/camera3D_cinamatique.gd" id="19_1402k"]
 [ext_resource type="AudioStream" uid="uid://cca1wa84s85yg" path="res://asset/song/explosion.wav" id="19_ol7uo"]
 
@@ -86,8 +85,11 @@ pixel_size = 0.05
 [node name="ALL_WALL" parent="." instance=ExtResource("1_yur6x")]
 
 [node name="raquette" parent="." groups=["raquette"] instance=ExtResource("4_aqk2v")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -11.5368, 0.000244141, 7.7023)
+transform = Transform3D(-1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, -11.5368, 0.000244141, 7.7023)
 script = ExtResource("5_036b0")
+joypad_id = 0
+deadzone = 0.15
+invert_y = false
 
 [node name="raquette2" parent="." groups=["raquette"] instance=ExtResource("4_aqk2v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 7.5)
@@ -151,8 +153,6 @@ speed = 70.0
 
 [node name="Alert" parent="." instance=ExtResource("15_a0bac")]
 transform = Transform3D(5.99999, -0.00995537, -0.00289282, 0.00285641, -0.0219345, 5.99996, -0.00996588, -5.99995, -0.0219297, -0.131862, 0.088361, 9.47456)
-
-[node name="CanvasLayer" parent="." instance=ExtResource("18_e4vd1")]
 
 [node name="ExplosionSong" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("19_ol7uo")

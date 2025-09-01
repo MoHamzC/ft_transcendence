@@ -14,6 +14,8 @@ interface UserData {
     language: string;
     profile_private: boolean;
     avatar_url?: string;
+    pong_color?: string;
+    pong_skin_type?: string;
   };
 }
 
@@ -24,6 +26,36 @@ const Profile: React.FC = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const navigate = useNavigate();
   const BACKEND_URL = 'http://localhost:5001';
+  const PONG_COLORS = ['blue','red','green','yellow','brown','black','white','pink','orange','purple','gray'];
+  const [savingColor, setSavingColor] = useState(false);
+  const [colorMsg, setColorMsg] = useState<string | null>(null);
+
+  const updatePongColor = async (newColor: string) => {
+    if (!user || savingColor) return;
+    setSavingColor(true);
+    setColorMsg(null);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/users/settings`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ pong_color: newColor })
+      });
+      if (!res.ok){
+        const data = await res.json().catch(()=>({}));
+        throw new Error(data.error || 'Erreur mise à jour');
+      }
+      const data = await res.json();
+      setUser(prev => prev ? ({ ...prev, settings: { ...prev.settings, ...(data.settings || {}), pong_color: data.settings?.pong_color || newColor }}) : prev);
+      setColorMsg('Couleur mise à jour');
+      setTimeout(()=> setColorMsg(null), 2500);
+    } catch(e:any){
+      setColorMsg(e.message || 'Erreur');
+    } finally {
+      setSavingColor(false);
+    }
+  };
+
   useEffect(() => {
     const loadUserData = async () => {
       try {
@@ -450,6 +482,42 @@ const Profile: React.FC = () => {
                 <span style={{ color: 'rgba(255,255,255,0.9)' }}>
                   Language : {user.settings.language || 'Non définie'}
                 </span>
+              </div>
+
+              {/* Sélecteur couleur Pong */}
+              <div style={{ marginTop: '6px' }}>
+                <div style={{ fontSize:'0.9rem', color:'#4c9aff', fontWeight:600, marginBottom:'6px' }}>
+                  🏓 Couleur Pong: <span style={{ color:'rgba(255,255,255,0.85)' }}>{user.settings.pong_color || 'white'}</span>
+                </div>
+                <div style={{ display:'flex', flexWrap:'wrap', gap:'8px' }}>
+                  {PONG_COLORS.map(c => {
+                    const selected = (user.settings?.pong_color || 'white') === c;
+                    return (
+                      <button
+                        key={c}
+                        onClick={() => updatePongColor(c)}
+                        disabled={savingColor}
+                        style={{
+                          width:'34px', height:'34px',
+                          borderRadius:'8px',
+                          border: selected ? '3px solid #ffffff' : '2px solid rgba(255,255,255,0.35)',
+                          background: c,
+                          cursor: savingColor ? 'not-allowed' : 'pointer',
+                          position:'relative',
+                          boxShadow: selected ? '0 0 0 3px rgba(76,154,255,0.55)' : 'none',
+                          transition:'all .18s'
+                        }}
+                        title={c}
+                      >
+                        {selected && <span style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', fontWeight:700, fontSize:'14px', color: (c==='yellow'||c==='white') ? '#000':'#fff' }}>✓</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+                <div style={{ minHeight:'18px', marginTop:'4px', fontSize:'0.7rem' }}>
+                  {savingColor && <span style={{ color:'#ffa502' }}>Sauvegarde...</span>}
+                  {!savingColor && colorMsg && <span style={{ color:'#2ed573' }}>{colorMsg}</span>}
+                </div>
               </div>
             </div>
           </div>

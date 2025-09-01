@@ -1,34 +1,61 @@
+// @ts-nocheck
 import { useRef, useEffect, useState } from 'react';
+import axios from 'axios';
 import { calculateScore } from './CalculateScore';
 import { randomDirection, randomFloatBetween} from './utils.jsx';
 import WinScreen from './winScreen.jsx';
 
 function PongGame() {
 	const canvasRef = useRef(null);
-	
+
+	// Player metadata from URL
+	const player1IdRef = useRef(null);
+	const player2IdRef = useRef(null);
+	const player1NameRef = useRef('Player 1');
+	const player2NameRef = useRef('Player 2');
+
 	const leftScore = useRef(0);
 	const rightScore = useRef(0);
-	
+
 	const leftPlayerY = useRef(300);
 	const rightPlayerY = useRef(300);
-	
+
 	const keysPressed = useRef({});
-	
+
 	//init
 	const xBall = useRef(0);
 	const yBall = useRef(0);
 	const vxBall = useRef(2);
 	const vyBall = useRef(2);
-	
+
 	const goalScored = useRef(false);
 
 	const [showWin, setShowWin] = useState(false);
 	const [winner, setWinner] = useState(null);
+	const [reporting, setReporting] = useState(false);
+	const [reportError, setReportError] = useState(null);
 	const gameRunning = useRef(true);
 
-  function restart() {
+	function restart() {
 	  window.location.reload(); //reset la page plutot que reset le jeux
-  }
+	}
+
+	// Parse query params to extract players
+	useEffect(() => {
+	  try {
+	    const params = new URLSearchParams(window.location.search);
+	    const p1Id = params.get('p1Id');
+	    const p2Id = params.get('p2Id');
+	    const p1 = params.get('p1');
+	    const p2 = params.get('p2');
+	    if (p1Id) player1IdRef.current = p1Id;
+	    if (p2Id) player2IdRef.current = p2Id;
+	    if (p1) player1NameRef.current = decodeURIComponent(p1);
+	    if (p2) player2NameRef.current = decodeURIComponent(p2);
+	  } catch (e) {
+	    console.warn('Query parse error', e);
+	  }
+	}, []);
 
 	useEffect(() => {
 	  function handleKeyDown(e) {
@@ -69,7 +96,7 @@ function PongGame() {
     const PlayerHeight = 100;
     const PlayerSpeed = 7;
     const FPS = 200;
-	
+
 
     function rectIntersect(r1, r2) {
       return (
@@ -101,16 +128,33 @@ function PongGame() {
 		}
 
 		//win condition
-		if (leftScore.current >= 5 || rightScore.current >= 5)
-		{
-			if (leftScore.current >= 5)
-				setWinner('BLEU');
-			else	
-				setWinner('ROUGE');
-			setShowWin(true);
-			gameRunning.current = false; // bloque tu la boucle
+		if (leftScore.current >= 5 || rightScore.current >= 5) {
+			if (!showWin) {
+				const leftWon = leftScore.current >= 5;
+				setWinner(leftWon ? player1NameRef.current : player2NameRef.current);
+				setShowWin(true);
+				gameRunning.current = false; // stop loop
+				// Report match result
+				(async () => {
+					if (!player1IdRef.current || !player2IdRef.current) return; // Need IDs
+					setReporting(true);
+					try {
+						await axios.post('/api/match', {
+							playerWinner: leftWon ? player1IdRef.current : player2IdRef.current,
+							playerLoser: leftWon ? player2IdRef.current : player1IdRef.current,
+							playerWinnerScore: leftWon ? leftScore.current : rightScore.current,
+							playerLoserScore: leftWon ? rightScore.current : leftScore.current
+						});
+					} catch (err) {
+						console.error('Match report failed', err);
+						setReportError('Erreur enregistrement du match');
+					} finally {
+						setReporting(false);
+					}
+				})();
+			}
 		}
-	
+
 		if (!goalScored.current) {
         	xBall.current += vxBall.current;
         	yBall.current += vyBall.current;
@@ -192,27 +236,31 @@ function PongGame() {
     // Fonction dessin
 	const render = () => {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		
+
 		// Dessin balle
 		ctx.beginPath();
 		ctx.arc(xBall.current, yBall.current, BallRadius, 0, Math.PI * 2);
 		ctx.fillStyle = 'white';
 		ctx.fill();
 		ctx.closePath();
-		
+
 		// Dessin joueurs
 		ctx.fillStyle = 'blue';
 		ctx.fillRect(10, leftPlayerY.current, PlayerWidth, PlayerHeight);
-		
+
 		ctx.fillStyle = 'red';
 		ctx.fillRect(canvas.width - PlayerWidth - 10, rightPlayerY.current, PlayerWidth, PlayerHeight);
 		ctx.fillStyle = 'white';
 		ctx.font = '32px Arial';
 		ctx.fillText(leftScore.current, canvas.width / 4, 50);
 		ctx.fillText(rightScore.current, (3 * canvas.width) / 4, 50);
+		ctx.font = '16px Arial';
+		ctx.fillText(player1NameRef.current, 20, 30);
+		const p2Text = player2NameRef.current;
+		ctx.fillText(p2Text, canvas.width - ctx.measureText(p2Text).width - 20, 30);
     };
 
-	
+
 
 	//loop
     let lastTime = 0;
@@ -242,7 +290,7 @@ function PongGame() {
 	        marginTop: '0px',
 	      }}
 	    />
-		{showWin && <WinScreen winner={winner} onRestart={restart} />}
+		{showWin && <WinScreen winner={winner} onRestart={restart} reporting={reporting} error={reportError} />}
 	  </>
 	);
 }

@@ -132,6 +132,7 @@ fastify.register(import('./routes/users/user_settings.js'), { prefix: '/api/user
 fastify.register(import('./routes/tournamentTemp.js'), { prefix: '/api/tournament' });
 fastify.register(import('./services/matchService.js'), { prefix: '/api' });
 fastify.register(import('./routes/stats.js'), { prefix: '/api/stats' });
+fastify.register(import('./routes/matchHistory.js'), { prefix: '/api' });
 
 // Routes de sécurité
 fastify.register(import('./routes/gdpr.route.js'), { prefix: '/api/gdpr' });

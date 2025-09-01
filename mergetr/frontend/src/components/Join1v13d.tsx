@@ -5,11 +5,12 @@ interface JoinProps {
   isOpen: boolean;
   onClose: () => void;
   onStartMatch: (player1: string, player2: string) => void;
+  ai?: boolean; // true when AI opponent selected
 }
 
 const BACKEND_URL = 'http://localhost:5001';
 
-export default function Join({ isOpen, onClose, onStartMatch }: JoinProps) {
+export default function Join({ isOpen, onClose, onStartMatch, ai = false }: JoinProps) {
   const [player1, setPlayer1] = useState('');
   const [player2, setPlayer2] = useState('');
   const [loading, setLoading] = useState(false);
@@ -68,17 +69,24 @@ export default function Join({ isOpen, onClose, onStartMatch }: JoinProps) {
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setError('');
-    if (!player1.trim() || !player2.trim()) {
-      setError('You need to fill in both player names.');
+    // Validation adapts if AI opponent: only player1 required
+    if (!player1.trim()) {
+      setError('Player 1 required.');
       return;
     }
-    if (player1.trim() === player2.trim()) {
-  setError('Players must be different.');
-      return;
+    if (!ai) {
+      if (!player2.trim()) {
+        setError('Player 2 required.');
+        return;
+      }
+      if (player1.trim() === player2.trim()) {
+        setError('Players must be different.');
+        return;
+      }
     }
     setLoading(true);
     try {
-      onStartMatch(player1.trim(), player2.trim());
+      onStartMatch(player1.trim(), ai ? '' : player2.trim());
       onClose();
     } catch (err: any) {
       setError(err?.message || 'Error starting match');
@@ -137,16 +145,23 @@ export default function Join({ isOpen, onClose, onStartMatch }: JoinProps) {
               {logged ? 'logged in - locked username' : 'If you are logged in, the field will be pre-filled.'}
             </small>
 
-            <label className="text-sm text-green-300">Player 2</label>
-            <input
-              type="text"
-              value={player2}
-              onChange={(e) => setPlayer2(e.target.value)}
-              placeholder="player2"
-              className="px-4 py-3 rounded text-white outline-none cursor-target"
-              style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
-              disabled={loading}
-            />
+            {!ai && (
+              <>
+                <label className="text-sm text-green-300">Player 2</label>
+                <input
+                  type="text"
+                  value={player2}
+                  onChange={(e) => setPlayer2(e.target.value)}
+                  placeholder="player2"
+                  className="px-4 py-3 rounded text-white outline-none cursor-target"
+                  style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
+                  disabled={loading}
+                />
+              </>
+            )}
+            {ai && (
+              <div className="text-xs text-gray-400 mt-1">AI opponent enabled — only your name is needed.</div>
+            )}
 
             {error && (
               <div className="px-4 py-2 rounded text-sm" style={{ background: 'rgba(255,40,40,0.08)', color: '#ff6b6b' }}>
@@ -155,13 +170,13 @@ export default function Join({ isOpen, onClose, onStartMatch }: JoinProps) {
             )}
 
             <div className="flex items-center justify-center gap-3 mt-2">
-             
+
 
               <button
                 type="submit"
                 className="px-5 py-2 rounded-full text-white font-semibold hover:scale-103 active:scale-95 cursor-target transition-transform shadow-xl"
                 style={{ backgroundColor: 'oklch(25.7% 0.09 281.288)' }}
-                disabled={loading || !player1.trim() || !player2.trim()}
+                disabled={loading || !player1.trim() || (!ai && !player2.trim())}
               >
                   {loading ? 'Starting...' : 'Start Match'}
               </button>
