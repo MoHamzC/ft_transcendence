@@ -49,7 +49,7 @@ func send_match_result(winner_name: String, winner_id: String, loser_name: Strin
 		return
 
 	var is_tournament: bool = Global.tournament_id != "" and Global.match_id != ""
-	var url = "https://localhost:8443/api/match"
+	var url = "http://localhost:8443/api/match"
 	var data := {
 		"playerWinner": winner_id,
 		"playerLoser": loser_id,
@@ -58,9 +58,7 @@ func send_match_result(winner_name: String, winner_id: String, loser_name: Strin
 	}
 
 	if is_tournament:
-		# Utiliser la route unifiée backend /api/match-tournoi
-		url = "https://localhost:8443/api/match-tournoi"
-		# Pour l'API tournoi il faut les participant IDs (déjà fournis via PL_id / PR_id) + tournament/match ids
+		url = "http://localhost:8443/api/match-tournoi"
 		data = {
 			"tournamentId": Global.tournament_id,
 			"matchId": Global.match_id,

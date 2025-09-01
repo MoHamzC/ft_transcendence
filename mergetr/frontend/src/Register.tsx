@@ -5,7 +5,7 @@ import FuzzyText from "./FuzzyText";
 
 export default function Register() {
     
-    const BACKEND_URL = 'https://localhost:8443';
+    const BACKEND_URL = 'http://localhost:5001';
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

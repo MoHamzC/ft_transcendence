@@ -14,19 +14,3 @@ const pool = new Pool({
 })
 
 export default pool
-
-// Test database connection
-export async function testDatabaseConnection() {
-    try {
-        const res = await pool.query('SELECT NOW()')
-        return {
-            status: 'healthy',
-            timestamp: res.rows[0].now
-        }
-    } catch (error) {
-        return {
-            status: 'unhealthy',
-            error: error.message
-        }
-    }
-}

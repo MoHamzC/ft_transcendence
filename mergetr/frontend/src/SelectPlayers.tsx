@@ -27,7 +27,7 @@ export default function SelectPlayers() {
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
 
-  const BACKEND_URL = 'https://localhost:8443';
+  const BACKEND_URL = 'http://localhost:5001';
 
   useEffect(() => {
     // Préparer champs alias par défaut

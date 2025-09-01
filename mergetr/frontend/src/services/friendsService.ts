@@ -1,5 +1,5 @@
 // services/friendsService.ts
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://localhost:8443';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
 
 export interface Friend {
   id: string;

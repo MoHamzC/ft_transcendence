@@ -77,7 +77,9 @@ export default function JoinTournamentModal({ isOpen, tournament, onClose, onJoi
         {/* Tournament Info */}
         <div className="tournament-info-card">
           <h3>{tournament.name}</h3>
-          {/* tournament description hidden per request */}
+          {tournament.description && (
+            <p className="tournament-description">{tournament.description}</p>
+          )}
           <div className="tournament-details">
             <div><strong>Mode:</strong> {getModeText(tournament.mode)}</div>
             <div><strong>Participants:</strong> {tournament.participant_count}/{tournament.max_players}</div>

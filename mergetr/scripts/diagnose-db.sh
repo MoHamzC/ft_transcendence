@@ -19,9 +19,9 @@ fi
 # Tester la connexion à la base de données
 echo ""
 echo "2. Test de connexion à la base de données..."
-if curl -k -s https://localhost:8443/healthz/database > /dev/null 2>&1; then
+if curl -k -s https://localhost:5001/healthz/database > /dev/null 2>&1; then
     echo "✅ API de santé de la DB accessible"
-    DB_HEALTH=$(curl -k -s https://localhost:8443/healthz/database)
+    DB_HEALTH=$(curl -k -s https://localhost:5001/healthz/database)
     echo "   Détails: $DB_HEALTH"
 else
     echo "❌ API de santé de la DB inaccessible"
@@ -30,9 +30,9 @@ fi
 # Vérifier la configuration Vault
 echo ""
 echo "3. Vérification de la configuration Vault..."
-if curl -k -s https://localhost:8443/api/vault/secret/database > /dev/null 2>&1; then
+if curl -k -s https://localhost:5001/api/vault/secret/database > /dev/null 2>&1; then
     echo "✅ Configuration Vault accessible"
-    VAULT_CONFIG=$(curl -k -s https://localhost:8443/api/vault/secret/database)
+    VAULT_CONFIG=$(curl -k -s https://localhost:5001/api/vault/secret/database)
     echo "   Configuration DB: $VAULT_CONFIG"
 else
     echo "❌ Configuration Vault inaccessible"
@@ -64,8 +64,8 @@ echo "6. Recommandations:"
 echo "   - Si la DB ne répond pas: docker-compose restart db"
 echo "   - Si Vault ne fonctionne pas: docker-compose restart vault"
 echo "   - Si l'API ne répond pas: docker-compose restart node"
-echo "   - Pour réinitialiser Vault: curl -k -X POST https://localhost:8443/api/vault/init-dev-secrets"
-echo "   - Pour tester la DB: curl -k https://localhost:8443/healthz/database"
+echo "   - Pour réinitialiser Vault: curl -k -X POST https://localhost:5001/api/vault/init-dev-secrets"
+echo "   - Pour tester la DB: curl -k https://localhost:5001/healthz/database"
 
 echo ""
 echo "=================================================="

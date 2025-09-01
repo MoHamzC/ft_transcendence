@@ -2,12 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import TargetCursor from './TargetCursor';
 import FuzzyText from './FuzzyText';
-import { getBackendUrl } from './config';
-
 export default function LoginView({ setIsLogged }: any)
 {
     const navigate = useNavigate();
-    const BACKEND_URL = getBackendUrl();
+    const BACKEND_URL = 'http://localhost:5001';
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 

@@ -10,6 +10,10 @@ export async function registerRoutes(fastify) {
     const indexRoutes = (await import('./health.js')).default
     await fastify.register(indexRoutes)
 
+    // Routes d'authentification
+    const authRoutes = (await import('./users/user_route.js')).default
+    await fastify.register(authRoutes, { prefix: '/api/auth' })
+
     // Routes OAuth (existantes)
     const oauthRoutes = (await import('./auth/oauth/oauth.js')).default
     await fastify.register(oauthRoutes, { prefix: '/auth' })
@@ -23,8 +27,8 @@ export async function registerRoutes(fastify) {
     await fastify.register(userSettingsRoutes, { prefix: '/api/users' })
 
     // Routes des tournois
-    const tournamentRoutes = (await import('./tournamentTemp.js')).default
-    await fastify.register(tournamentRoutes, { prefix: '/api/tournament' })
+    const tournamentRoutes = (await import('./indexTournament.js')).default
+    await fastify.register(tournamentRoutes, { prefix: '/api' })
 
     // Routes des tournois avec utilisateurs temporaires
     const tournamentTempRoutes = (await import('./tournamentTemp.js')).default

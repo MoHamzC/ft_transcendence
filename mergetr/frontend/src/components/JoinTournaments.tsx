@@ -7,7 +7,7 @@ interface JoinProps {
   onStartMatch: (player1: string, player2: string) => void;
 }
 
-const BACKEND_URL = 'https://localhost:8443';
+const BACKEND_URL = 'http://localhost:5001';
 
 export default function Join({ isOpen, onClose, onStartMatch }: JoinProps) {
   const [player1, setPlayer1] = useState('');
@@ -155,7 +155,7 @@ export default function Join({ isOpen, onClose, onStartMatch }: JoinProps) {
             )}
 
             <div className="flex items-center justify-center gap-3 mt-2">
-
+             
 
               <button
                 type="submit"

@@ -1,22 +1,10 @@
-import { useState } from "react";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PillNav from './PillNav.tsx';
-import logo from './assets/logo.png';
 import "./SideMenu.css";
 import "./App.tsx";
 
-export default function SideMenu({ isLogged, setIsLogged }: any) {
-  
+export default function SideMenu({ isLogged }: any) {
   const navigate = useNavigate();
-  const location = useLocation();
-
- 
-  if (location.pathname.startsWith('/pong')) return null;
-
-  function handleNav(href: string) {
-    navigate(href);
- 
-  }
 
   return (
     <div>
@@ -29,14 +17,14 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
               onClick: (e: any) => {
                 e.preventDefault();
                 navigate('/login');
-                
+
               }
             }]}
             activeHref={window.location.pathname}
             className="custom-nav"
             ease="power2.easeOut"
-            baseColor="oklch(25.7% 0.09 281.288)" 
-            pillColor="oklch(38% 0.189 293.745)"   
+            baseColor="oklch(25.7% 0.09 281.288)"
+            pillColor="oklch(38% 0.189 293.745)"
             pillTextColor="#ffffff"
             onMobileMenuClick={() => {}}
           />
@@ -49,7 +37,8 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
               { label: 'Home', href: '/' },
               { label: 'Profile', href: '/profile' },
               // { label: 'Stats', href: '/stats' },
-              // { label: 'Leaderboard', href: '/leaderbord' },
+              { label: 'Match History', href: '/match-history' },
+              { label: 'Leaderboard', href: '/leaderbord' },
               { label: 'Friends', href: '/friends' },
               // { label: 'Settings', href: '/settings' },
               { label: 'Logout', href: '/logout' }
@@ -57,8 +46,8 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
             activeHref={window.location.pathname}
             className="custom-nav"
             ease="power2.easeOut"
-            baseColor="oklch(25.7% 0.09 281.288)" 
-            pillColor="oklch(38% 0.189 293.745)"   
+            baseColor="oklch(25.7% 0.09 281.288)"
+            pillColor="oklch(38% 0.189 293.745)"
             pillTextColor="white"
             onMobileMenuClick={() => {}}
           />

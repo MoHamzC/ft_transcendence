@@ -27,9 +27,6 @@ export class VaultService {
             // Initialiser les secrets par défaut en mode dev
             if (process.env.NODE_ENV !== 'production') {
                 await this.initializeDevSecrets();
-            } else {
-                // En production assurer que les secrets essentiels existent
-                await this.ensureCoreSecrets();
             }
 
         } catch (error) {
@@ -71,7 +68,7 @@ export class VaultService {
             const oauth42Config = {
                 client_id: process.env.CLIENT_ID_42 || '',
                 client_secret: process.env.CLIENT_SECRET_42 || '',
-                redirect_uri: process.env.REDIRECT_URI || 'https://localhost:8443/auth/42/callback'
+                redirect_uri: process.env.REDIRECT_URI || 'http://localhost:5001/auth/42/callback'
             }
             await this.writeSecret('secret/oauth/42', oauth42Config)
             console.log('📝 OAuth 42 secrets updated in Vault')
@@ -80,7 +77,7 @@ export class VaultService {
             const githubConfig = {
                 client_id: process.env.GITHUB_CLIENT_ID || '',
                 client_secret: process.env.GITHUB_CLIENT_SECRET || '',
-                redirect_uri: process.env.GITHUB_REDIRECT_URI || 'https://localhost:8443/auth/github/callback'
+                redirect_uri: process.env.GITHUB_REDIRECT_URI || 'http://localhost:5001/auth/github/callback'
             }
             await this.writeSecret('secret/oauth/github', githubConfig)
             console.log('📝 GitHub OAuth secrets updated in Vault')
@@ -89,7 +86,7 @@ export class VaultService {
             const googleConfig = {
                 client_id: process.env.GOOGLE_CLIENT_ID || '',
                 client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
-                redirect_uri: process.env.GOOGLE_REDIRECT_URI || 'https://localhost:8443/auth/google/callback'
+                redirect_uri: process.env.GOOGLE_REDIRECT_URI || 'http://localhost:5001/auth/google/callback'
             }
             await this.writeSecret('secret/oauth/google', googleConfig)
             console.log('📝 Google OAuth secrets updated in Vault')
@@ -270,7 +267,19 @@ export class VaultService {
         return await this.readSecret('secret/email');
     }
 
-    // (ancienne version de healthCheck supprimée pour éviter duplicata)
+    /**
+     * Vérifie si Vault est disponible
+     */
+    async healthCheck() {
+        try {
+            if (!this.client) return false;
+            await this.client.status();
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
     /**
      * Liste tous les secrets disponibles (KV v2)
      */
@@ -284,57 +293,6 @@ export class VaultService {
             console.error(`❌ Failed to list secrets at ${path}:`, error.message);
             // Fallback : essayer de lister les secrets qu'on connaît
             return ['database/', 'jwt', 'oauth/', 'email'];
-        }
-    }
-
-    /**
-     * Vérifie la santé de Vault (version unique)
-     */
-    async healthCheck() {
-        if (!this.client || !this.isInitialized) return false;
-        try {
-            await this.client.status();
-            return true;
-        } catch (error) {
-            console.error('❌ Vault health check failed:', error.message);
-            return false;
-        }
-    }
-
-    /**
-     * Assure la présence des secrets essentiels (production)
-     */
-    async ensureCoreSecrets() {
-        if (!this.isInitialized) return;
-        // JWT
-        try {
-            await this.readSecret('secret/jwt');
-        } catch {
-            const jwtSecret = process.env.JWT_SECRET || `vault_jwt_secret_${Date.now()}`;
-            try {
-                await this.writeSecret('secret/jwt', { secret: jwtSecret });
-                console.log('🛡️  JWT secret provisioned in Vault (production ensure)');
-            } catch (e) {
-                console.error('❌ Unable to provision JWT secret in Vault:', e.message);
-            }
-        }
-        // Database minimal info (optionnel)
-        try {
-            await this.readSecret('secret/database');
-        } catch {
-            const dbConfig = {
-                host: process.env.POSTGRES_HOST || 'db',
-                port: parseInt(process.env.POSTGRES_PORT) || 5432,
-                user: process.env.POSTGRES_USER || 'admin',
-                password: process.env.POSTGRES_PASSWORD || 'password',
-                database: process.env.POSTGRES_DB || 'db_transcendence'
-            };
-            try {
-                await this.writeSecret('secret/database', dbConfig);
-                console.log('🛡️  Database secret provisioned in Vault (production ensure)');
-            } catch (e) {
-                console.error('❌ Unable to provision database secret in Vault:', e.message);
-            }
         }
     }
 }

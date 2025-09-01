@@ -5,8 +5,8 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 
 // https://vite.dev/config/
-// Allow overriding backend host (service name) via env. Default to localhost (previous default 'node' cassait en local)
-const backendHost = process.env.VITE_BACKEND_HOST || 'localhost';
+// Allow overriding backend host (service name) via env (e.g. VITE_BACKEND_HOST=node or backend-dev)
+const backendHost = process.env.VITE_BACKEND_HOST || 'node';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -15,12 +15,12 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-  target: `https://localhost:8443`,
+        target: `http://${backendHost}:5001`,
         changeOrigin: true,
         secure: false
       },
       '/auth': {
-        target: `https://localhost:8443`,
+        target: `http://${backendHost}:5001`,
         changeOrigin: true,
         secure: false
       }

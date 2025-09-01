@@ -30,7 +30,7 @@ func _process(delta: float):
 			countdown -= delta
 			if countdown <= 0 and not redirected:
 				redirected = true
-				var url = "https://localhost:8443/tournament/" + str(Global.tournament_id) + "/play"
+				var url = "http://localhost:8443/tournament/" + str(Global.tournament_id) + "/play"
 				print("Redirection via JS vers : ", url)
 				
 				if Engine.has_singleton("JavaScriptBridge"):

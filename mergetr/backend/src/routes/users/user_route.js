@@ -78,8 +78,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 
 	async function logout(request, reply) {
 		reply.clearCookie('access_token');
-		const frontendBase = process.env.FRONTEND_URL || 'https://localhost:8443';
-		return reply.code(200).redirect(`${frontendBase}/`);
+		return reply.code(200).redirect('http://localhost:5173/');
 	}
 
 	async function verifyUser(request, reply) {
@@ -259,19 +258,7 @@ import { createUserSchema, createUserResponseSchema } from './user_schema.js'
 	})
 
 	fastify.get('/protected', { preHandler: verifyUser }, async (request, reply) => {
-		fastify.log.info({ route: '/api/users/protected', user: request.user?.id, cookies: Object.keys(request.cookies || {}) }, 'Protected route accessed');
 		return reply.code(200).send({ showLogin: true });
-	});
-
-	// Diagnostic endpoint to inspect cookies / auth header without requiring auth
-	fastify.get('/debug-auth', async (request, reply) => {
-		return reply.code(200).send({
-			cookies: request.cookies,
-			authorization: request.headers.authorization || null,
-			forwardedFor: request.headers['x-forwarded-for'] || null,
-			origin: request.headers.origin || null,
-			userAgent: request.headers['user-agent'] || null
-		});
 	});
 
 	// Route pour récupérer les informations de l'utilisateur connecté

@@ -14,9 +14,7 @@ async function	jwtTokenOauth(request, reply, user) {
 			// (utile plus tard si tu passes sous HTTPS front/back séparés)
 			// sameSite: secureFlag ? 'none' : 'lax'
 		});
-		// Determine frontend base URL (prefer env override, fallback to same host over HTTPS)
-		const frontendBase = process.env.FRONTEND_URL || 'https://localhost:8443';
-		const redirectUrl = request.query.next || `${frontendBase}/?login=success`;
+		const redirectUrl = request.query.next || 'http://localhost:5173/?login=success'
 		return reply.redirect(redirectUrl);
 	} catch (err) {
 		console.log(err);

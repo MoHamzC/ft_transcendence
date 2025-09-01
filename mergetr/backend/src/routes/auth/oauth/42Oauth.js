@@ -2,9 +2,6 @@ import pool from '../../../config/db.js'
 import { jwtTokenOauth } from './oauth.js';
 import { generateUniqueUsername } from '../../../utils/usernameGenerator.js';
 
-// Debug: log redirect env vars once when module loads
-console.debug('[OAuth42] Loaded with REDIRECT_URI=%s CLIENT_ID_42=%s', process.env.REDIRECT_URI, process.env.CLIENT_ID_42);
-
 async function linkFtAccount(user, ftUserData){
 	const addFtDataInDb = await pool.query(
 		'UPDATE users SET intra42_id = $1 WHERE id = $2',
@@ -104,17 +101,10 @@ async function handleFtLogin(request, reply, ftUserData){
 
 async function oauth42Routes(fastify, options){
 
-	// Route-level hook to log current env each request (can remove later)
-	fastify.addHook('onRequest', (req, _reply, done) => {
-		if (req.routerPath && req.routerPath.startsWith('/auth/42')) {
-			console.debug('[OAuth42] onRequest %s REDIRECT_URI=%s', req.routerPath, process.env.REDIRECT_URI);
-		}
-		done();
-	});
 	fastify.get('/42', async (request, reply) => {
 		const authUrl = 'https://api.intra.42.fr/oauth/authorize?' +
 		`client_id=${process.env.CLIENT_ID_42}&` +
-			`redirect_uri=${process.env.REDIRECT_URI || 'https://localhost:8443/auth/42/callback'}&` +
+		`redirect_uri=${process.env.REDIRECT_URI}&` +
 		'response_type=code&' +
 		'scope=public'
 
@@ -140,7 +130,7 @@ async function oauth42Routes(fastify, options){
 				code: code,
 				client_id: process.env.CLIENT_ID_42,
 				client_secret: process.env.CLIENT_SECRET_42,
-						redirect_uri: process.env.REDIRECT_URI || 'https://localhost:8443/auth/42/callback'
+				redirect_uri: process.env.REDIRECT_URI
 			})
 		})
 		if (!tokenResponse.ok) {

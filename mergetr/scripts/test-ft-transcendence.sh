@@ -12,24 +12,12 @@
 # - Base de données
 # =============================================================================
 
-# Configuration de base
-BACKEND_URL="https://localhost:8443"
-FRONTEND_URL="https://localhost:8443"
+# Configuration
+BACKEND_URL="https://localhost:5001"
+FRONTEND_URL="https://localhost:5173"
 VAULT_URL="http://localhost:8200"
 DB_HOST="localhost"
-DB_PORT="5432"
-
-# Charger .env si présent (pour VAULT_TOKEN, JWT_SECRET, etc.)
-if [ -f .env ]; then
-    # Exporter uniquement les lignes VAR=VALEUR (ignorer commentaires)
-    set -a
-    # shellcheck disable=SC2046
-    export $(grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env | xargs)
-    set +a
-fi
-
-# Valeurs par défaut sûres
-VAULT_TOKEN="${VAULT_TOKEN:-myroot}"
+DB_PORT="5434"
 
 # Couleurs pour la sortie
 RED='\033[0;31m'
@@ -78,33 +66,19 @@ print_info() {
 run_test() {
     local test_name="$1"
     local command="$2"
+    local expected_status="${3:-200}"
+
     ((TESTS_TOTAL++))
+
     echo -n "Testing $test_name... "
+
+    # Exécuter la commande et capturer le code de sortie
     if eval "$command" > /dev/null 2>&1; then
         print_success "$test_name"
         return 0
     else
         print_error "$test_name"
         return 1
-    fi
-}
-
-# Test HTTP basé sur le code retour (affiche la réponse en cas d'échec)
-http_code_test() {
-    local test_name="$1"; shift
-    local expected_code="$1"; shift
-    local url_command="$*" # commande curl complète
-    ((TESTS_TOTAL++))
-    echo -n "Testing $test_name (expect $expected_code)... "
-    local tmp_body tmp_code
-    tmp_body=$(mktemp)
-    tmp_code=$(eval "$url_command" -w '%{http_code}' -o "$tmp_body" 2>/dev/null)
-    if [ "$tmp_code" = "$expected_code" ]; then
-        rm -f "$tmp_body"
-        print_success "$test_name"
-        return 0
-    else
-        echo ""; print_error "$test_name (got $tmp_code)"; echo "--- Response ---"; sed 's/^/  /' "$tmp_body"; echo "---------------"; rm -f "$tmp_body"; return 1
     fi
 }
 
@@ -125,12 +99,12 @@ test_docker_services() {
 
     # Lister les services
     echo "Services Docker actifs :"
-    docker-compose -f docker-compose.secure.yml ps
+    docker-compose ps
 
     # Vérifier chaque service
-    services=("app" "db" "vault")
+    services=("node" "frontend" "db" "vault" "adminer")
     for service in "${services[@]}"; do
-        if docker-compose -f docker-compose.secure.yml ps | grep -q "$service"; then
+        if docker-compose ps | grep -q "$service"; then
             print_success "Service $service : ACTIF"
         else
             print_error "Service $service : INACTIF"
@@ -145,18 +119,21 @@ test_docker_services() {
 test_https() {
     print_header "🔒 TESTS HTTPS"
 
-    print_subheader "Test du Backend/Frontend HTTPS"
-    run_test "Application HTTPS (port 8443)" "curl -k --connect-timeout 5 $BACKEND_URL/"
+    print_subheader "Test du Backend HTTPS"
+    run_test "Backend HTTPS (port 5001)" "curl -k --connect-timeout 5 $BACKEND_URL/healthcheck"
 
-    print_subheader "Test de redirection HTTP vers HTTPS"
-    run_test "HTTP Redirect (port 8080)" "curl -k --connect-timeout 5 http://localhost:8080/ | grep -q '301' || curl -k --connect-timeout 5 http://localhost:8080/ | grep -q 'https://localhost'"
+    print_subheader "Test du Frontend HTTPS"
+    run_test "Frontend HTTPS (port 5173)" "curl -k --connect-timeout 5 $FRONTEND_URL"
 
     print_subheader "Vérification des certificats SSL"
-    echo "Certificat SSL :"
-    openssl s_client -connect localhost:8443 -servername localhost < /dev/null 2>/dev/null | openssl x509 -noout -dates -subject | sed 's/^/  /'
+    echo "Certificat Backend :"
+    openssl s_client -connect localhost:5001 -servername localhost < /dev/null 2>/dev/null | openssl x509 -noout -dates -subject | sed 's/^/  /'
+
+    echo "Certificat Frontend :"
+    openssl s_client -connect localhost:5173 -servername localhost < /dev/null 2>/dev/null | openssl x509 -noout -dates -subject | sed 's/^/  /'
 
     print_subheader "Test de la validation SSL"
-    if curl --connect-timeout 5 $BACKEND_URL/ 2>&1 | grep -q "self-signed certificate"; then
+    if curl --connect-timeout 5 $BACKEND_URL/healthcheck 2>&1 | grep -q "self-signed certificate"; then
         print_success "Validation SSL : Fonctionnelle (rejette certificat auto-signé)"
     else
         print_warning "Validation SSL : Non testée (utilise -k)"
@@ -170,49 +147,28 @@ test_https() {
 test_vault() {
     print_header "🔐 TESTS HASHICORP VAULT"
 
-    # Déterminer accès direct ou fallback via exec (si port non exposé)
-    local direct_ok=1
-        if ! curl -s -o /dev/null "$VAULT_URL/v1/sys/health"; then
-        direct_ok=0
-        print_warning "Accès direct Vault indisponible, fallback docker exec"
-    fi
+    print_subheader "Santé de Vault"
+    run_test "Vault Health" "curl -k $BACKEND_URL/api/vault/health"
 
-    local VAULT_CURL_BASE
-        if [ $direct_ok -eq 1 ]; then
-        VAULT_CURL_BASE="curl -s -H 'X-Vault-Token: $VAULT_TOKEN'"
-        VAULT_BASE_URL="$VAULT_URL"
-    else
-            # Tester si on peut utiliser le conteneur app pour faire la requête (curl installé?)
-            if docker-compose -f docker-compose.secure.yml exec -T app sh -c 'command -v curl >/dev/null 2>&1'; then
-                VAULT_CURL_BASE="docker-compose -f docker-compose.secure.yml exec -T app curl -s -H 'X-Vault-Token: $VAULT_TOKEN'"
-                VAULT_BASE_URL="http://vault:8200"
-            else
-                print_warning "Impossible d'accéder à Vault (pas de port exposé ni curl dans conteneur). Tests Vault ignorés."
-                return
-            fi
-    fi
+    print_subheader "Connexion directe à Vault"
+    run_test "Vault Direct Access" "curl -H 'X-Vault-Token: myroot' $VAULT_URL/v1/secret/data/ft_transcendence"
 
-    print_subheader "Statut Vault"
-    http_code_test "Vault Health" 200 "$VAULT_CURL_BASE $VAULT_BASE_URL/v1/sys/health"
+    print_subheader "Secrets disponibles"
+    echo "Liste des secrets :"
+    curl -k $BACKEND_URL/api/vault/secrets 2>/dev/null | jq -r '.secrets[]' 2>/dev/null || echo "  Impossible de récupérer la liste"
 
-    print_subheader "Lecture secret JWT"
-    if $VAULT_CURL_BASE "$VAULT_BASE_URL/v1/secret/data/jwt" -o /dev/null -w '%{http_code}' 2>/dev/null | grep -q '^200$'; then
-        print_success "Vault JWT Secret"
-    else
-        if $VAULT_CURL_BASE "$VAULT_BASE_URL/v1/secret/jwt" -o /dev/null -w '%{http_code}' 2>/dev/null | grep -q '^200$'; then
-            print_warning "Vault JWT Secret (KV v1)"
+    print_subheader "Test des secrets principaux"
+    secrets=("database" "jwt" "email" "oauth/42" "oauth/github" "oauth/google")
+    for secret in "${secrets[@]}"; do
+        if curl -k "$BACKEND_URL/api/vault/secret/$secret" 2>/dev/null | grep -q "data"; then
+            print_success "Secret $secret : ACCESSIBLE"
         else
-            print_warning "Vault JWT Secret indisponible (ignoré)"
+            print_error "Secret $secret : INACCESSIBLE"
         fi
-    fi
+    done
 
-    print_subheader "Liste (metadata)"
-    # Peut retourner 200 ou 404 si listing restreint; on accepte 200 sinon warning
-    if $VAULT_CURL_BASE "$VAULT_BASE_URL/v1/secret/metadata/" -o /dev/null -w '%{http_code}' 2>/dev/null | grep -q '^200$'; then
-        print_success "Vault List metadata"
-    else
-        print_warning "Vault metadata listing non accessible (attendu si politique stricte)"
-    fi
+    print_subheader "Test d'initialisation des secrets"
+    run_test "Initialisation Dev Secrets" "curl -k -X POST $BACKEND_URL/api/vault/init-dev-secrets"
 }
 
 # =============================================================================
@@ -222,69 +178,71 @@ test_vault() {
 test_gdpr() {
     print_header "📋 TESTS GDPR (RGPD)"
 
-    print_subheader "Nettoyage pré-test"
-    docker-compose -f docker-compose.secure.yml exec -T db psql -U admin -d db_transcendence -c "DELETE FROM user_settings WHERE user_id IN (SELECT id FROM users WHERE email = 'test@example.com' OR username = 'testuser');" >/dev/null 2>&1 || true
-    docker-compose -f docker-compose.secure.yml exec -T db psql -U admin -d db_transcendence -c "DELETE FROM users WHERE email = 'test@example.com' OR username = 'testuser';" >/dev/null 2>&1 || true
-    print_success "Nettoyage initial effectué"
+    print_subheader "Nettoyage des utilisateurs de test existants"
+    echo "Suppression des utilisateurs de test existants..."
+    docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM user_settings WHERE user_id IN (SELECT id FROM users WHERE email = 'test@example.com' OR username = 'testuser');" 2>/dev/null || true
+    docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM users WHERE email = 'test@example.com' OR username = 'testuser';" 2>/dev/null || true
+    print_success "Nettoyage terminé"
 
-    print_subheader "Route test publique"
-    http_code_test "GDPR Test Route" 200 "curl -k -s -o /dev/null $BACKEND_URL/api/gdpr/test"
+    print_subheader "Route de test GDPR"
+    run_test "GDPR Test Route" "curl -k $BACKEND_URL/api/gdpr/test"
 
-    print_subheader "Création utilisateur test"
-        reg_code=$(curl -k -s -o /tmp/gdpr_reg.json -w '%{http_code}' -X POST "$BACKEND_URL/api/users/register" \
-        -H 'Content-Type: application/json' \
-        -d '{"email":"test@example.com","username":"testuser","password":"TestPassword123"}')
-    if [ "$reg_code" = "201" ] || grep -q 'Email already registered' /tmp/gdpr_reg.json; then
-        print_success "Utilisateur test prêt"
+    print_subheader "Création d'un utilisateur test"
+    echo "Création de l'utilisateur test pour les tests GDPR..."
+    
+    
+    # Créer l'utilisateur via l'API d'inscription
+    register_response=$(curl -k -X POST $BACKEND_URL/api/auth/register \
+        -H "Content-Type: application/json" \
+        -d '{"email":"test@example.com","username":"testuser","password":"TestPassword123"}' 2>/dev/null)
+    
+    if echo "$register_response" | grep -q "id"; then
+        print_success "Utilisateur test créé"
     else
-        print_warning "Création utilisateur via API échouée (code $reg_code), fallback DB"
-        docker-compose -f docker-compose.secure.yml exec -T db psql -U admin -d db_transcendence -c "INSERT INTO users (email, username, password_hash, is_registered) VALUES ('test@example.com','testuser','\$2b\$10\$v1CQWXFYnMAZ7PvXxmCb4OyWIzT9bSjxjgqjpINdidrZ3Rc8q/Gvq', true) ON CONFLICT (email) DO NOTHING;" >/dev/null 2>&1 || true
-        user_id=$(docker-compose -f docker-compose.secure.yml exec -T db psql -U admin -d db_transcendence -t -A -c "SELECT id FROM users WHERE email='test@example.com';" 2>/dev/null | head -1)
-        if [ -n "$user_id" ]; then
-            docker-compose -f docker-compose.secure.yml exec -T db psql -U admin -d db_transcendence -c "INSERT INTO user_settings (user_id) VALUES ('$user_id') ON CONFLICT DO NOTHING;" >/dev/null 2>&1 || true
-            print_success "Utilisateur test présent (fallback)"
+        print_warning "Échec de création utilisateur via API, tentative directe en DB..."
+        
+        # Fallback: créer directement en DB
+        docker compose exec -T db psql -U admin -d db_transcendence -c "INSERT INTO users (email, username, password_hash) VALUES ('test@example.com', 'testuser', '\$2b\$10\$v1CQWXFYnMAZ7PvXxmCb4OyWIzT9bSjxjgqjpINdidrZ3Rc8q/Gvq');" 2>/dev/null || true
+        user_id=$(docker compose exec -T db psql -U admin -d db_transcendence -c "SELECT id FROM users WHERE email = 'test@example.com';" -t -A 2>/dev/null || echo "")
+        
+        if [ ! -z "$user_id" ]; then
+            docker compose exec -T db psql -U admin -d db_transcendence -c "INSERT INTO user_settings (user_id) VALUES ('$user_id');" 2>/dev/null || true
+            print_success "Utilisateur test créé (fallback DB)"
         else
-            print_error "Impossible de préparer l'utilisateur test"
-            return
+            print_error "Impossible de créer l'utilisateur test"
         fi
     fi
 
-    print_subheader "Authentification"
-        login_code=$(curl -k -s -o /tmp/gdpr_login.json -w '%{http_code}' -X POST "$BACKEND_URL/api/users/login" \
-        -H 'Content-Type: application/json' \
-        -d '{"email":"test@example.com","password":"TestPassword123"}')
+    print_subheader "Authentification pour tests GDPR"
+    echo "Tentative de login pour obtenir un token JWT..."
+    login_response=$(curl -k -X POST $BACKEND_URL/api/auth/login \
+        -H "Content-Type: application/json" \
+        -d '{"email":"test@example.com","password":"TestPassword123"}' 2>/dev/null)
 
-    if [ "$login_code" = "200" ] && grep -q 'Login successful' /tmp/gdpr_login.json; then
-        token=$(grep -o '"token":"[^"]*"' /tmp/gdpr_login.json | cut -d'"' -f4 | head -1)
-        if [ -z "$token" ]; then
-            print_error "Token introuvable dans la réponse login"
-            return
-        fi
-        print_success "Authentification réussie"
-        echo "Token: ${token:0:40}..."
+    if echo "$login_response" | grep -q "Login successful"; then
+        print_success "Authentification : RÉUSSIE"
+        token=$(echo "$login_response" | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+        echo "Token JWT obtenu : ${token:0:50}..."
 
-        print_subheader "Routes protégées GDPR"
-        # Export avec retry si 500
-        exp_code=$(curl -k -s -o /tmp/gdpr_export.json -w '%{http_code}' -H "Authorization: Bearer $token" "$BACKEND_URL/api/gdpr/export")
-        if [ "$exp_code" != "200" ]; then
-            sleep 1
-            exp_code=$(curl -k -s -o /tmp/gdpr_export.json -w '%{http_code}' -H "Authorization: Bearer $token" "$BACKEND_URL/api/gdpr/export")
-        fi
-        if [ "$exp_code" = "200" ]; then
-            print_success "GDPR Export"
-        else
-            print_error "GDPR Export (code $exp_code)"; sed 's/^/  /' /tmp/gdpr_export.json | head -40
-        fi
-        http_code_test "GDPR Anonymize" 200 "curl -k -s -X POST -H 'Authorization: Bearer $token' -H 'Content-Type: application/json' -d '{\"confirmation\":\"I_UNDERSTAND_THIS_IS_IRREVERSIBLE\"}' -o /dev/null $BACKEND_URL/api/gdpr/anonymize"
-        http_code_test "GDPR Account Delete" 200 "curl -k -s -X DELETE -H 'Authorization: Bearer $token' -H 'Content-Type: application/json' -d '{\"confirmation\":\"DELETE_MY_ACCOUNT_PERMANENTLY\",\"reason\":\"privacy_concerns\"}' -o /dev/null $BACKEND_URL/api/gdpr/account"
+        print_subheader "Tests des routes GDPR authentifiées"
+
+        # Test d'export (nécessite un utilisateur en base)
+        run_test "GDPR Export" "curl -k -H 'Authorization: Bearer $token' $BACKEND_URL/api/gdpr/export"
+
+        # Test d'anonymisation
+        run_test "GDPR Anonymize" "curl -k -X POST $BACKEND_URL/api/gdpr/anonymize -H 'Authorization: Bearer $token' -H 'Content-Type: application/json' -d '{\"confirmation\":\"I_UNDERSTAND_THIS_IS_IRREVERSIBLE\"}'"
+
+        # Test de suppression de compte
+        run_test "GDPR Account Deletion" "curl -k -X DELETE $BACKEND_URL/api/gdpr/account -H 'Authorization: Bearer $token' -H 'Content-Type: application/json' -d '{\"confirmation\":\"DELETE_MY_ACCOUNT_PERMANENTLY\",\"reason\":\"privacy_concerns\"}'"
     else
-        print_error "Login / token échoué (code $login_code)"
-        echo "Réponse:"; sed 's/^/  /' /tmp/gdpr_login.json
+        print_error "Authentification : ÉCHEC"
+        print_warning "Tests GDPR authentifiés ignorés"
     fi
 
+    # Nettoyage final
     print_subheader "Nettoyage final"
-    docker-compose -f docker-compose.secure.yml exec -T db psql -U admin -d db_transcendence -c "DELETE FROM user_settings WHERE user_id IN (SELECT id FROM users WHERE email = 'test@example.com' OR username = 'testuser');" >/dev/null 2>&1 || true
-    docker-compose -f docker-compose.secure.yml exec -T db psql -U admin -d db_transcendence -c "DELETE FROM users WHERE email = 'test@example.com' OR username = 'testuser';" >/dev/null 2>&1 || true
+    docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM user_settings WHERE user_id IN (SELECT id FROM users WHERE email = 'test@example.com' OR username = 'testuser');" 2>/dev/null || true
+    docker compose exec -T db psql -U admin -d db_transcendence -c "DELETE FROM users WHERE email = 'test@example.com' OR username = 'testuser';" 2>/dev/null || true
     print_success "Nettoyage final terminé"
 }
 
@@ -296,7 +254,7 @@ test_database() {
     print_header "🗄️  TESTS BASE DE DONNÉES"
 
     print_subheader "Connexion à PostgreSQL"
-    if docker-compose -f docker-compose.secure.yml exec -T db psql -U admin -d db_transcendence -c "SELECT 1;" > /dev/null 2>&1; then
+    if docker-compose exec -T db psql -U admin -d db_transcendence -c "SELECT 1;" > /dev/null 2>&1; then
         print_success "Connexion PostgreSQL : RÉUSSIE"
     else
         print_error "Connexion PostgreSQL : ÉCHEC"
@@ -305,12 +263,12 @@ test_database() {
 
     print_subheader "Structure de la base"
     echo "Tables présentes :"
-    docker-compose -f docker-compose.secure.yml exec -T db psql -U admin -d db_transcendence -c "\dt" | sed 's/^/  /'
+    docker-compose exec -T db psql -U admin -d db_transcendence -c "\dt" | sed 's/^/  /'
 
     print_subheader "Comptage des enregistrements"
     tables=("users" "stats" "games" "friendships")
     for table in "${tables[@]}"; do
-        count=$(docker-compose -f docker-compose.secure.yml exec -T db psql -U admin -d db_transcendence -c "SELECT COUNT(*) FROM $table;" 2>/dev/null | grep -o '[0-9]*' | head -1)
+        count=$(docker-compose exec -T db psql -U admin -d db_transcendence -c "SELECT COUNT(*) FROM $table;" 2>/dev/null | grep -o '[0-9]*' | head -1)
         if [ -n "$count" ]; then
             echo "  $table : $count enregistrements"
         else
@@ -329,11 +287,12 @@ test_api_endpoints() {
     print_subheader "Test des endpoints principaux"
 
     # Test des endpoints GET
-    run_test "Application Root" "curl -k --connect-timeout 5 $BACKEND_URL/"
-    run_test "API Health" "curl -k --connect-timeout 5 $BACKEND_URL/api/health"
+    run_test "Backend Health" "curl -k --connect-timeout 5 $BACKEND_URL/healthcheck"
+    run_test "GDPR Test Route" "curl -k --connect-timeout 5 $BACKEND_URL/api/gdpr/test"
+    run_test "Vault Health" "curl -k --connect-timeout 5 $BACKEND_URL/api/vault/health"
 
-    # Test des endpoints POST (if available)
-    run_test "Auth Status" "curl -k -X GET --connect-timeout 5 $BACKEND_URL/api/auth/status"
+    # Test des endpoints POST
+    run_test "Auth Login" "curl -k -X POST --connect-timeout 5 $BACKEND_URL/api/auth/login -H 'Content-Type: application/json' -d '{\"username\":\"test\",\"password\":\"test\"}'"
 }
 
 # =============================================================================
@@ -349,7 +308,7 @@ test_performance() {
     total_time=0
     for i in {1..5}; do
         start_time=$(date +%s%N)
-        curl -k -s $BACKEND_URL/ > /dev/null
+        curl -k -s $BACKEND_URL/healthcheck > /dev/null
         end_time=$(date +%s%N)
         response_time=$(( (end_time - start_time) / 1000000 )) # Convertir en ms
         total_time=$((total_time + response_time))
@@ -373,10 +332,10 @@ test_performance() {
 # =============================================================================
 
 main() {
-    print_info "Démarrage des tests complets de ft_transcendence (PRODUCTION)..."
+    print_info "Démarrage des tests complets de ft_transcendence..."
     print_info "Date : $(date)"
-    print_info "Application URL : $BACKEND_URL"
-    print_info "Vault URL : $VAULT_URL"
+    print_info "Backend URL : $BACKEND_URL"
+    print_info "Frontend URL : $FRONTEND_URL"
     echo ""
 
     # Exécuter tous les tests
@@ -414,7 +373,7 @@ main() {
 
     echo ""
     print_info "Tests terminés à $(date)"
-    print_info "Pour relancer les tests : ./scripts/test-ft-transcendence.sh"
+    print_info "Pour relancer les tests : ./test-ft-transcendence.sh"
 }
 
 # Exécuter le script si appelé directement

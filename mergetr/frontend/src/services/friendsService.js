@@ -3,7 +3,7 @@
 // Fix: always send a JSON body when using method POST with application/json to avoid
 //      backend/body parser errors like: "Body cannot be empty when content-type is set to 'application/json'".
 
-const BACKEND_URL = import.meta.env?.VITE_BACKEND_URL || 'https://localhost:8443';
+const BACKEND_URL = import.meta.env?.VITE_BACKEND_URL || 'http://localhost:5001';
 
 // JSDoc typedefs to retain editor IntelliSense
 /**

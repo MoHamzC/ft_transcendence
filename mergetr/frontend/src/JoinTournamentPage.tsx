@@ -3,17 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import FuzzyText from './FuzzyText';
 import TargetCursor from './TargetCursor';
 import './TournamentTemp.css';
-import TournamentService from './services/tournamentService';
 
-type TempParticipant = { alias: string; player_slot?: number; is_authenticated?: boolean };
-
-interface TournamentTemp {
+interface Tournament {
   id: string;
   name: string;
   mode: string;
   max_players: number;
   status: string;
-  current_players?: number;
+  current_players: number;
 }
 
 const BACKEND_URL = 'http://localhost:5001';
@@ -21,216 +18,264 @@ const BACKEND_URL = 'http://localhost:5001';
 export default function JoinTournamentPage() {
   const { tournamentId } = useParams();
   const navigate = useNavigate();
-  const [tournament, setTournament] = useState<TournamentTemp | null>(null);
+  const [tournament, setTournament] = useState<Tournament | null>(null);
   const [aliases, setAliases] = useState<string[]>([]);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
-  const [persisted, setPersisted] = useState<boolean[]>([]);
+  const [persisted, setPersisted] = useState<boolean[]>([]); // slots already in DB
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-
-    void loadTournamentInfo();
+    loadTournamentInfo();
   }, [tournamentId]);
 
+  // Fetch current logged-in user (username) and prefill first alias
   useEffect(() => {
-
     const fetchUser = async () => {
       try {
+        // Try /api/players/me first (lightweight)
         let r = await fetch(`${BACKEND_URL}/api/players/me`, { credentials: 'include' });
-        if (!r.ok) r = await fetch(`${BACKEND_URL}/api/users/me`, { credentials: 'include' });
+        if (!r.ok) {
+          // Fallback to /api/users/me (full user route)
+          r = await fetch(`${BACKEND_URL}/api/users/me`, { credentials: 'include' });
+        }
         if (r.ok) {
           const data = await r.json();
           const name = data.name || data.username || data.user?.username || null;
-          if (name) setCurrentUser(name);
+          if (name) {
+            setCurrentUser(name);
+            // Prefill first alias only if not already filled
+            setAliases(prev => {
+              if (prev.length === 0) return prev; // wait tournament load
+              if (prev[0]) return prev; // don't overwrite manual input
+              const copy = [...prev];
+              copy[0] = name;
+              return copy;
+            });
+          }
         }
-      } catch (e) {
-        // ignore
-      }
+      } catch {/* silently ignore */}
     };
-    void fetchUser();
+    fetchUser();
   }, []);
 
-
-  useEffect(() => {
-    if (!currentUser) return;
-    if (!aliases || aliases.length === 0) return;
-    if (persisted && persisted[0]) return;
-
-    setAliases(prev => {
-      const copy = [...prev];
-      if (copy[0] === currentUser) return prev;
-      copy[0] = currentUser;
-      return copy;
-    });
-  }, [currentUser, persisted]);
-
   const loadTournamentInfo = async () => {
-    if (!tournamentId) return;
-    setError('');
     try {
+      const response = await fetch(`${BACKEND_URL}/api/tournament-temp/${tournamentId}`, {
+        credentials: 'include'
+      });
 
-      const res = await fetch(`${BACKEND_URL}/api/tournament-temp/${tournamentId}`, { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
+      if (response.ok) {
+        const data = await response.json();
         if (data.success) {
-          applyTempTournamentData(data.tournament, data.participants || []);
-          return;
+          setTournament(data.tournament);
+          const max = data.tournament.max_players;
+          const arr = Array(max).fill('') as string[];
+          const persistedArr = Array(max).fill(false) as boolean[];
+          if (data.participants && Array.isArray(data.participants)) {
+            // Positionner chaque participant déjà inscrit
+            data.participants.forEach((p:any, idx:number) => {
+              const slotIndex = (p.player_slot ? p.player_slot - 1 : idx);
+              if (slotIndex >=0 && slotIndex < max) {
+                arr[slotIndex] = p.alias;
+                persistedArr[slotIndex] = true;
+                // Si c'est l'utilisateur authentifié on retient son alias
+                if (p.is_authenticated && !currentUser) {
+                  setCurrentUser(p.alias);
+                }
+              }
+            });
+          }
+          // Si aucun participant authentifié encore détecté mais currentUser existe, préremplir slot 0
+          if (currentUser && !persistedArr[0]) {
+            arr[0] = currentUser;
+          }
+          setAliases(arr);
+          setPersisted(persistedArr);
         }
       }
-
-      try {
-        const details = await TournamentService.getTournamentDetails(tournamentId!);
-
-        const t: TournamentTemp = {
-          id: details.id,
-          name: details.name,
-          mode: details.mode,
-          max_players: details.max_players,
-          status: details.status,
-          current_players: details.participant_count || 0
-        };
-        const participants = (details.participants || []).map(p => ({ alias: p.alias } as TempParticipant));
-        applyTempTournamentData(t, participants);
-        return;
-      } catch (e) {
-
-      }
-
-      setError('Failed to load tournament (404)');
     } catch (err) {
       console.error('Error loading tournament:', err);
       setError('Failed to load tournament');
     }
   };
 
-  const applyTempTournamentData = (t: TournamentTemp, participants: TempParticipant[]) => {
-    setTournament(t);
-    const max = t.max_players || 2;
-    const arr = Array(max).fill('') as string[];
-    const persistedArr = Array(max).fill(false) as boolean[];
-    participants.forEach((p, idx) => {
-      const slot = (p.player_slot ? p.player_slot - 1 : idx);
-      if (slot >= 0 && slot < max) {
-        arr[slot] = p.alias || '';
-        persistedArr[slot] = true;
-        if (p.is_authenticated && !currentUser) setCurrentUser(p.alias || null);
-      }
-    });
-    if (currentUser && !persistedArr[0]) arr[0] = currentUser;
-    setAliases(arr);
-    setPersisted(persistedArr);
-  };
-
   const handleAliasChange = (index: number, value: string) => {
-    const copy = [...aliases];
-    copy[index] = value;
-    setAliases(copy);
+    const newAliases = [...aliases];
+    newAliases[index] = value;
+    setAliases(newAliases);
   };
 
   const joinTournamentWithAliases = async () => {
-    if (!tournament) return;
     const trimmed = aliases.map(a => a.trim());
+    // Vérifier uniquement les slots non persistés
     const missing = trimmed.some((a, i) => !persisted[i] && a === '');
-    if (missing) { setError('Fill all empty alias slots'); return; }
-    setLoading(true); setError(''); setSuccess('');
+
+    if (!tournament) return;
+    if (missing) {
+      setError('Fill all empty alias slots');
+      return;
+    }
+
+    // Ensure first alias matches logged-in user if available
+    if (currentUser && trimmed[0] && trimmed[0] !== currentUser) {
+      // Accept difference, but still treat first as permanent if user is logged and wants custom alias
+    }
+
     try {
+      setLoading(true);
+      setError('');
+      setSuccess('');
+
       for (let i = 0; i < trimmed.length; i++) {
-        if (persisted[i]) continue;
+        if (persisted[i]) continue; // déjà en DB
         const alias = trimmed[i];
-        const resp = await fetch(`${BACKEND_URL}/api/tournament-temp/${tournament.id}/join`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-          body: JSON.stringify({ alias, isTemporary: i === 0 ? !currentUser : true })
+        const response = await fetch(`${BACKEND_URL}/api/tournament-temp/${tournamentId}/join`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            alias,
+            // First slot: if user logged -> permanent (isTemporary false); else true
+            isTemporary: i === 0 ? !currentUser : true
+          })
         });
-        const data = await resp.json();
-        if (!data.success) { setError(data.error || 'Failed to join'); return; }
+
+        const data = await response.json();
+        if (!data.success) {
+          setError(data.error || `Failed to join with alias: ${alias}`);
+          return;
+        }
       }
 
-      try { await fetch(`${BACKEND_URL}/api/tournament-temp/${tournament.id}/start`, { method: 'POST', credentials: 'include' }); } catch {}
+      // Démarrer automatiquement le tournoi puis rediriger vers l'écran de jeu
+      try {
+        await fetch(`${BACKEND_URL}/api/tournament-temp/${tournamentId}/start`, { method:'POST', credentials:'include' });
+      } catch {}
       setSuccess('Players registered successfully! Starting...');
-      setTimeout(() => navigate(`/tournament/${tournament.id}/play`), 1000);
-    } catch (e) {
-      console.error(e); setError('Network error occurred');
-    } finally { setLoading(false); }
+      setTimeout(() => {
+        navigate(`/tournament/${tournamentId}/play`);
+      }, 1200);
+
+    } catch (err) {
+      console.error('Error joining tournament:', err);
+      setError('Network error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
-
-
+  const clearMessages = () => {
+    setError('');
+    setSuccess('');
+  };
 
   if (!tournament) {
     return (
-      <div className="tournament-container"><div className="loading">Loading tournament...</div></div>
+      <div className="tournament-container">
+        <div className="loading">Loading tournament...</div>
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <TargetCursor hideDefaultCursor={true} spinDuration={2} />
+    <div className="tournament-container" style={{ justifySelf: 'stretch', alignSelf: 'stretch' }}>
+      <TargetCursor spinDuration={2} hideDefaultCursor={true} />
 
-      <div className="max-w-4xl w-full mx-4 p-8">
-        <div className="flex items-center justify-between mb-8">
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <h1 className="text-white">
-              <div style={{ display: 'inline-block' }}>
-                <FuzzyText fontSize="clamp(1.5rem, 3.5vw, 3rem)">Join Tournament</FuzzyText>
-              </div>
-            </h1>
-            <div className="text-gray-400 mt-2">{tournament.mode.replace('_', ' ')} · {tournament.current_players ?? 0}/{tournament.max_players}</div>
+      <div className="tournament-header">
+        <h1><FuzzyText>Join Tournament</FuzzyText></h1>
+        <p>Enter aliases for players to join: {tournament.name}</p>
+      </div>
+
+      {error && (
+        <div className="message error-message">
+          {error}
+          <button onClick={clearMessages} className="close-btn">×</button>
+        </div>
+      )}
+
+      {success && (
+        <div className="message success-message">
+          {success}
+          <button onClick={clearMessages} className="close-btn">×</button>
+        </div>
+      )}
+
+      <div className="main-content">
+        <div className="section" style={{ maxWidth: '600px', margin: '0 auto' }}>
+          <div className="section-header">
+            <h2>{tournament.name}</h2>
+            <span className={`status ${tournament.status}`}>
+              {tournament.status}
+            </span>
           </div>
 
-          {/* <div className="text-right" style={{ width: 180 }}>
-            {currentUser ? (
-              <div className="text-sm text-green-300">{currentUser}</div>
-            ) : (
-              <div className="text-sm text-gray-400">Not connected</div>
-            )}
+          <div className="tournament-details">
+            <div className="detail-item">
+              <strong>Mode:</strong> {tournament.mode.replace('_', ' ')}
+            </div>
+            <div className="detail-item">
+              <strong>Max Players:</strong> {tournament.max_players}
+            </div>
+            <div className="detail-item">
+              <strong>Current Players:</strong> {tournament.current_players}
+            </div>
+          </div>
 
-          </div> */}
-        </div>
+          <div className="aliases-form">
+            <h3>Enter Player Aliases</h3>
+            <p>Fill in the aliases for players you want to add to the tournament:</p>
 
-        <div
-          className="group relative cursor-target active:scale-95 overflow-hidden mb-8"
-          style={{ background: 'oklch(25.7% 0.09 281.288)', borderRadius: '1rem' }}
-        >
-          <div className="absolute -inset-1 rounded-2xl blur opacity-20 group-hover:opacity-60 transition duration-500"></div>
-          <div className="relative backdrop-blur-sm rounded-2xl p-6 transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
-            <h3 className="mb-2 text-blue-300 group-hover:text-blue-200 transition-colors duration-300">{tournament.name}</h3>
-            <p className="text-gray-300 mb-4">Enter names for players to join this tournament.</p>
-
-            {error && <div className="px-4 py-2 rounded text-sm" style={{ background: 'rgba(255,40,40,0.08)', color: '#ff6b6b' }}>{error}</div>}
-            {success && <div className="px-4 py-2 rounded text-sm" style={{ background: 'rgba(0,200,0,0.06)', color: '#7ee787' }}>{success}</div>}
-
-            <div className="grid" style={{ gridTemplateColumns: tournament.max_players <= 4 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)', gap: 12, marginTop: 12 }}>
-              {aliases.map((a, idx) => (
-                <div key={idx} className="form-group">
-                  <label className="text-sm text-green-300">Player {idx + 1}</label>
+            <div className="aliases-grid" style={{
+              display: 'grid',
+              gridTemplateColumns: tournament.max_players <= 4 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)',
+              gap: '15px',
+              marginTop: '20px'
+            }}>
+              {aliases.map((alias, index) => (
+                <div key={index} className="form-group">
+                  <label>Player {index + 1}:</label>
                   <input
-                    className="px-4 py-3 rounded outline-none cursor-target text-white"
-                    style={{ backgroundColor: 'oklch(38% 0.189 293.745)' }}
-                    value={a}
-                    onChange={(e) => { if (currentUser && idx === 0) return; handleAliasChange(idx, e.target.value); }}
-                    disabled={!!currentUser && idx === 0}
+                    type="text"
+                    value={alias}
+                    onChange={(e) => {
+                      // Empêcher modification du pseudo de l'utilisateur connecté (slot 1)
+                      if (currentUser && index === 0) return;
+                      handleAliasChange(index, e.target.value);
+                    }}
+                    placeholder={`Alias for player ${index + 1}`}
+                    className="form-input"
+                    maxLength={50}
+                    disabled={!!currentUser && index === 0}
+                    style={currentUser && index === 0 ? { background:'#2a2a2a', color:'#888', cursor:'not-allowed' } : undefined}
                   />
-                  {currentUser && idx === 0 && (
-                    <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 6 }}>Connected username locked</div>
+                  {currentUser && index === 0 && (
+                    <div style={{ fontSize:'0.65rem', opacity:0.6, marginTop:'4px' }}>
+                      Connected username locked
+                    </div>
                   )}
                 </div>
               ))}
             </div>
 
-            <div className="mt-6 flex gap-4">
+            <div className="form-actions" style={{ marginTop: '30px', textAlign: 'center' }}>
               <button
-                onClick={() => {
-                  if (tournament) navigate(`/tournament/${tournament.id}/play`);
-                  void joinTournamentWithAliases();
-                }}
-                disabled={loading}
-                className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20 hover:scale-105 active:scale-95 transition-transform bg-green-300 text-white"
+                onClick={joinTournamentWithAliases}
+                className="action-btn join-btn"
+                disabled={loading || aliases.some((a,i)=> !persisted[i] && a.trim()==='')}
+                style={{ marginRight: '15px' }}
               >
                 {loading ? 'Joining...' : 'Join Tournament'}
               </button>
-
+              <button
+                onClick={() => navigate('/tournament')}
+                className="action-btn cancel-btn"
+              >
+                ← Back to Tournaments
+              </button>
             </div>
           </div>
         </div>

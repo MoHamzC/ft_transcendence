@@ -42,5 +42,5 @@ docker-compose ps
 echo ""
 echo "✅ Réinitialisation terminée!"
 echo "💡 Vous pouvez maintenant tester avec:"
-echo "   curl -k https://localhost:8443/healthz/database"
-echo "   curl -k -X POST https://localhost:8443/api/vault/init-dev-secrets"
+echo "   curl -k https://localhost:5001/healthz/database"
+echo "   curl -k -X POST https://localhost:5001/api/vault/init-dev-secrets"

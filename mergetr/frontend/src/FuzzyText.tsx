@@ -22,7 +22,7 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
   hoverIntensity = 0.5,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationFrameIdRef = useRef<number | undefined>(undefined);
+  const animationFrameIdRef = useRef<number>();
   const handlersRef = useRef<{
     handleMouseMove?: (e: MouseEvent) => void;
     handleMouseLeave?: () => void;
@@ -37,8 +37,8 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
     let isCancelled = false;
     let isHovering = false;
 
-  // Always cleanup listeners and animation before init
-  if (animationFrameIdRef.current !== undefined) window.cancelAnimationFrame(animationFrameIdRef.current);
+    // Always cleanup listeners and animation before init
+    window.cancelAnimationFrame(animationFrameIdRef.current);
     canvas.removeEventListener("mousemove", handlersRef.current.handleMouseMove as EventListener);
     canvas.removeEventListener("mouseleave", handlersRef.current.handleMouseLeave as EventListener);
     canvas.removeEventListener("touchmove", handlersRef.current.handleTouchMove as EventListener);
@@ -194,7 +194,7 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
 
     return () => {
       isCancelled = true;
-  if (animationFrameIdRef.current !== undefined) window.cancelAnimationFrame(animationFrameIdRef.current);
+      window.cancelAnimationFrame(animationFrameIdRef.current);
       canvas.removeEventListener("mousemove", handlersRef.current.handleMouseMove as EventListener);
       canvas.removeEventListener("mouseleave", handlersRef.current.handleMouseLeave as EventListener);
       canvas.removeEventListener("touchmove", handlersRef.current.handleTouchMove as EventListener);
@@ -211,7 +211,7 @@ const FuzzyText: React.FC<FuzzyTextProps> = ({
     hoverIntensity,
   ]);
 
-  return <canvas ref={canvasRef} style={{ display: 'block' }} />;
+  return <canvas ref={canvasRef} />;
 };
 
 export default FuzzyText;

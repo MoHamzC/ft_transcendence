@@ -120,19 +120,14 @@ const navigate = useNavigate();
               </p>
               <div className="flex flex-col gap-4">
                 <div className="relative w-full">
-                    <button
-                    onClick={() => {
-                      if (AIopponent) {
-                      window.location.href = '/export_pong3D/index.html?ia=true';
-                      } else {
-                      setShowJoin1v13d(true);
-                      }
-                    }}
+                  <button
+                    onClick={() => setShowJoin1v13d(true)}
                     className="block w-full text-center px-6 py-3 rounded-xl cursor-target border border-purple-500/20"
                     style={{ background: 'oklch(38% 0.189 293.745)', color: 'white' }}
-                    >
-                    Play NOW
-                    </button>
+					disabled={isLoading}
+                  >
+					{isLoading ? 'Loading...' : 'Play NOW'}
+                  </button>
                 </div>
                 <div className="flex items-center justify-center gap-2 mt-2">
                   <span className="text-sm text-gray-400">Play against an IA</span>
