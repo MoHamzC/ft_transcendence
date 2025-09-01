@@ -45,7 +45,7 @@ export default function SideMenu({ isLogged, setIsLogged }: any) {
               { label: 'Home', href: '/' },
               { label: 'Profile', href: '/profile' },
               // { label: 'Stats', href: '/stats' },
-              { label: 'Leaderboard', href: '/leaderbord' },
+              // { label: 'Leaderboard', href: '/leaderbord' },
               { label: 'Friends', href: '/friends' },
               // { label: 'Settings', href: '/settings' },
               { label: 'Logout', href: '/logout' }

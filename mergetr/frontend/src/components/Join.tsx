@@ -148,13 +148,34 @@ export default function Join({ isOpen, onClose, onStartMatch }: JoinProps) {
               disabled={loading}
             />
 
-            <div className="flex flex-col items-center">
-              <h4 className="mb-4 text-green-300">Controls</h4>
-              <div className="flex gap-2 mb-2 items-center">
-                <kbd className="px-2 py-1 bg-gray-800 rounded text-white hover:scale-150">W</kbd>
-                <span className="text-sm text-gray-300">up</span>
-                <kbd className="px-2 py-1 bg-gray-800 rounded text-white hover:scale-150">S</kbd>
-                <span className="text-sm text-gray-300">down</span>
+            <div className="w-full">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col items-center">
+                  <h4 className="mb-2 text-green-300">Player 1</h4>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="flex gap-2 items-center">
+                      <kbd className="px-2 py-1 bg-gray-800 rounded text-white">W</kbd>
+                      <span className="text-sm text-gray-300">up</span>
+                      <kbd className="px-2 py-1 bg-gray-800 rounded text-white">S</kbd>
+                      <span className="text-sm text-gray-300">down</span>
+                    </div>
+                   
+                   
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <h4 className="mb-2 text-green-300">Player 2</h4>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="flex gap-2 items-center">
+                      <kbd className="px-2 py-1 bg-gray-800 rounded text-white">↑</kbd>
+                      <span className="text-sm text-gray-300">up</span>
+                      <kbd className="px-2 py-1 bg-gray-800 rounded text-white">↓</kbd>
+                      <span className="text-sm text-gray-300">down</span>
+                    </div>
+                  
+                  </div>
+                </div>
               </div>
             </div>
 
