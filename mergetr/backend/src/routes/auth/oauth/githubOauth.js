@@ -112,6 +112,12 @@ async function handleGithubLogin(request, reply, githubUserData){
 		[result.rows[0].id]
 	)
 
+	// Créer les statistiques de l'utilisateur
+	await pool.query(
+		'INSERT INTO stats (user_id) VALUES ($1)',
+		[result.rows[0].id]
+	)
+
 	// Ajouter l'avatar GitHub dans user_settings si disponible
 	if (githubUserData.avatar_url) {
 		await pool.query(

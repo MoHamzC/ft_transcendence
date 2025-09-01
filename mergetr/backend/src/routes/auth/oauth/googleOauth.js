@@ -119,6 +119,12 @@ async function handleGoogleLogin(request, reply, googleUserData){
 		[result.rows[0].id]
 	)
 
+	// Créer les statistiques de l'utilisateur
+	await pool.query(
+		'INSERT INTO stats (user_id) VALUES ($1)',
+		[result.rows[0].id]
+	)
+
 	// Ajouter l'avatar Google dans user_settings si disponible
 	if (googleUserData.picture) {
 		await pool.query(

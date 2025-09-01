@@ -81,6 +81,11 @@ async function handleFtLogin(request, reply, ftUserData){
 		[result.rows[0].id]
 	)
 
+	await pool.query(
+		'INSERT INTO stats (user_id) VALUES ($1)',
+		[result.rows[0].id]
+	)
+
 	const addAvatar = await pool.query(
 		'UPDATE user_settings SET avatar_url = $1 WHERE user_id = $2 RETURNING avatar_url',
 		[ftUserData.image.versions.medium, result.rows[0].id]
