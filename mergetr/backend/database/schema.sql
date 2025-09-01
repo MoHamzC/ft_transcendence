@@ -93,9 +93,11 @@ CREATE TABLE IF NOT EXISTS user_settings (
     language VARCHAR(10) DEFAULT 'FR',
     add_friend BOOLEAN DEFAULT TRUE,
     profile_private BOOLEAN DEFAULT FALSE,
-    pong_color VARCHAR(7) DEFAULT '#FFFFFF',
+    pong_color VARCHAR(20) DEFAULT 'white' CHECK (pong_color IN ('blue', 'red', 'green', 'yellow', 'brown', 'black', 'white', 'pink', 'orange', 'purple', 'gray')),
     pong_skin_type VARCHAR(20) DEFAULT 'color' CHECK (pong_skin_type IN ('color', 'avatar'))
 );
+
+
 
 -- Table des tokens d'accès pour OAuth et sessions
 CREATE TABLE IF NOT EXISTS user_tokens (
