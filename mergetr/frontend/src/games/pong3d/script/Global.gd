@@ -21,8 +21,8 @@ var skin_PR_id: String = ""
 var skin_PR_name: String = "Player Right"
 
 # --- tournament ---
-var tournament_id: String = "fals"
-
+var tournament_id: String = "false"
+var match_id: String = ""
 # --- fonction pour décoder les paramètres URL ---
 func decode_param(s: String) -> String:
 	s = s.replace("%20", " ")
@@ -62,6 +62,7 @@ func _ready():
 
 			# Tournament
 			tournament_id = params.get("tournamentId", tournament_id)
+			match_id = params.get("matchId", match_id)
 
 
 	var file = FileAccess.open("res://gamecontrollerdb.txt", FileAccess.READ)

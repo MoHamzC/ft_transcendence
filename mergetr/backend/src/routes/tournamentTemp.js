@@ -222,7 +222,7 @@ export default async function tournamentTempRoutes(fastify, options) {
     });
 
     // Endpoint pour enregistrer le résultat d'un match (payload du moteur de jeu)
-    fastify.post('/match', async (request, reply) => {
+    fastify.post('/match-tournament', async (request, reply) => {
         try {
             const { tournamentId, matchId, playerWinner, playerLoser, playerWinnerScore, playerLoserScore } = request.body || {};
 

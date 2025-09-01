@@ -21,16 +21,16 @@ func on_goal_scored():
 
 		if Global.score_left > Global.score_right:
 			winner_name = "PlayerLeft"
-			winner_id = Global.skin_PL_id  # à remplacer par le vrai ID
+			winner_id = Global.skin_PL_id
 			loser_name = "PlayerRight"
-			loser_id = Global.skin_PR_id  # à remplacer par le vrai ID
+			loser_id = Global.skin_PR_id
 			score_winner = Global.score_left
 			score_loser = Global.score_right
 		else:
 			winner_name = "PlayerRight"
-			winner_id = Global.skin_PR_id # à remplacer par le vrai ID
+			winner_id = Global.skin_PR_id
 			loser_name = "PlayerLeft"
-			loser_id = Global.skin_PL_id  # à remplacer par le vrai ID
+			loser_id = Global.skin_PL_id
 			score_winner = Global.score_right
 			score_loser = Global.score_left
 
@@ -44,23 +44,21 @@ func on_goal_scored():
 		get_tree().change_scene_to_file("res://scene/victory_scene.tscn")
 
 func send_match_result(winner_name: String, winner_id: String, loser_name: String, loser_id: String, score_winner: int, score_loser: int) -> void:
-	# Vérification des IDs
 	if winner_id == "" or loser_id == "":
 		push_error("IDs de joueurs vides ! Winner: " + winner_id + ", Loser: " + loser_id)
 		return
 
 	var is_tournament: bool = Global.tournament_id != "" and Global.match_id != ""
-	var url = "http://localhost:5001/api/match"
+	var url = "http://localhost:8443/api/match"
 	var data := {
 		"playerWinner": winner_id,
 		"playerLoser": loser_id,
 		"playerWinnerScore": score_winner,
 		"playerLoserScore": score_loser,
 	}
+
 	if is_tournament:
-		# Utiliser la route unifiée backend /api/match-tournoi
-		url = "http://localhost:5001/api/match-tournoi"
-		# Pour l'API tournoi il faut les participant IDs (déjà fournis via PL_id / PR_id) + tournament/match ids
+		url = "http://localhost:8443/api/match-tournoi"
 		data = {
 			"tournamentId": Global.tournament_id,
 			"matchId": Global.match_id,
@@ -69,6 +67,7 @@ func send_match_result(winner_name: String, winner_id: String, loser_name: Strin
 			"playerWinnerScore": score_winner,
 			"playerLoserScore": score_loser,
 		}
+
 	var json_data := JSON.stringify(data)
 	print("=== MATCH RESULT DEBUG ===")
 	print("Is tournament:", is_tournament)
@@ -92,14 +91,14 @@ func _on_http_request_completed(result: int, response_code: int, headers: Packed
 	print("Response code:", response_code)
 	var body_str = body.get_string_from_utf8()
 	print("Response body:", body_str)
+
 	if response_code == 200 or response_code == 201:
 		print("Match result envoyé avec succès!")
-		# Déclenche une entrée localStorage pour notifier l'onglet tournoi (si bridge présent)
+		# Déclenche une entrée localStorage pour notifier l'onglet tournoi
 		if Engine.has_singleton("JavaScriptBridge") and Global.tournament_id != "":
 			var js = JavaScriptBridge.get_interface("window")
 			if js:
 				var key = "tournamentUpdate:" + Global.tournament_id
-				# Valeur aléatoire pour garantir un event
 				js.localStorage.setItem(key, str(Time.get_ticks_msec()))
 				print("Storage event triggered for tournament:", Global.tournament_id)
 	else:
