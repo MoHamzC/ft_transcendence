@@ -21,7 +21,7 @@ var skin_PR_id: String = ""
 var skin_PR_name: String = "Player Right"
 
 # --- tournament ---
-var tournament_id: String = ""
+var tournament_id: String = "false"
 
 # --- fonction pour décoder les paramètres URL ---
 func decode_param(s: String) -> String:
